@@ -13,7 +13,7 @@ export type RootStackParamList = {
 export type TabParamList = {
   index: undefined;
   explore: undefined;
-  'voice-help': undefined;
+  'voice-help-requests': undefined;
   bookings: undefined;
   profile: undefined;
 };

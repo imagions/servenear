@@ -201,7 +201,7 @@ export default function AIAssistanceScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => router.push('/voice-help')}
+              onPress={() => router.push('/voice-help-requests')}
             >
               <Mic size={20} color={COLORS.accent} />
             </TouchableOpacity>

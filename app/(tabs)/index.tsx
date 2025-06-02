@@ -155,7 +155,7 @@ export default function HomeScreen() {
                   <Text style={styles.badgeText}>3</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/voice-help')}>
+              <TouchableOpacity onPress={() => router.push('/voice-help-requests')}>
                 <MaterialIcons
                   name="record-voice-over"
                   size={24}
