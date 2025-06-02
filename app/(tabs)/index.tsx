@@ -255,7 +255,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.voiceHelpButton}
-          onPress={() => router.push('/voice-help')}
+          onPress={() => router.push('/ai-assistance')}
         >
           <MaterialIcons name="assistant" size={18} color="white" />
           <View style={{ width: 8 }} />

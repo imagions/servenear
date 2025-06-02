@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs } from 'expo-router';
 import {
   Chrome as Home,
@@ -8,7 +8,8 @@ import {
   User,
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import VoiceRecordModal from '@/components/VoiceRecordModal';
 
 function BoltBadge() {
   return (
@@ -19,6 +20,15 @@ function BoltBadge() {
 }
 
 export default function TabLayout() {
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  const handleVoiceSubmit = (audioUri) => {
+    // Handle the recorded audio
+    console.log('Audio recorded:', audioUri);
+    // Show success snackbar
+    // You might want to use a snackbar library like react-native-toast-message
+  };
+
   return (
     <>
       <Tabs
@@ -56,17 +66,22 @@ export default function TabLayout() {
           name="voice-help"
           options={{
             title: '',
-            tabBarIcon: ({ color }) => (
-              <View style={styles.floatingButton}>
+            tabBarIcon: ({ focused }) => (
+              <TouchableOpacity
+                style={styles.floatingButton}
+                onPress={() => setShowVoiceModal(true)}
+              >
                 <Mic size={24} color="white" />
-              </View>
+              </TouchableOpacity>
             ),
             tabBarIconStyle: {
               marginTop: -20,
             },
-            tabBarLabelStyle: {
-              fontSize: 12,
-              marginTop: -15,
+          }}
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault();
+              setShowVoiceModal(true);
             },
           }}
         />
@@ -86,6 +101,12 @@ export default function TabLayout() {
         />
       </Tabs>
       <BoltBadge />
+
+      <VoiceRecordModal
+        visible={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onSubmit={handleVoiceSubmit}
+      />
     </>
   );
 }
