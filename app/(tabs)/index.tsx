@@ -132,7 +132,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right']}
+      edges={['top', 'left', 'right',]}
       style={{
         backgroundColor: COLORS.background,
       }}

@@ -1,33 +1,58 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, Modal, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+} from 'react-native';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedProps,
+  Easing,
+  withSpring,
+  cancelAnimation,
+  runOnJS,
+} from 'react-native-reanimated';
+import Svg, { Circle } from 'react-native-svg';
 import { COLORS, SHADOWS } from '@/constants/theme';
-import { Mic } from 'lucide-react-native';
+import { Mic, X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 
-const RECORD_LIMIT = 15000; // 15 seconds
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const RECORD_LIMIT = 15000;
+const CIRCLE_LENGTH = Math.PI * 2 * 47; // 2πr
 
 export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
   const [isRecording, setIsRecording] = useState(false);
   const [timeLeft, setTimeLeft] = useState(RECORD_LIMIT / 1000);
   const [hasRecording, setHasRecording] = useState(false);
-  const progressAnim = useRef(new Animated.Value(0)).current;
   const recording = useRef(null);
   const timer = useRef(null);
   const progressAnimation = useRef(null);
 
+  // Replace Animated.Value with useSharedValue
+  const progress = useSharedValue(0);
+
   useEffect(() => {
-    // Reset state when modal becomes visible
     if (visible) {
       setTimeLeft(RECORD_LIMIT / 1000);
       setHasRecording(false);
-      progressAnim.setValue(0);
+      progress.value = 0;
     }
     return () => {
       if (timer.current) clearInterval(timer.current);
-      if (progressAnimation.current) progressAnimation.current.stop();
     };
   }, [visible]);
+
+  // Use animatedProps for the circle animation
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: CIRCLE_LENGTH * (1 - progress.value),
+  }));
 
   const startRecording = async () => {
     try {
@@ -43,18 +68,18 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      
+
       recording.current = newRecording;
       setIsRecording(true);
       setTimeLeft(RECORD_LIMIT / 1000);
 
       // Start progress animation
-      progressAnimation.current = Animated.timing(progressAnim, {
-        toValue: 1,
+      progress.value = 0;
+      progressAnimation.current = withTiming(1, {
         duration: RECORD_LIMIT,
-        useNativeDriver: false,
+        easing: Easing.linear,
       });
-      progressAnimation.current.start();
+      progress.value = progressAnimation.current;
 
       // Start countdown timer
       timer.current = setInterval(() => {
@@ -77,12 +102,12 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
         clearInterval(timer.current);
         timer.current = null;
       }
+
+      // Stop the animation at current position
       if (progressAnimation.current) {
-        progressAnimation.current.stop();
+        cancelAnimation(progress);
       }
-      
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      
+
       if (recording.current) {
         await recording.current.stopAndUnloadAsync();
         setHasRecording(true);
@@ -101,14 +126,34 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
     }
   };
 
-  const formatTime = (seconds) => {
-    return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+  const resetState = () => {
+    setIsRecording(false);
+    setTimeLeft(RECORD_LIMIT / 1000);
+    setHasRecording(false);
+    progress.value = 0; // Only reset progress when starting a new recording
+    if (recording.current) {
+      recording.current = null;
+    }
   };
 
-  const getProgressRotation = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg']
-  });
+  const handlePressIn = () => {
+    if (!isRecording) {
+      resetState();
+      startRecording();
+    }
+  };
+
+  const handlePressOut = () => {
+    if (isRecording) {
+      stopRecording();
+    }
+  };
+
+  const formatTime = (seconds) => {
+    return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(
+      Math.floor(seconds % 60)
+    ).padStart(2, '0')}`;
+  };
 
   return (
     <Modal
@@ -117,53 +162,80 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={onClose}
+        style={styles.modalContainer}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={(e) => e.stopPropagation()}
+          style={styles.modalContent}
+        >
           <Text style={styles.title}>
-            {isRecording ? 'Recording...' : hasRecording ? 'Ready to submit' : 'Hold to record'}
+            {isRecording
+              ? 'Recording...'
+              : hasRecording
+              ? 'Perfect! Ready to submit?'
+              : 'Hold to record your request'}
           </Text>
-          
+
           <View style={styles.recordButton}>
-            <Animated.View style={[
-              styles.progressRing,
-              {
-                transform: [{ rotate: getProgressRotation }]
-              }
-            ]}>
-              <View style={styles.progressIndicator} />
-            </Animated.View>
-            
+            <Svg width={120} height={120}>
+              {/* Background Circle */}
+              <Circle
+                cx={60}
+                cy={60}
+                r={47}
+                stroke={COLORS.accent + '20'}
+                strokeWidth={4}
+                fill="transparent"
+                transform="rotate(-90, 60, 60)"
+              />
+              {/* Progress Circle */}
+              <AnimatedCircle
+                cx={60}
+                cy={60}
+                r={47}
+                stroke={COLORS.accent}
+                strokeWidth={4}
+                fill="transparent"
+                strokeDasharray={CIRCLE_LENGTH}
+                animatedProps={animatedProps}
+                strokeLinecap="round"
+                transform="rotate(-90, 60, 60)"
+              />
+            </Svg>
+
             <Pressable
-              onPressIn={!hasRecording ? startRecording : null}
-              onPressOut={isRecording ? stopRecording : null}
-              style={[
-                styles.micButton,
-                isRecording && styles.recordingButton
-              ]}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              style={[styles.micButton, isRecording && styles.recordingButton]}
             >
               <Mic size={32} color="white" />
+              {isRecording && (
+                <Text style={styles.timerText}>{Math.floor(timeLeft)}s</Text>
+              )}
             </Pressable>
           </View>
 
-          {isRecording && (
-            <Text style={styles.timer}>{formatTime(timeLeft)}</Text>
-          )}
-
-          {hasRecording && (
-            <Pressable style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.submitText}>Submit</Text>
-            </Pressable>
-          )}
+          <Pressable
+            style={styles.submitButton}
+            onPress={handleSubmit}
+            disabled={!hasRecording}
+          >
+            <Text style={styles.submitText}>Submit Recording</Text>
+          </Pressable>
 
           <Text style={styles.hint}>
-            {isRecording 
+            {isRecording
               ? 'Release to stop recording'
-              : hasRecording 
-                ? 'Tap submit to continue'
-                : 'Press and hold to record'}
+              : hasRecording
+              ? 'Press and hold mic to re-record'
+              : 'Press and hold the mic button'}
           </Text>
-        </View>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }
@@ -196,24 +268,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  progressRing: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-    borderWidth: 4,
-    borderColor: COLORS.accent + '40',
-  },
-  progressIndicator: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.accent,
-  },
   micButton: {
+    position: 'absolute',
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -226,12 +282,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5252',
     transform: [{ scale: 1.1 }],
   },
-  timer: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  timerText: {
+    position: 'absolute',
+    bottom: -24,
     color: COLORS.text.heading,
-    marginBottom: 16,
-    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
   },
   submitButton: {
     backgroundColor: COLORS.accent,
@@ -239,12 +295,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 24,
     marginBottom: 16,
+    marginTop: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   submitText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
+  },
+  submitTextDisabled: {
+    color: '#9E9E9E',
   },
   hint: {
     fontSize: 14,

@@ -36,9 +36,6 @@ export default function TabLayout() {
           tabBarActiveTintColor: COLORS.accent,
           tabBarInactiveTintColor: '#A0A0A0',
           tabBarStyle: {
-            height: 60,
-            paddingBottom: 8,
-            paddingTop: 8,
             position: 'relative',
           },
           tabBarShowLabel: true,
