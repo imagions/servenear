@@ -26,6 +26,7 @@ export interface ServiceItem {
   rating: number;
   reviewCount: number;
   price: number;
+  fixedPrice: number;
   image: string;
   distance: number;
   location: ServiceLocation;

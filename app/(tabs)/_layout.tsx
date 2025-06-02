@@ -37,6 +37,8 @@ export default function TabLayout() {
           tabBarInactiveTintColor: '#A0A0A0',
           tabBarStyle: {
             position: 'relative',
+            borderTopWidth: 0,
+            elevation: 0,
           },
           tabBarShowLabel: true,
           tabBarLabelStyle: {

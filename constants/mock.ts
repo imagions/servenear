@@ -67,6 +67,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.8,
     reviewCount: 156,
     price: 85,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     distance: 2.4,
     location: {
@@ -95,6 +96,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.9,
     reviewCount: 203,
     price: 95,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     distance: 3.1,
     location: {
@@ -123,6 +125,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.7,
     reviewCount: 178,
     price: 40,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
     distance: 1.8,
     location: {
@@ -151,6 +154,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.6,
     reviewCount: 126,
     price: 75,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/4246197/pexels-photo-4246197.jpeg',
     distance: 4.2,
     location: {
@@ -179,6 +183,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.9,
     reviewCount: 215,
     price: 120,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
     distance: 2.7,
     location: {
@@ -207,6 +212,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.8,
     reviewCount: 187,
     price: 65,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
     distance: 3.5,
     location: {
@@ -235,6 +241,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.9,
     reviewCount: 143,
     price: 50,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/3795221/pexels-photo-3795221.jpeg',
     distance: 2.2,
     location: {
@@ -263,6 +270,7 @@ export const mockServices: ServiceItem[] = [
     rating: 4.7,
     reviewCount: 192,
     price: 25,
+    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
     distance: 1.5,
     location: {
