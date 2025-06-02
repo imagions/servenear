@@ -1,19 +1,33 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Modal, Pressable } from 'react-native';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import { Mic } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av'; // Changed from expo-audio to expo-av
+import { Audio } from 'expo-av';
 
 const RECORD_LIMIT = 15000; // 15 seconds
 
 export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(RECORD_LIMIT / 1000);
   const [hasRecording, setHasRecording] = useState(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const recording = useRef(null);
   const timer = useRef(null);
+  const progressAnimation = useRef(null);
+
+  useEffect(() => {
+    // Reset state when modal becomes visible
+    if (visible) {
+      setTimeLeft(RECORD_LIMIT / 1000);
+      setHasRecording(false);
+      progressAnim.setValue(0);
+    }
+    return () => {
+      if (timer.current) clearInterval(timer.current);
+      if (progressAnimation.current) progressAnimation.current.stop();
+    };
+  }, [visible]);
 
   const startRecording = async () => {
     try {
@@ -32,23 +46,26 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       
       recording.current = newRecording;
       setIsRecording(true);
+      setTimeLeft(RECORD_LIMIT / 1000);
 
       // Start progress animation
-      Animated.timing(progressAnim, {
+      progressAnimation.current = Animated.timing(progressAnim, {
         toValue: 1,
         duration: RECORD_LIMIT,
         useNativeDriver: false,
-      }).start();
+      });
+      progressAnimation.current.start();
 
-      // Start timer
-      let startTime = Date.now();
+      // Start countdown timer
       timer.current = setInterval(() => {
-        const duration = Date.now() - startTime;
-        setRecordingDuration(duration);
-        if (duration >= RECORD_LIMIT) {
-          stopRecording();
-        }
-      }, 100);
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            stopRecording();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
       console.error('Failed to start recording', err);
     }
@@ -56,7 +73,16 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
 
   const stopRecording = async () => {
     try {
+      if (timer.current) {
+        clearInterval(timer.current);
+        timer.current = null;
+      }
+      if (progressAnimation.current) {
+        progressAnimation.current.stop();
+      }
+      
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
       if (recording.current) {
         await recording.current.stopAndUnloadAsync();
         setHasRecording(true);
@@ -64,9 +90,7 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
     } catch (err) {
       console.error('Failed to stop recording', err);
     }
-    clearInterval(timer.current);
     setIsRecording(false);
-    progressAnim.setValue(0);
   };
 
   const handleSubmit = async () => {
@@ -74,9 +98,17 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       const uri = recording.current.getURI();
       onSubmit(uri);
       onClose();
-      // Show success snackbar handled by parent
     }
   };
+
+  const formatTime = (seconds) => {
+    return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+  };
+
+  const getProgressRotation = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
 
   return (
     <Modal
@@ -95,12 +127,11 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
             <Animated.View style={[
               styles.progressRing,
               {
-                borderColor: progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [COLORS.accent + '40', COLORS.accent]
-                })
+                transform: [{ rotate: getProgressRotation }]
               }
-            ]} />
+            ]}>
+              <View style={styles.progressIndicator} />
+            </Animated.View>
             
             <Pressable
               onPressIn={!hasRecording ? startRecording : null}
@@ -114,6 +145,10 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
             </Pressable>
           </View>
 
+          {isRecording && (
+            <Text style={styles.timer}>{formatTime(timeLeft)}</Text>
+          )}
+
           {hasRecording && (
             <Pressable style={styles.submitButton} onPress={handleSubmit}>
               <Text style={styles.submitText}>Submit</Text>
@@ -122,7 +157,7 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
 
           <Text style={styles.hint}>
             {isRecording 
-              ? `${Math.round(recordingDuration / 1000)}s / ${RECORD_LIMIT/1000}s`
+              ? 'Release to stop recording'
               : hasRecording 
                 ? 'Tap submit to continue'
                 : 'Press and hold to record'}
@@ -169,6 +204,15 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: COLORS.accent + '40',
   },
+  progressIndicator: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.accent,
+  },
   micButton: {
     width: 80,
     height: 80,
@@ -181,6 +225,13 @@ const styles = StyleSheet.create({
   recordingButton: {
     backgroundColor: '#FF5252',
     transform: [{ scale: 1.1 }],
+  },
+  timer: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    marginBottom: 16,
+    fontFamily: 'Inter-Bold',
   },
   submitButton: {
     backgroundColor: COLORS.accent,
