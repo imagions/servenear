@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-audio';
 import { router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { ArrowLeft, Mic, CirclePause as PauseCircle } from 'lucide-react-native';
@@ -32,16 +32,41 @@ export default function VoiceHelpScreen() {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
 
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({
+      const permission = await Audio.requestPermissionsAsync();
+      if (permission.status !== 'granted') {
+        return;
+      }
+
+      await Audio.setModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
       });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      const recordingOptions = {
+        isMeteringEnabled: true,
+        android: {
+          extension: '.m4a',
+          outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+          audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+          sampleRate: 44100,
+          numberOfChannels: 2,
+          bitRate: 128000,
+        },
+        ios: {
+          extension: '.m4a',
+          audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+          sampleRate: 44100,
+          numberOfChannels: 2,
+          bitRate: 128000,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+      };
 
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
+      
       setRecording(recording);
       setIsRecording(true);
       setRecordingDuration(0);

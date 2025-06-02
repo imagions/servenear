@@ -1,6 +1,12 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Search, Mic, Calendar, User } from 'lucide-react-native';
+import {
+  Chrome as Home,
+  Search,
+  Mic,
+  Calendar,
+  User,
+} from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -23,13 +29,15 @@ export default function TabLayout() {
             height: 60,
             paddingBottom: 8,
             paddingTop: 8,
+            position: 'relative',
           },
           tabBarShowLabel: true,
           tabBarLabelStyle: {
             fontSize: 12,
           },
           headerShown: false,
-        }}>
+        }}
+      >
         <Tabs.Screen
           name="index"
           options={{
@@ -47,8 +55,19 @@ export default function TabLayout() {
         <Tabs.Screen
           name="voice-help"
           options={{
-            title: 'Help',
-            tabBarIcon: ({ color }) => <Mic size={24} color={color} />,
+            title: '',
+            tabBarIcon: ({ color }) => (
+              <View style={styles.floatingButton}>
+                <Mic size={24} color="white" />
+              </View>
+            ),
+            tabBarIconStyle: {
+              marginTop: -20,
+            },
+            tabBarLabelStyle: {
+              fontSize: 12,
+              marginTop: -15,
+            },
           }}
         />
         <Tabs.Screen
@@ -87,5 +106,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 10,
     fontWeight: 'bold',
+  },
+  floatingButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+    elevation: 4,
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
 });

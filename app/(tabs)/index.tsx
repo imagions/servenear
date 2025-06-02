@@ -1,72 +1,95 @@
 import React, { useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
   TextInput,
-  FlatList
+  FlatList,
 } from 'react-native';
 import { router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
-import { Search, Bell, MapPin, Star } from 'lucide-react-native';
+import {
+  Search,
+  Bell,
+  MapPin,
+  Star,
+  Mic,
+  ShoppingCart,
+} from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ServiceCategory, TrendingService } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const { categories, trendingServices, nearbyServices, fetchCategories, fetchTrendingServices, fetchNearbyServices } = useServiceStore();
+  const {
+    categories,
+    trendingServices,
+    nearbyServices,
+    fetchCategories,
+    fetchTrendingServices,
+    fetchNearbyServices,
+  } = useServiceStore();
   const { user } = useAuthStore();
-  
+
   useEffect(() => {
     fetchCategories();
     fetchTrendingServices();
-    
+
     // Request location permissions and fetch nearby services
     const getLocationAndServices = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({});
         fetchNearbyServices({
           latitude: location.coords.latitude,
-          longitude: location.coords.longitude
+          longitude: location.coords.longitude,
         });
       } else {
         // Use default location if permission not granted
         fetchNearbyServices({
           latitude: 37.7749,
-          longitude: -122.4194
+          longitude: -122.4194,
         });
       }
     };
-    
+
     getLocationAndServices();
   }, []);
 
   const renderCategoryItem = ({ item }: { item: ServiceCategory }) => (
-    <TouchableOpacity 
-      style={styles.categoryItem} 
-      onPress={() => router.push(`/category/${item.id}`)}>
+    <TouchableOpacity
+      style={styles.categoryItem}
+      onPress={() => router.push(`/category/${item.id}`)}
+    >
       <View style={styles.categoryIcon}>
-        <MaterialIcons name={item.icon} size={28} color={COLORS.accent} />
+        <MaterialIcons
+          name={item.icon as any}
+          size={28}
+          color={COLORS.accent}
+        />
       </View>
       <Text style={styles.categoryName}>{item.name}</Text>
     </TouchableOpacity>
   );
 
   const renderTrendingItem = ({ item }: { item: TrendingService }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.trendingItem}
-      onPress={() => router.push(`/service/${item.id}`)}>
+      onPress={() => router.push(`/service/${item.id}`)}
+    >
       <Image source={{ uri: item.image }} style={styles.trendingImage} />
       <View style={styles.trendingContent}>
         <View style={styles.trendingHeader}>
-          <Text style={styles.trendingTitle} numberOfLines={1}>{item.title}</Text>
+          <Text style={styles.trendingTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
           <View style={styles.ratingContainer}>
             <Star size={14} color="#FFB800" fill="#FFB800" />
             <Text style={styles.ratingText}>{item.rating}</Text>
@@ -85,13 +108,16 @@ export default function HomeScreen() {
   );
 
   const renderNearbyItem = ({ item }: { item: TrendingService }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.nearbyItem}
-      onPress={() => router.push(`/service/${item.id}`)}>
+      onPress={() => router.push(`/service/${item.id}`)}
+    >
       <Image source={{ uri: item.image }} style={styles.nearbyImage} />
       <View style={styles.nearbyOverlay}>
         <View style={styles.nearbyContent}>
-          <Text style={styles.nearbyTitle} numberOfLines={1}>{item.title}</Text>
+          <Text style={styles.nearbyTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
           <View style={styles.nearbyInfo}>
             <View style={styles.nearbyRating}>
               <Star size={12} color="#FFB800" fill="#FFB800" />
@@ -105,127 +131,151 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Hi {user?.name || 'there'}!</Text>
-            <View style={styles.locationRow}>
-              <MapPin size={16} color={COLORS.accent} />
-              <Text style={styles.locationText}>San Francisco, CA</Text>
-            </View>
-          </View>
-          
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Bell size={24} color={COLORS.text.heading} />
-              <View style={styles.notificationBadge} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.profileButton}
-              onPress={() => router.push('/profile')}>
-              <Image 
-                source={{ uri: user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg' }} 
-                style={styles.profileImage} 
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        <View style={styles.searchContainer}>
-          <Search size={20} color="#9E9E9E" />
-          <TextInput 
-            style={styles.searchInput} 
-            placeholder="Search for services..." 
-            placeholderTextColor="#9E9E9E"
-            onFocus={() => router.push('/explore')}
-          />
-        </View>
-        
-        <View style={styles.categorySection}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <FlatList
-            data={categories}
-            renderItem={renderCategoryItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryList}
-          />
-        </View>
-        
-        <View style={styles.nearbySection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Near You</Text>
-            <TouchableOpacity onPress={() => router.push('/explore')}>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={nearbyServices}
-            renderItem={renderNearbyItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.nearbyList}
-          />
-        </View>
-        
-        <View style={styles.trendingSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Trending Now</Text>
-            <TouchableOpacity onPress={() => router.push('/explore')}>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.trendingList}>
-            {trendingServices.map((item) => (
-              <View key={item.id} style={styles.trendingItemWrapper}>
-                {renderTrendingItem({ item })}
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={{
+        backgroundColor: COLORS.background,
+      }}
+    >
+      <View style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greeting}>Hi {user?.name || 'there'}!</Text>
+              <View style={styles.locationRow}>
+                <MapPin size={16} color={COLORS.accent} />
+                <Text style={styles.locationText}>San Francisco, CA</Text>
               </View>
-            ))}
-          </View>
-        </View>
-        
-        <View style={styles.bannerSection}>
-          <View style={styles.banner}>
-            <View style={styles.bannerContent}>
-              <Text style={styles.bannerTitle}>Become a Service Provider</Text>
-              <Text style={styles.bannerText}>Share your skills and earn extra income</Text>
-              <TouchableOpacity 
-                style={styles.bannerButton}
-                onPress={() => router.push('/add-service')}>
-                <Text style={styles.bannerButtonText}>Get Started</Text>
+            </View>
+
+            <View style={styles.headerActions}>
+              <TouchableOpacity onPress={() => router.push('/notifications')}>
+                <Bell size={24} color={COLORS.text.heading} />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>3</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/voice-help')}>
+                <MaterialIcons
+                  name="record-voice-over"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/cart')}>
+                <ShoppingCart size={24} color={COLORS.text.heading} />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>2</Text>
+                </View>
               </TouchableOpacity>
             </View>
-            <Image 
-              source={{ uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg' }} 
-              style={styles.bannerImage}
+          </View>
+
+          <View style={styles.searchContainer}>
+            <Search size={20} color={COLORS.accent} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search services nearby"
+              placeholderTextColor="#9E9E9E"
+              onFocus={() => router.push('/explore')}
             />
           </View>
-        </View>
-      </ScrollView>
-      
-      <TouchableOpacity 
-        style={styles.voiceHelpButton} 
-        onPress={() => router.push('/voice-help')}>
-        <MaterialIcons name="mic" size={28} color="white" />
-      </TouchableOpacity>
-    </View>
+
+          <View style={styles.categorySection}>
+            <Text style={styles.sectionTitle}>Categories</Text>
+            <FlatList
+              data={categories}
+              renderItem={renderCategoryItem}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryList}
+            />
+          </View>
+
+          <View style={styles.nearbySection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Near You</Text>
+              <TouchableOpacity onPress={() => router.push('/explore')}>
+                <Text style={styles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={nearbyServices}
+              renderItem={renderNearbyItem}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.nearbyList}
+            />
+          </View>
+
+          <View style={styles.trendingSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Trending Now</Text>
+              <TouchableOpacity onPress={() => router.push('/explore')}>
+                <Text style={styles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.trendingList}>
+              {trendingServices.map((item) => (
+                <View key={item.id} style={styles.trendingItemWrapper}>
+                  {renderTrendingItem({ item })}
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.bannerSection}>
+            <View style={styles.banner}>
+              <View style={styles.bannerContent}>
+                <Text style={styles.bannerTitle}>
+                  Become a Service Provider
+                </Text>
+                <Text style={styles.bannerText}>
+                  Share your skills and earn extra income
+                </Text>
+                <TouchableOpacity
+                  style={styles.bannerButton}
+                  onPress={() => router.push('/add-service')}
+                >
+                  <Text style={styles.bannerButtonText}>Get Started</Text>
+                </TouchableOpacity>
+              </View>
+              <Image
+                source={{
+                  uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg',
+                }}
+                style={styles.bannerImage}
+              />
+            </View>
+          </View>
+        </ScrollView>
+
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.voiceHelpButton}
+          onPress={() => router.push('/voice-help')}
+        >
+          <MaterialIcons name="assistant" size={18} color="white" />
+          <View style={{ width: 8 }} />
+          <Text style={{ color: 'white', fontSize: 15 }}>AI Help</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: COLORS.background,
+    marginTop: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
     paddingBottom: 20,
   },
   greeting: {
@@ -248,25 +298,24 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 20,
   },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: COLORS.accent,
+    borderRadius: 10,
+    minWidth: 13,
+    height: 13,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-    ...SHADOWS.card,
   },
-  notificationBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FF5252',
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
   },
   profileButton: {
     width: 40,
@@ -279,16 +328,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     marginHorizontal: 20,
-    marginVertical: 16,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    ...SHADOWS.card,
+    paddingVertical: 1,
+    // Updated shadow properties to match the desired effect
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 16,
   },
   searchInput: {
     flex: 1,
@@ -524,13 +579,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   voiceHelpButton: {
+    flexDirection: 'row',
     position: 'absolute',
-    bottom: 80,
+    bottom: 30,
     right: 20,
-    width: 60,
-    height: 60,
     borderRadius: 30,
     backgroundColor: COLORS.accent,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.card,

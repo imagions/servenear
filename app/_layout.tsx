@@ -41,11 +41,12 @@ export default function RootLayout() {
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
+        {/* {!isAuthenticated ? (
           <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
         ) : (
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-        )}
+        )} */}
+        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="service/[id]" />
         <Stack.Screen name="category/[id]" />
