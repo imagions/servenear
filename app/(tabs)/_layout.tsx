@@ -111,7 +111,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   boltBadgeContainer: {
     position: 'absolute',
-    bottom: 70,
+    bottom: 60,
     right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingHorizontal: 8,

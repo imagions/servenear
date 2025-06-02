@@ -33,6 +33,24 @@ export interface ServiceItem {
   ratings: ServiceRatings;
 }
 
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  provider: string;
+  rating: number;
+  distance: string;
+  image: string;
+  category: string;
+  subcategory: {
+    name: string;
+    icon: string;
+  };
+  lat: number;
+  long: number;
+}
+
 export interface ServiceCategory {
   id: string;
   name: string;

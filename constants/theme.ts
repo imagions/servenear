@@ -5,7 +5,10 @@ export const COLORS = {
   text: {
     heading: '#000000',
     body: '#4A4A4A'
-  }
+  },
+  disabledSubmit: '#d0d0d0',
+  ripple: 'rgba(0, 0, 0, 0.1)',  // Android ripple effect color
+  disabledRipple: 'rgba(0, 0, 0, 0.05)',
 };
 
 export const SHADOWS = {

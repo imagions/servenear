@@ -220,7 +220,14 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
           </View>
 
           <Pressable
-            style={styles.submitButton}
+            style={[
+              styles.submitButton,
+              {
+                backgroundColor: !hasRecording
+                  ? COLORS.disabledSubmit
+                  : COLORS.accent,
+              },
+            ]}
             onPress={handleSubmit}
             disabled={!hasRecording}
           >
@@ -290,7 +297,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
   },
   submitButton: {
-    backgroundColor: COLORS.accent,
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 24,
