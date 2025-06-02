@@ -44,7 +44,79 @@ const INITIAL_NOTIFICATIONS = [
     icon: 'tag',
     color: '#F44336',
   },
-  // ...add remaining notifications following the same pattern
+  {
+    id: '3',
+    type: 'booking',
+    title: 'Booking Confirmed',
+    message:
+      'Your AC Service booking has been confirmed for tomorrow at 10:00 AM',
+    time: '2m ago',
+    icon: 'check-circle',
+    color: '#4CAF50', // Green
+  },
+  {
+    id: '4',
+    type: 'offer',
+    title: 'Special Discount',
+    message: 'Get 20% off on all Beauty services this weekend!',
+    time: '1h ago',
+    icon: 'tag',
+    color: '#F44336', // Red
+  },
+  {
+    id: '5',
+    type: 'chat',
+    title: 'New Message',
+    message: "Rajesh: I'll be there in 15 minutes",
+    time: '2h ago',
+    icon: 'message-circle',
+    color: '#2196F3', // Blue
+  },
+  {
+    id: '6',
+    type: 'service',
+    title: 'New Service Available',
+    message: 'Try our new Car Washing service at your doorstep',
+    time: '5h ago',
+    icon: 'gift',
+    color: '#9C27B0', // Purple
+  },
+  {
+    id: '7',
+    type: 'payment',
+    title: 'Payment Successful',
+    message: 'Payment of ₹799 received for AC Service',
+    time: '1d ago',
+    icon: 'credit-card',
+    color: '#4CAF50', // Green
+  },
+  {
+    id: '8',
+    type: 'reminder',
+    title: 'Service Reminder',
+    message: 'Your plumbing service is scheduled for tomorrow',
+    time: '1d ago',
+    icon: 'clock',
+    color: '#FF9800', // Orange
+  },
+  {
+    id: '9',
+    type: 'promo',
+    title: 'Weekend Sale',
+    message: 'Flat 15% off on all Appliance Repairs',
+    time: '2d ago',
+    icon: 'megaphone',
+    color: '#F44336', // Red
+  },
+  {
+    id: '10',
+    type: 'update',
+    title: 'Price Drop',
+    message: 'AC Service now starts at just ₹499',
+    time: '3d ago',
+    icon: 'trending-down',
+    color: '#2196F3', // Blue
+  },
 ];
 
 export default function NotificationsScreen() {

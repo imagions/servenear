@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   voiceHelpButton: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 30,
+    bottom: 40,
     right: 20,
     borderRadius: 30,
     backgroundColor: COLORS.accent,
