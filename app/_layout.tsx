@@ -1,11 +1,13 @@
 import 'react-native-reanimated';
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
+import { StyleSheet } from 'react-native';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -40,7 +42,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={styles.container}>
       <Stack screenOptions={{ headerShown: false }}>
         {/* {!isAuthenticated ? (
           <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
@@ -56,6 +58,12 @@ export default function RootLayout() {
         <Stack.Screen name="schedule" />
       </Stack>
       <StatusBar style="auto" />
-    </>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

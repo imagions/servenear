@@ -1,22 +1,14 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
-  Pressable,
-} from 'react-native';
-import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { COLORS, SHADOWS } from '@/constants/theme';
 import { X, Star, BadgeCheck } from 'lucide-react-native';
-import Animated, {
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-} from 'react-native-reanimated';
 
 const DISTANCES = [
+  { label: 'All', value: null },
   { label: '200m', value: 0.2 },
   { label: '500m', value: 0.5 },
   { label: '1km', value: 1 },
@@ -28,6 +20,7 @@ const DISTANCES = [
 ];
 
 const PRICE_RANGES = [
+  { label: 'All', min: null, max: null },
   { label: '$0-$50', min: 0, max: 50 },
   { label: '$51-$100', min: 51, max: 100 },
   { label: '$101-$200', min: 101, max: 200 },
@@ -35,7 +28,20 @@ const PRICE_RANGES = [
   { label: '$500+', min: 500, max: Infinity },
 ];
 
-const RATINGS = [5, 4, 3, 2, 1];
+const RATINGS = [
+  { value: null, label: 'All Ratings' },
+  { value: 5, label: '5 stars' },
+  { value: 4, label: '4+ stars' },
+  { value: 3, label: '3+ stars' },
+  { value: 2, label: '2+ stars' },
+  { value: 1, label: '1+ stars' },
+]; // 0 represents "All"
+
+const AUTHENTICITY_OPTIONS = [
+  { value: 'all', label: 'All Providers' },
+  { value: 'verified', label: 'Verified Only' },
+  { value: 'unverified', label: 'Unverified' },
+];
 
 interface FilterModalProps {
   visible: boolean;
@@ -49,13 +55,49 @@ interface FilterModalProps {
 }
 
 export default function FilterModal({ visible, onClose, onApply }: FilterModalProps) {
-  const [selectedDistance, setSelectedDistance] = useState<number | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['85%'], []);
+
+  const [selectedDistance, setSelectedDistance] = useState<number | null>(1); // 1km default
   const [selectedPriceRange, setSelectedPriceRange] = useState<{
-    min: number;
-    max: number;
-  } | null>(null);
-  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+    min: number | null;
+    max: number | null;
+  } | null>({ min: null, max: null }); // All prices
+  const [selectedRating, setSelectedRating] = useState<number | null>(0); // All ratings
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [authenticityFilter, setAuthenticityFilter] = useState('all');
+
+  const renderBackdrop = useCallback(() => (
+    <Pressable 
+      style={styles.backdrop}
+      onPress={onClose}
+    />
+  ), [onClose]);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) onClose();
+  }, [onClose]);
+
+  const handleOptionSelect = (type: string, value: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    switch (type) {
+      case 'distance':
+        setSelectedDistance(value);
+        break;
+      case 'price':
+        setSelectedPriceRange(value);
+        break;
+      case 'rating':
+        setSelectedRating(value);
+        break;
+      case 'verified':
+        setVerifiedOnly(value);
+        break;
+      case 'authenticity':
+        setAuthenticityFilter(value);
+        break;
+    }
+  };
 
   const handleApply = () => {
     onApply({
@@ -68,52 +110,78 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
   };
 
   const handleReset = () => {
-    setSelectedDistance(null);
-    setSelectedPriceRange(null);
-    setSelectedRating(null);
+    setSelectedDistance(1);
+    setSelectedPriceRange({ min: null, max: null });
+    setSelectedRating(0);
     setVerifiedOnly(false);
+    setAuthenticityFilter('all');
+  };
+
+  const renderStars = (count: number | null) => {
+    if (count === null) return null;
+    
+    return [...Array(count)].map((_, index) => (
+      <Star
+        key={index}
+        size={16}
+        color={selectedRating === count ? COLORS.accent : "#FFB800"}
+        fill={selectedRating === count ? COLORS.accent : "#FFB800"}
+      />
+    ));
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Filter Results</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <X size={24} color={COLORS.text.heading} />
-            </TouchableOpacity>
-          </View>
+    <>
+      <StatusBar style="light" />
+      {visible && (
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          enablePanDownToClose
+          backdropComponent={renderBackdrop}
+          backgroundStyle={styles.sheetBackground}
+          handleIndicatorStyle={styles.handleIndicator}
+        >
+          <BottomSheetScrollView contentContainerStyle={styles.contentContainer}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Filter Results</Text>
+              <Pressable 
+                style={styles.closeButton} 
+                onPress={onClose}
+                hitSlop={20}
+              >
+                <X size={24} color={COLORS.text.heading} />
+              </Pressable>
+            </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
             {/* Distance Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Distance</Text>
               <View style={styles.distanceGrid}>
-                {DISTANCES.map(distance => (
-                  <TouchableOpacity
+                {DISTANCES.map((distance) => (
+                  <Pressable
                     key={distance.value}
-                    style={[
+                    style={({ pressed }) => [
                       styles.distanceChip,
                       selectedDistance === distance.value && styles.selectedChip,
+                      pressed && styles.pressedChip
                     ]}
-                    onPress={() => setSelectedDistance(distance.value)}
+                    onPress={() => handleOptionSelect('distance', distance.value)}
                   >
-                    <Text
+                    <Animated.Text
+                      entering={FadeIn}
+                      exiting={FadeOut}
                       style={[
                         styles.distanceChipText,
-                        selectedDistance === distance.value &&
-                          styles.selectedChipText,
+                        selectedDistance === distance.value && styles.selectedChipText
                       ]}
                     >
                       {distance.label}
-                    </Text>
-                  </TouchableOpacity>
+                    </Animated.Text>
+                  </Pressable>
                 ))}
               </View>
             </View>
@@ -122,26 +190,23 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Price Range</Text>
               <View style={styles.priceRangeList}>
-                {PRICE_RANGES.map(range => (
-                  <TouchableOpacity
+                {PRICE_RANGES.map((range) => (
+                  <Pressable
                     key={range.label}
-                    style={[
+                    style={({ pressed }) => [
                       styles.priceRangeItem,
-                      selectedPriceRange?.min === range.min &&
-                        styles.selectedPriceRange,
+                      selectedPriceRange?.min === range.min && styles.selectedPriceRange,
+                      pressed && styles.pressedChip
                     ]}
-                    onPress={() => setSelectedPriceRange(range)}
+                    onPress={() => handleOptionSelect('price', range)}
                   >
-                    <Text
-                      style={[
-                        styles.priceRangeText,
-                        selectedPriceRange?.min === range.min &&
-                          styles.selectedPriceRangeText,
-                      ]}
-                    >
+                    <Text style={[
+                      styles.priceRangeText,
+                      selectedPriceRange?.min === range.min && styles.selectedPriceRangeText
+                    ]}>
                       {range.label}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))}
               </View>
             </View>
@@ -150,102 +215,141 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Rating</Text>
               <View style={styles.ratingList}>
-                {RATINGS.map(rating => (
-                  <TouchableOpacity
-                    key={rating}
-                    style={[
+                {RATINGS.map((rating) => (
+                  <Pressable
+                    key={rating.value ?? 'all'}
+                    style={({ pressed }) => [
                       styles.ratingItem,
-                      selectedRating === rating && styles.selectedRating,
+                      selectedRating === rating.value && styles.selectedRating,
+                      pressed && styles.pressedChip
                     ]}
-                    onPress={() => setSelectedRating(rating)}
+                    onPress={() => handleOptionSelect('rating', rating.value)}
                   >
                     <View style={styles.stars}>
-                      {[...Array(rating)].map((_, index) => (
-                        <Star
-                          key={index}
-                          size={16}
-                          color="#FFB800"
-                          fill="#FFB800"
-                        />
-                      ))}
-                      <Text style={styles.ratingText}>&amp; up</Text>
+                      {rating.value ? renderStars(rating.value) : null}
+                      <Text style={[
+                        styles.ratingText,
+                        selectedRating === rating.value && styles.selectedRatingText
+                      ]}>
+                        {rating.label}
+                      </Text>
                     </View>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))}
               </View>
             </View>
 
-            {/* Verification Section */}
+            {/* Authenticity Section */}
             <View style={styles.section}>
-              <TouchableOpacity
-                style={styles.verificationToggle}
-                onPress={() => setVerifiedOnly(!verifiedOnly)}
-              >
-                <View style={styles.verificationContent}>
-                  <BadgeCheck
-                    size={24}
-                    color={verifiedOnly ? COLORS.accent : '#9E9E9E'}
-                  />
-                  <Text style={styles.verificationText}>
-                    Show verified providers only
-                  </Text>
-                </View>
-                <View
-                  style={[
-                    styles.toggleTrack,
-                    verifiedOnly && styles.toggleTrackActive,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.toggleThumb,
-                      verifiedOnly && styles.toggleThumbActive,
+              <Text style={styles.sectionTitle}>Provider Status</Text>
+              <View style={styles.authenticityList}>
+                {AUTHENTICITY_OPTIONS.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    style={({ pressed }) => [
+                      styles.authenticityItem,
+                      authenticityFilter === option.value && styles.selectedAuthenticity,
+                      pressed && styles.pressedChip
                     ]}
-                  />
-                </View>
-              </TouchableOpacity>
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setAuthenticityFilter(option.value);
+                    }}
+                  >
+                    <View style={styles.authenticityContent}>
+                      {option.value === 'verified' && (
+                        <BadgeCheck size={20} color={authenticityFilter === option.value ? COLORS.accent : '#9E9E9E'} />
+                      )}
+                      <Text style={[
+                        styles.authenticityText,
+                        authenticityFilter === option.value && styles.selectedAuthenticityText
+                      ]}>
+                        {option.label}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
             </View>
-          </ScrollView>
 
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={handleReset}
+            {/* Verification Toggle */}
+            <Pressable
+              style={styles.verificationToggle}
+              onPress={() => handleOptionSelect('verified', !verifiedOnly)}
             >
-              <Text style={styles.resetButtonText}>Reset</Text>
-            </TouchableOpacity>
+              <View style={styles.verificationContent}>
+                <BadgeCheck
+                  size={24}
+                  color={verifiedOnly ? COLORS.accent : '#9E9E9E'}
+                />
+                <Text style={[
+                  styles.verificationText,
+                  verifiedOnly && styles.selectedVerificationText
+                ]}>
+                  Show verified providers only
+                </Text>
+              </View>
+              <View style={[
+                styles.toggleTrack,
+                verifiedOnly && styles.toggleTrackActive
+              ]}>
+                <Animated.View
+                  style={[
+                    styles.toggleThumb,
+                    verifiedOnly && styles.toggleThumbActive
+                  ]}
+                />
+              </View>
+            </Pressable>
 
-            <TouchableOpacity
-              style={styles.applyButton}
-              onPress={handleApply}
-            >
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
-            </TouchableOpacity>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
+            {/* Footer Actions */}
+            <View style={styles.footer}>
+              <Pressable
+                style={[styles.button, styles.resetButton]}
+                onPress={handleReset}
+              >
+                <Text style={styles.resetButtonText}>Reset</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.button, styles.applyButton]}
+                onPress={handleApply}
+              >
+                <Text style={styles.applyButtonText}>Apply Filters</Text>
+              </Pressable>
+            </View>
+          </BottomSheetScrollView>
+        </BottomSheet>
+      )}
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
   },
-  modalContent: {
+  sheetBackground: {
     backgroundColor: COLORS.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 16,
-    maxHeight: '90%',
+  },
+  handleIndicator: {
+    backgroundColor: '#E0E0E0',
+    width: 40,
+  },
+  contentContainer: {
+    padding: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -265,7 +369,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   section: {
-    padding: 20,
+    paddingVertical: 16,
+    paddingBottom: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -354,6 +459,36 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontFamily: 'Inter-Regular',
   },
+  authenticityList: {
+    gap: 8,
+  },
+  authenticityItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  selectedAuthenticity: {
+    backgroundColor: `${COLORS.accent}10`,
+    borderColor: COLORS.accent,
+  },
+  authenticityContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  authenticityText: {
+    fontSize: 14,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Medium',
+  },
+  selectedAuthenticityText: {
+    color: COLORS.accent,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
+  },
   verificationToggle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -392,37 +527,30 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: 'row',
-    padding: 20,
+    paddingTop: 16,
+    paddingBottom: 24,
     gap: 12,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
   },
-  resetButton: {
+  button: {
     flex: 1,
-    height: 48,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 12,
-    backgroundColor: '#F5F5F5',
+    ...SHADOWS.card,
   },
-  resetButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text.body,
-    fontFamily: 'Inter-SemiBold',
+  resetButton: {
+    backgroundColor: '#F5F5F5',
+    marginRight: 8,
   },
   applyButton: {
-    flex: 2,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
     backgroundColor: COLORS.accent,
+    flex: 2,
   },
-  applyButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-    fontFamily: 'Inter-SemiBold',
+  pressedChip: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
 });

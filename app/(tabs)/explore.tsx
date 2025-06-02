@@ -1,27 +1,46 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  FlatList, 
-  TouchableOpacity, 
-  Image, 
-  ScrollView
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
 } from 'react-native';
 import { useGlobalSearchParams } from 'expo-router'; // Change this line
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
-import { Search, X, FileSliders as Sliders, Grid2x2 as Grid, List, Star, MapPin } from 'lucide-react-native';
+import {
+  Search,
+  X,
+  FileSliders as Sliders,
+  Grid2x2 as Grid,
+  List,
+  Star,
+  MapPin,
+} from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { ServiceItem } from '@/types';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import FilterModal from '@/components/FilterModal';
 
 // Dummy Data
 const TRENDING_SEARCHES = [
-  { icon: 'home-repair-service', query: 'Electrician', count: '2.5k', color: '#FF6B6B' },
+  {
+    icon: 'home-repair-service',
+    query: 'Electrician',
+    count: '2.5k',
+    color: '#FF6B6B',
+  },
   { icon: 'plumbing', query: 'Plumber', count: '1.8k', color: '#4ECDC4' },
-  { icon: 'cleaning-services', query: 'House Cleaning', count: '1.2k', color: '#45B7D1' },
+  {
+    icon: 'cleaning-services',
+    query: 'House Cleaning',
+    count: '1.2k',
+    color: '#45B7D1',
+  },
   { icon: 'car-repair', query: 'Car Service', count: '950', color: '#96CEB4' },
 ];
 
@@ -114,12 +133,14 @@ const RECOMMENDED_SERVICES = [
 const MapExploreButton = () => (
   <TouchableOpacity
     style={styles.mapExploreButton}
-    onPress={() => router.push('/map')}>
+    onPress={() => router.push('/map')}
+  >
     <LinearGradient
-      colors={[COLORS.accent, COLORS.accent + 'CC']}
+      colors={[COLORS.accent + 'FF', COLORS.accent]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.mapExploreGradient}>
+      style={styles.mapExploreGradient}
+    >
       <View style={styles.mapExploreContent}>
         <MaterialIcons name="map" size={24} color="white" />
         <Text style={styles.mapExploreText}>Explore Services Nearby</Text>
@@ -138,27 +159,33 @@ const RecommendedServices = () => (
     </View>
     <View style={styles.recommendedList}>
       {RECOMMENDED_SERVICES.map((service) => (
-        <TouchableOpacity 
-          key={service.id} 
+        <TouchableOpacity
+          key={service.id}
           style={styles.recommendedCard}
-          onPress={() => router.push(`/service/${service.id}`)}>
-          <Image 
-            source={{ uri: service.image }} 
-            style={styles.recommendedImage} 
+          onPress={() => router.push(`/service/${service.id}`)}
+        >
+          <Image
+            source={{ uri: service.image }}
+            style={styles.recommendedImage}
           />
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.8)']}
-            style={styles.recommendedGradient}>
+            style={styles.recommendedGradient}
+          >
             <View style={styles.recommendedContent}>
               <View style={styles.recommendedHeader}>
                 <Text style={styles.recommendedTitle}>{service.title}</Text>
                 <View style={styles.recommendedRating}>
                   <Star size={12} color="#FFB800" fill="#FFB800" />
-                  <Text style={styles.recommendedRatingText}>{service.rating}</Text>
+                  <Text style={styles.recommendedRatingText}>
+                    {service.rating}
+                  </Text>
                 </View>
               </View>
               <View style={styles.recommendedFooter}>
-                <Text style={styles.recommendedProvider}>{service.provider}</Text>
+                <Text style={styles.recommendedProvider}>
+                  {service.provider}
+                </Text>
                 <Text style={styles.recommendedPrice}>${service.price}/hr</Text>
               </View>
             </View>
@@ -184,14 +211,16 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
         <TouchableOpacity
           key={index}
           style={styles.searchHistoryItem}
-          onPress={() => onSelect(query)}>
+          onPress={() => onSelect(query)}
+        >
           <View style={styles.searchHistoryItemContent}>
             <MaterialIcons name="history" size={20} color={COLORS.text.body} />
             <Text style={styles.searchHistoryItemText}>{query}</Text>
           </View>
           <TouchableOpacity
             onPress={() => onClear(query)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <X size={16} color={COLORS.text.body} />
           </TouchableOpacity>
         </TouchableOpacity>
@@ -212,43 +241,55 @@ export default function ExploreScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
-  
+
   useEffect(() => {
     if (query) {
       setSearchText(query);
     }
-    
+
     const filtered = filterServices(searchText, selectedCategories);
     setFilteredServices(filtered);
   }, [query, searchText, selectedCategories, services]);
-  
+
   const handleCategorySelect = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
-      setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
+      setSelectedCategories(
+        selectedCategories.filter((id) => id !== categoryId)
+      );
     } else {
       setSelectedCategories([...selectedCategories, categoryId]);
     }
   };
-  
+
   const handleClearSearch = () => {
     setSearchText('');
     setFilteredServices(services);
   };
-  
+
+  const handleApplyFilters = (filters) => {
+    // Handle the filters here
+    console.log('Applied filters:', filters);
+    setIsFilterModalVisible(false);
+  };
+
   const renderServiceGridItem = ({ item }: { item: ServiceItem }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.gridItem}
-      onPress={() => router.push(`/service/${item.id}`)}>
+      onPress={() => router.push(`/service/${item.id}`)}
+    >
       <Image source={{ uri: item.image }} style={styles.gridItemImage} />
       <View style={styles.gridItemContent}>
-        <Text style={styles.gridItemTitle} numberOfLines={1}>{item.title}</Text>
-        
+        <Text style={styles.gridItemTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+
         <View style={styles.gridItemRating}>
           <Star size={12} color="#FFB800" fill="#FFB800" />
           <Text style={styles.gridItemRatingText}>{item.rating}</Text>
         </View>
-        
+
         <View style={styles.gridItemFooter}>
           <Text style={styles.gridItemPrice}>${item.price}/hr</Text>
           <View style={styles.gridItemLocation}>
@@ -259,37 +300,44 @@ export default function ExploreScreen() {
       </View>
     </TouchableOpacity>
   );
-  
+
   const renderServiceListItem = ({ item }: { item: ServiceItem }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.listItem}
-      onPress={() => router.push(`/service/${item.id}`)}>
+      onPress={() => router.push(`/service/${item.id}`)}
+    >
       <Image source={{ uri: item.image }} style={styles.listItemImage} />
       <View style={styles.listItemContent}>
-        <Text style={styles.listItemTitle} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.listItemTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
         <Text style={styles.listItemProvider}>{item.provider}</Text>
-        
+
         <View style={styles.listItemDetails}>
           <View style={styles.listItemRating}>
             <Star size={12} color="#FFB800" fill="#FFB800" />
             <Text style={styles.listItemRatingText}>{item.rating}</Text>
           </View>
-          
+
           <View style={styles.listItemLocation}>
             <MapPin size={12} color="#9E9E9E" />
             <Text style={styles.listItemLocationText}>{item.distance} mi</Text>
           </View>
         </View>
-        
+
         <Text style={styles.listItemPrice}>${item.price}/hr</Text>
       </View>
     </TouchableOpacity>
   );
-  
+
   const TrendingSearches = ({ data }) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <MaterialIcons name="local-fire-department" size={24} color={COLORS.accent} />
+        <MaterialIcons
+          name="local-fire-department"
+          size={24}
+          color={COLORS.accent}
+        />
         <Text style={styles.sectionTitle}>Trending Now</Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -297,8 +345,14 @@ export default function ExploreScreen() {
           <TouchableOpacity
             key={index}
             style={styles.trendingItem}
-            onPress={() => handleSearch(item.query)}>
-            <View style={[styles.trendingIcon, { backgroundColor: item.color + '15' }]}>
+            onPress={() => handleSearch(item.query)}
+          >
+            <View
+              style={[
+                styles.trendingIcon,
+                { backgroundColor: item.color + '15' },
+              ]}
+            >
               <MaterialIcons name={item.icon} size={28} color={item.color} />
             </View>
             <Text style={styles.trendingQuery}>{item.query}</Text>
@@ -309,24 +363,6 @@ export default function ExploreScreen() {
     </View>
   );
 
-  const MapExploreButton = () => (
-    <TouchableOpacity
-      style={styles.mapExploreButton}
-      onPress={() => router.push('/map')}>
-      <LinearGradient
-        colors={[COLORS.accent, COLORS.accent + 'CC']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.mapExploreGradient}>
-        <View style={styles.mapExploreContent}>
-          <MaterialIcons name="map" size={24} color="white" />
-          <Text style={styles.mapExploreText}>Explore Services Nearby</Text>
-          <MaterialIcons name="arrow-forward" size={20} color="white" />
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
-
   const FeaturedProviders = ({ data }) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
@@ -335,18 +371,26 @@ export default function ExploreScreen() {
           <Text style={styles.sectionTitle}>Featured Providers</Text>
         </View>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.providersList}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.providersList}
+      >
         {data.map((provider, index) => (
           <TouchableOpacity key={index} style={styles.providerCard}>
-            <Image 
-              source={{ uri: provider.image }} 
-              style={styles.providerImage} 
+            <Image
+              source={{ uri: provider.image }}
+              style={styles.providerImage}
             />
             <View style={styles.providerInfo}>
               <View style={styles.providerNameRow}>
                 <Text style={styles.providerName}>{provider.name}</Text>
                 {provider.verified && (
-                  <MaterialIcons name="verified" size={16} color={COLORS.accent} />
+                  <MaterialIcons
+                    name="verified"
+                    size={16}
+                    color={COLORS.accent}
+                  />
                 )}
               </View>
               <View style={styles.providerRating}>
@@ -366,21 +410,27 @@ export default function ExploreScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {data.map((offer, index) => (
           <TouchableOpacity key={index} style={styles.offerCard}>
-          <LinearGradient
-            colors={offer.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.offerGradient}>
-            <View style={styles.offerIconContainer}>
-              <MaterialIcons name={offer.icon} size={32} color="white" style={styles.offerIcon} />
-            </View>
-            <View style={styles.offerBadge}>
-              <Text style={styles.offerDiscount}>{offer.discount}</Text>
-            </View>
-            <Text style={styles.offerTitle}>{offer.title}</Text>
-            <Text style={styles.offerValidity}>{offer.validUntil}</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={offer.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.offerGradient}
+            >
+              <View style={styles.offerIconContainer}>
+                <MaterialIcons
+                  name={offer.icon}
+                  size={32}
+                  color="white"
+                  style={styles.offerIcon}
+                />
+              </View>
+              <View style={styles.offerBadge}>
+                <Text style={styles.offerDiscount}>{offer.discount}</Text>
+              </View>
+              <Text style={styles.offerTitle}>{offer.title}</Text>
+              <Text style={styles.offerValidity}>{offer.validUntil}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
@@ -394,28 +444,36 @@ export default function ExploreScreen() {
       </View>
       <View style={styles.recommendedList}>
         {RECOMMENDED_SERVICES.map((service) => (
-          <TouchableOpacity 
-            key={service.id} 
+          <TouchableOpacity
+            key={service.id}
             style={styles.recommendedCard}
-            onPress={() => router.push(`/service/${service.id}`)}>
-            <Image 
-              source={{ uri: service.image }} 
-              style={styles.recommendedImage} 
+            onPress={() => router.push(`/service/${service.id}`)}
+          >
+            <Image
+              source={{ uri: service.image }}
+              style={styles.recommendedImage}
             />
             <LinearGradient
               colors={['transparent', 'rgba(0,0,0,0.8)']}
-              style={styles.recommendedGradient}>
+              style={styles.recommendedGradient}
+            >
               <View style={styles.recommendedContent}>
                 <View style={styles.recommendedHeader}>
                   <Text style={styles.recommendedTitle}>{service.title}</Text>
                   <View style={styles.recommendedRating}>
                     <Star size={12} color="#FFB800" fill="#FFB800" />
-                    <Text style={styles.recommendedRatingText}>{service.rating}</Text>
+                    <Text style={styles.recommendedRatingText}>
+                      {service.rating}
+                    </Text>
                   </View>
                 </View>
                 <View style={styles.recommendedFooter}>
-                  <Text style={styles.recommendedProvider}>{service.provider}</Text>
-                  <Text style={styles.recommendedPrice}>${service.price}/hr</Text>
+                  <Text style={styles.recommendedProvider}>
+                    {service.provider}
+                  </Text>
+                  <Text style={styles.recommendedPrice}>
+                    ${service.price}/hr
+                  </Text>
                 </View>
               </View>
             </LinearGradient>
@@ -424,7 +482,7 @@ export default function ExploreScreen() {
       </View>
     </View>
   );
-  
+
   return (
     <View style={styles.container}>
       {/* Search Header */}
@@ -446,14 +504,18 @@ export default function ExploreScreen() {
             </TouchableOpacity>
           )}
         </View>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.mapButton}
-          onPress={() => router.push('/map')}>
+          onPress={() => router.push('/map')}
+        >
           <MapPin size={20} color={COLORS.text.heading} />
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.filterButton}>
+
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setIsFilterModalVisible(true)}
+        >
           <Sliders size={20} color={COLORS.text.heading} />
         </TouchableOpacity>
       </View>
@@ -461,14 +523,14 @@ export default function ExploreScreen() {
       <ScrollView>
         {/* Search History or Main Content */}
         {isFocused ? (
-          <SearchHistory 
+          <SearchHistory
             history={searchHistory}
             onSelect={(query) => {
               setSearchQuery(query);
               searchInputRef.current?.blur();
             }}
             onClear={(query) => {
-              setSearchHistory(history => history.filter(h => h !== query));
+              setSearchHistory((history) => history.filter((h) => h !== query));
             }}
           />
         ) : (
@@ -481,6 +543,12 @@ export default function ExploreScreen() {
           </>
         )}
       </ScrollView>
+
+      <FilterModal
+        visible={isFilterModalVisible}
+        onClose={() => setIsFilterModalVisible(false)}
+        onApply={handleApplyFilters}
+      />
     </View>
   );
 }
@@ -786,7 +854,6 @@ const styles = StyleSheet.create({
     margin: 16,
     borderRadius: 12,
     overflow: 'hidden',
-    ...SHADOWS.card,
   },
   mapExploreGradient: {
     padding: 16,
@@ -795,6 +862,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: 'transparent',
   },
   mapExploreText: {
     flex: 1,
@@ -803,6 +871,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     fontFamily: 'Inter-SemiBold',
+    backgroundColor: 'transparent',
   },
   providerCard: {
     width: 120,
