@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import {
   ArrowLeft,
@@ -25,6 +25,7 @@ import { ReviewItem } from '@/types';
 import * as Haptics from 'expo-haptics';
 
 export default function ServiceDetailsScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const { getServiceById, reviews } = useServiceStore();
   const service = getServiceById(id as string);

@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { useGlobalSearchParams } from 'expo-router'; // Change this line
+import { router, useGlobalSearchParams } from 'expo-router'; // Change this line
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import {
   Search,

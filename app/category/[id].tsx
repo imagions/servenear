@@ -8,7 +8,7 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { ArrowLeft, Star, MapPin } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
@@ -17,6 +17,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 export default function CategoryScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const {
     getCategoryById,

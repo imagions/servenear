@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import {
   ArrowLeft,
@@ -120,6 +120,7 @@ const INITIAL_NOTIFICATIONS = [
 ];
 
 export default function NotificationsScreen() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
 
   const getIcon = (type: string) => {

@@ -29,12 +29,11 @@ const PRICE_RANGES = [
 ];
 
 const RATINGS = [
-  { value: null, label: 'All Ratings' },
-  { value: 5, label: '5 stars' },
-  { value: 4, label: '4+ stars' },
-  { value: 3, label: '3+ stars' },
-  { value: 2, label: '2+ stars' },
-  { value: 1, label: '1+ stars' },
+  { value: null, label: 'All' },
+  { value: 5, label: '5' },
+  { value: 4, label: '4' },
+  { value: 3, label: '3' },
+  { value: 2, label: '2' },
 ]; // 0 represents "All"
 
 const AUTHENTICITY_OPTIONS = [
@@ -54,7 +53,11 @@ interface FilterModalProps {
   }) => void;
 }
 
-export default function FilterModal({ visible, onClose, onApply }: FilterModalProps) {
+export default function FilterModal({
+  visible,
+  onClose,
+  onApply,
+}: FilterModalProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['85%'], []);
 
@@ -67,16 +70,17 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [authenticityFilter, setAuthenticityFilter] = useState('all');
 
-  const renderBackdrop = useCallback(() => (
-    <Pressable 
-      style={styles.backdrop}
-      onPress={onClose}
-    />
-  ), [onClose]);
+  const renderBackdrop = useCallback(
+    () => <Pressable style={styles.backdrop} onPress={onClose} />,
+    [onClose]
+  );
 
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) onClose();
-  }, [onClose]);
+  const handleSheetChanges = useCallback(
+    (index: number) => {
+      if (index === -1) onClose();
+    },
+    [onClose]
+  );
 
   const handleOptionSelect = (type: string, value: any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -117,19 +121,6 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
     setAuthenticityFilter('all');
   };
 
-  const renderStars = (count: number | null) => {
-    if (count === null) return null;
-    
-    return [...Array(count)].map((_, index) => (
-      <Star
-        key={index}
-        size={16}
-        color={selectedRating === count ? COLORS.accent : "#FFB800"}
-        fill={selectedRating === count ? COLORS.accent : "#FFB800"}
-      />
-    ));
-  };
-
   return (
     <>
       <StatusBar style="light" />
@@ -144,12 +135,14 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
           backgroundStyle={styles.sheetBackground}
           handleIndicatorStyle={styles.handleIndicator}
         >
-          <BottomSheetScrollView contentContainerStyle={styles.contentContainer}>
+          <BottomSheetScrollView
+            contentContainerStyle={styles.contentContainer}
+          >
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Filter Results</Text>
-              <Pressable 
-                style={styles.closeButton} 
+              <Pressable
+                style={styles.closeButton}
                 onPress={onClose}
                 hitSlop={20}
               >
@@ -166,17 +159,21 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                     key={distance.value}
                     style={({ pressed }) => [
                       styles.distanceChip,
-                      selectedDistance === distance.value && styles.selectedChip,
-                      pressed && styles.pressedChip
+                      selectedDistance === distance.value &&
+                        styles.selectedChip,
+                      pressed && styles.pressedChip,
                     ]}
-                    onPress={() => handleOptionSelect('distance', distance.value)}
+                    onPress={() =>
+                      handleOptionSelect('distance', distance.value)
+                    }
                   >
                     <Animated.Text
                       entering={FadeIn}
                       exiting={FadeOut}
                       style={[
                         styles.distanceChipText,
-                        selectedDistance === distance.value && styles.selectedChipText
+                        selectedDistance === distance.value &&
+                          styles.selectedChipText,
                       ]}
                     >
                       {distance.label}
@@ -195,15 +192,19 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                     key={range.label}
                     style={({ pressed }) => [
                       styles.priceRangeItem,
-                      selectedPriceRange?.min === range.min && styles.selectedPriceRange,
-                      pressed && styles.pressedChip
+                      selectedPriceRange?.min === range.min &&
+                        styles.selectedPriceRange,
+                      pressed && styles.pressedChip,
                     ]}
                     onPress={() => handleOptionSelect('price', range)}
                   >
-                    <Text style={[
-                      styles.priceRangeText,
-                      selectedPriceRange?.min === range.min && styles.selectedPriceRangeText
-                    ]}>
+                    <Text
+                      style={[
+                        styles.priceRangeText,
+                        selectedPriceRange?.min === range.min &&
+                          styles.selectedPriceRangeText,
+                      ]}
+                    >
                       {range.label}
                     </Text>
                   </Pressable>
@@ -221,17 +222,40 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                     style={({ pressed }) => [
                       styles.ratingItem,
                       selectedRating === rating.value && styles.selectedRating,
-                      pressed && styles.pressedChip
+                      pressed && styles.pressedChip,
                     ]}
                     onPress={() => handleOptionSelect('rating', rating.value)}
                   >
-                    <View style={styles.stars}>
-                      {rating.value ? renderStars(rating.value) : null}
-                      <Text style={[
-                        styles.ratingText,
-                        selectedRating === rating.value && styles.selectedRatingText
-                      ]}>
-                        {rating.label}
+                    <View style={styles.ratingContent}>
+                      <Text
+                        style={[
+                          styles.ratingText,
+                          selectedRating === rating.value &&
+                            styles.selectedRatingText,
+                          {
+                            includeFontPadding: false,
+                            textAlignVertical: 'center',
+                          },
+                        ]}
+                      >
+                        {rating.label + ' '}
+                        {rating.value && (
+                          <Star
+                            size={12}
+                            style={{ alignSelf: 'center' }}
+                            color={
+                              selectedRating === rating.value
+                                ? COLORS.accent
+                                : '#FFB800'
+                            }
+                            fill={
+                              selectedRating === rating.value
+                                ? COLORS.accent
+                                : '#FFB800'
+                            }
+                          />
+                        )}
+                        {rating.value == 5 || !rating.value ? '' : ' & up'}
                       </Text>
                     </View>
                   </Pressable>
@@ -248,8 +272,9 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                     key={option.value}
                     style={({ pressed }) => [
                       styles.authenticityItem,
-                      authenticityFilter === option.value && styles.selectedAuthenticity,
-                      pressed && styles.pressedChip
+                      authenticityFilter === option.value &&
+                        styles.selectedAuthenticity,
+                      pressed && styles.pressedChip,
                     ]}
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -258,12 +283,22 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                   >
                     <View style={styles.authenticityContent}>
                       {option.value === 'verified' && (
-                        <BadgeCheck size={20} color={authenticityFilter === option.value ? COLORS.accent : '#9E9E9E'} />
+                        <BadgeCheck
+                          size={20}
+                          color={
+                            authenticityFilter === option.value
+                              ? COLORS.accent
+                              : '#9E9E9E'
+                          }
+                        />
                       )}
-                      <Text style={[
-                        styles.authenticityText,
-                        authenticityFilter === option.value && styles.selectedAuthenticityText
-                      ]}>
+                      <Text
+                        style={[
+                          styles.authenticityText,
+                          authenticityFilter === option.value &&
+                            styles.selectedAuthenticityText,
+                        ]}
+                      >
                         {option.label}
                       </Text>
                     </View>
@@ -271,37 +306,6 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
                 ))}
               </View>
             </View>
-
-            {/* Verification Toggle */}
-            <Pressable
-              style={styles.verificationToggle}
-              onPress={() => handleOptionSelect('verified', !verifiedOnly)}
-            >
-              <View style={styles.verificationContent}>
-                <BadgeCheck
-                  size={24}
-                  color={verifiedOnly ? COLORS.accent : '#9E9E9E'}
-                />
-                <Text style={[
-                  styles.verificationText,
-                  verifiedOnly && styles.selectedVerificationText
-                ]}>
-                  Show verified providers only
-                </Text>
-              </View>
-              <View style={[
-                styles.toggleTrack,
-                verifiedOnly && styles.toggleTrackActive
-              ]}>
-                <Animated.View
-                  style={[
-                    styles.toggleThumb,
-                    verifiedOnly && styles.toggleThumbActive
-                  ]}
-                />
-              </View>
-            </Pressable>
-
             {/* Footer Actions */}
             <View style={styles.footer}>
               <Pressable
@@ -410,6 +414,8 @@ const styles = StyleSheet.create({
   },
   priceRangeList: {
     gap: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   priceRangeItem: {
     paddingVertical: 12,
@@ -435,6 +441,8 @@ const styles = StyleSheet.create({
   },
   ratingList: {
     gap: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   ratingItem: {
     paddingVertical: 12,
@@ -448,19 +456,31 @@ const styles = StyleSheet.create({
     backgroundColor: `${COLORS.accent}10`,
     borderColor: COLORS.accent,
   },
-  stars: {
+  ratingContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    gap: 2,
   },
   ratingText: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.text.body,
-    marginLeft: 8,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Inter-Medium',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedRatingText: {
+    color: COLORS.accent,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
   authenticityList: {
     gap: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   authenticityItem: {
     paddingVertical: 12,

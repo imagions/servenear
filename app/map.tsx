@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
 import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -7,6 +14,7 @@ import { ArrowLeft, Star, MapPin } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import * as Location from 'expo-location';
 import { Platform } from 'react-native';
+import { GOOGLE_MAPS_API_KEY } from '@/env';
 
 const { width } = Dimensions.get('window');
 
@@ -19,11 +27,11 @@ export default function MapScreen() {
     longitudeDelta: 0.0421,
   });
   const [selectedService, setSelectedService] = useState(null);
-  
+
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({});
         setRegion({
@@ -35,34 +43,80 @@ export default function MapScreen() {
       }
     })();
   }, []);
-  
+
   const handleMarkerPress = (service) => {
     setSelectedService(service);
   };
-  
+
   return (
     <View style={styles.container}>
-      
-      
+      <MapView provider={PROVIDER_GOOGLE} style={styles.map} region={region}>
+        {services.map((service) => (
+          <Marker
+            key={service.id}
+            coordinate={{
+              latitude: service.latitude || 37.7749,
+              longitude: service.longitude || 37.7749,
+            }}
+            onPress={() => handleMarkerPress(service)}
+          >
+            <View style={styles.markerContainer}>
+              <View style={styles.marker}>
+                <View style={styles.markerTail} />
+              </View>
+            </View>
+
+            <Callout
+              tooltip
+              onPress={() => router.push(`/service/${service.id}`)}
+            >
+              <View style={styles.calloutContainer}>
+                <Text style={styles.calloutTitle}>{service.title}</Text>
+                <Text style={styles.calloutProvider}>{service.provider}</Text>
+
+                <View style={styles.calloutRating}>
+                  <Star size={12} color="#FFB800" fill="#FFB800" />
+                  <Text style={styles.calloutRatingText}>{service.rating}</Text>
+                </View>
+
+                <Text style={styles.calloutPrice}>${service.price}/hr</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
+      </MapView>
+
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ArrowLeft size={24} color={COLORS.text.heading} />
       </TouchableOpacity>
-      
+
       {selectedService && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.servicePreview}
-          onPress={() => router.push(`/service/${selectedService.id}`)}>
-          <Image source={{ uri: selectedService.image }} style={styles.previewImage} />
+          onPress={() => router.push(`/service/${selectedService.id}`)}
+        >
+          <Image
+            source={{ uri: selectedService.image }}
+            style={styles.previewImage}
+          />
           <View style={styles.previewContent}>
-            <Text style={styles.previewTitle} numberOfLines={1}>{selectedService.title}</Text>
-            <Text style={styles.previewProvider}>{selectedService.provider}</Text>
-            
+            <Text style={styles.previewTitle} numberOfLines={1}>
+              {selectedService.title}
+            </Text>
+            <Text style={styles.previewProvider}>
+              {selectedService.provider}
+            </Text>
+
             <View style={styles.previewFooter}>
               <View style={styles.previewRating}>
                 <Star size={12} color="#FFB800" fill="#FFB800" />
-                <Text style={styles.previewRatingText}>{selectedService.rating}</Text>
+                <Text style={styles.previewRatingText}>
+                  {selectedService.rating}
+                </Text>
               </View>
-              <Text style={styles.previewPrice}>${selectedService.price}/hr</Text>
+              <Text style={styles.previewPrice}>
+                ${selectedService.price}/hr
+              </Text>
             </View>
           </View>
         </TouchableOpacity>

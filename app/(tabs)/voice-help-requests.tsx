@@ -26,11 +26,13 @@ import VoiceRecordModal from '@/components/VoiceRecordModal';
 const MOCK_REQUESTS = [
   {
     id: '1',
-    userImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+    userImage:
+      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
     userName: 'John Smith',
     isVerified: true,
     timeAgo: '2h ago',
-    transcription: 'Need an emergency plumber for a leaking pipe in the kitchen.',
+    transcription:
+      'Need an emergency plumber for a leaking pipe in the kitchen.',
     distance: '2.5 km',
     location: 'San Francisco',
     status: 'Accepted by 3 providers',
@@ -38,7 +40,8 @@ const MOCK_REQUESTS = [
   },
   {
     id: '2',
-    userImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+    userImage:
+      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
     userName: 'Emma Wilson',
     isVerified: true,
     timeAgo: '4h ago',
@@ -50,7 +53,8 @@ const MOCK_REQUESTS = [
   },
   {
     id: '3',
-    userImage: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
+    userImage:
+      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
     userName: 'Michael Chen',
     isVerified: false,
     timeAgo: '6h ago',
@@ -62,7 +66,8 @@ const MOCK_REQUESTS = [
   },
   {
     id: '4',
-    userImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+    userImage:
+      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
     userName: 'Sarah Johnson',
     isVerified: true,
     timeAgo: '8h ago',
@@ -93,7 +98,11 @@ export default function VoiceHelpRequestsScreen() {
             <View style={styles.nameContainer}>
               <Text style={styles.userName}>{item.userName}</Text>
               {item.isVerified && (
-                <BadgeCheck size={16} color="#4CAF50" fill="#4CAF50" />
+                <BadgeCheck
+                  size={16}
+                  color={COLORS.surface}
+                  fill={COLORS.accent}
+                />
               )}
             </View>
             <Text style={styles.timeAgo}>{item.timeAgo}</Text>
@@ -119,11 +128,16 @@ export default function VoiceHelpRequestsScreen() {
           <Text style={styles.distance}>{item.distance}</Text>
           <Text style={styles.location}>{item.location}</Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: `${item.statusColor}10` }]}>
-          <Text style={[styles.statusText, { color: item.statusColor }]}>
-            {item.status}
-          </Text>
-        </View>
+      </View>
+      <View
+        style={[
+          styles.statusBadge,
+          { backgroundColor: `${item.statusColor}10` },
+        ]}
+      >
+        <Text style={[styles.statusText, { color: item.statusColor }]}>
+          {item.status}
+        </Text>
       </View>
     </View>
   );
@@ -280,9 +294,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 40,
+    paddingVertical: 8,
     borderRadius: 16,
+    marginTop: 8,
+    alignSelf: 'center',
   },
   statusText: {
     fontSize: 12,

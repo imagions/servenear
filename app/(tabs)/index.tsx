@@ -9,7 +9,7 @@ import {
   TextInput,
   FlatList,
 } from 'react-native';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import {
   Search,
@@ -27,6 +27,7 @@ import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const {
     categories,
     trendingServices,

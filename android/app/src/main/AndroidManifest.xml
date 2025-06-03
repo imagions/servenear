@@ -1,0 +1,7 @@
+<manifest ...>
+  <application>
+    <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"/>
+  </application>
+</manifest>
