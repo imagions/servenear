@@ -25,6 +25,7 @@ import { ServiceCategory, TrendingService } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ServiceCard from '@/components/ServiceCard';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -80,55 +81,21 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
-  const renderTrendingItem = ({ item }: { item: TrendingService }) => (
-    <TouchableOpacity
-      style={styles.trendingItem}
-      onPress={() => router.push(`/service/${item.id}`)}
-    >
-      <Image source={{ uri: item.image }} style={styles.trendingImage} />
-      <View style={styles.trendingContent}>
-        <View style={styles.trendingHeader}>
-          <Text style={styles.trendingTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <View style={styles.ratingContainer}>
-            <Star size={14} color="#FFB800" fill="#FFB800" />
-            <Text style={styles.ratingText}>{item.rating}</Text>
-          </View>
-        </View>
-        <Text style={styles.providerName}>{item.provider}</Text>
-        <View style={styles.trendingFooter}>
-          <Text style={styles.priceText}>${item.price}/hr</Text>
-          <View style={styles.locationContainer}>
-            <MapPin size={14} color="#9E9E9E" />
-            <Text style={styles.locationText}>{item.distance} mi</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+  const renderNearbyItem = ({ item }: { item: TrendingService }) => (
+    <View style={styles.nearbyItemContainer}>
+      <ServiceCard 
+        service={item}
+        icon={item.icon || 'home-repair-service'}
+      />
+    </View>
   );
 
-  const renderNearbyItem = ({ item }: { item: TrendingService }) => (
-    <TouchableOpacity
-      style={styles.nearbyItem}
-      onPress={() => router.push(`/service/${item.id}`)}
-    >
-      <Image source={{ uri: item.image }} style={styles.nearbyImage} />
-      <View style={styles.nearbyOverlay}>
-        <View style={styles.nearbyContent}>
-          <Text style={styles.nearbyTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <View style={styles.nearbyInfo}>
-            <View style={styles.nearbyRating}>
-              <Star size={12} color="#FFB800" fill="#FFB800" />
-              <Text style={styles.nearbyRatingText}>{item.rating}</Text>
-            </View>
-            <Text style={styles.nearbyPrice}>${item.price}/hr</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+  // Replace trending items section with ServiceCard
+  const renderTrendingItem = ({ item }: { item: TrendingService }) => (
+    <ServiceCard 
+      service={item}
+      icon={item.icon || 'trending-up'}
+    />
   );
 
   return (
@@ -220,7 +187,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.trendingList}>
               {trendingServices.map((item) => (
-                <View key={item.id} style={styles.trendingItemWrapper}>
+                <View key={item.id}>
                   {renderTrendingItem({ item })}
                 </View>
               ))}
@@ -402,135 +369,18 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontFamily: 'Inter-SemiBold',
   },
-  nearbyList: {
-    paddingRight: 20,
-  },
-  nearbyItem: {
-    width: 150,
-    height: 200,
+  nearbyItemContainer: {
+    width: 300,
     marginRight: 16,
-    borderRadius: RADIUS.card,
-    overflow: 'hidden',
-    ...SHADOWS.card,
   },
-  nearbyImage: {
-    width: '100%',
-    height: '100%',
+  nearbyList: {
+    paddingHorizontal: 20,
   },
-  nearbyOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '40%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-    padding: 12,
-  },
-  nearbyContent: {
-    justifyContent: 'flex-end',
-  },
-  nearbyTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 8,
-    fontFamily: 'Inter-SemiBold',
-  },
-  nearbyInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  nearbyRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  nearbyRatingText: {
-    fontSize: 12,
-    color: 'white',
-    marginLeft: 4,
-    fontFamily: 'Inter-Medium',
-  },
-  nearbyPrice: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'white',
-    fontFamily: 'Inter-Bold',
+  trendingList: {
   },
   trendingSection: {
     marginTop: 24,
     paddingHorizontal: 20,
-  },
-  trendingList: {
-    marginBottom: 8,
-  },
-  trendingItemWrapper: {
-    marginBottom: 16,
-  },
-  trendingItem: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    overflow: 'hidden',
-    ...SHADOWS.card,
-  },
-  trendingImage: {
-    width: 100,
-    height: 100,
-  },
-  trendingContent: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'space-between',
-  },
-  trendingHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  trendingTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    flex: 1,
-    fontFamily: 'Inter-SemiBold',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 184, 0, 0.1)',
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  ratingText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#FFB800',
-    marginLeft: 2,
-    fontFamily: 'Inter-Medium',
-  },
-  providerName: {
-    fontSize: 14,
-    color: COLORS.text.body,
-    marginVertical: 4,
-    fontFamily: 'Inter-Regular',
-  },
-  trendingFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  priceText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.accent,
-    fontFamily: 'Inter-Bold',
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   bannerSection: {
     paddingHorizontal: 20,

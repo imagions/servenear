@@ -69,6 +69,7 @@ export interface SubCategory {
 export interface TrendingService {
   id: string;
   title: string;
+  description: string;
   provider: string;
   rating: number;
   price: number;

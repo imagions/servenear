@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Star, MapPin } from 'lucide-react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -12,18 +12,27 @@ type ServiceCardProps = {
 };
 
 export default function ServiceCard({ service, icon }: ServiceCardProps) {
+  const hasImage = !!service.image;
+
   return (
     <TouchableOpacity 
       style={styles.card}
       onPress={() => router.push(`/service/${service.id}`)}>
       <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <MaterialIcons 
-            name={icon as any} 
-            size={24} 
-            color={COLORS.accent}
+        {hasImage ? (
+          <Image 
+            source={{ uri: service.image }} 
+            style={styles.serviceImage}
           />
-        </View>
+        ) : (
+          <View style={styles.placeholderIcon}>
+            <MaterialIcons 
+              name={icon as any} 
+              size={32} 
+              color={COLORS.accent}
+            />
+          </View>
+        )}
         
         <View style={styles.headerContent}>
           <View style={styles.titleRow}>
@@ -199,5 +208,20 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     marginLeft: 4,
     fontFamily: 'Inter-SemiBold',
+  },
+  serviceImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginRight: 10,
+  },
+  placeholderIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: `${COLORS.accent}10`,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
 });

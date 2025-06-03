@@ -295,6 +295,7 @@ export const mockTrendingServices: TrendingService[] = [
   {
     id: 'service-1',
     title: 'Emergency Plumbing Service',
+    description: 'Professional plumbing service for emergency situations. Available 24/7 for leaks, clogs, and pipe repairs. Fast response time and quality workmanship guaranteed.',
     provider: 'John Smith',
     rating: 4.8,
     price: 85,
@@ -304,6 +305,7 @@ export const mockTrendingServices: TrendingService[] = [
   {
     id: 'service-2',
     title: 'Residential Electrical Repair',
+    description: 'Licensed electrician offering complete electrical services for your home. Specializing in panel upgrades, outlet installation, lighting, and troubleshooting electrical issues.',
     provider: 'Sarah Johnson',
     rating: 4.9,
     price: 95,

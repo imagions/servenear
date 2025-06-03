@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     ...SHADOWS.card,
   },
   subcategoryImage: {
-    width: 120,
-    height: 120,
+    flex: 0.6,
+    width: 10,
   },
   subcategoryContent: {
     flex: 1,
