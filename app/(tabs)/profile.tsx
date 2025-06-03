@@ -1,56 +1,79 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
-import { Settings, Star, Award, LogOut, ChevronRight, Leaf, UserCheck } from 'lucide-react-native';
+import {
+  Settings,
+  Star,
+  Award,
+  LogOut,
+  ChevronRight,
+  Leaf,
+  UserCheck,
+  Cloud,
+} from 'lucide-react-native';
 import { useAuthStore } from '@/store/useAuthStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const [activeTab, setActiveTab] = useState('provider');
-  
+
   const handleLogout = () => {
     logout();
     router.replace('/login');
   };
-  
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Profile</Text>
-            
+
             <TouchableOpacity style={styles.settingsButton}>
               <Settings size={24} color={COLORS.text.heading} />
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={styles.profileCard}>
-          <Image 
-            source={{ uri: user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg' }} 
-            style={styles.profileImage} 
+          <Image
+            source={{
+              uri:
+                user?.avatar ||
+                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+            }}
+            style={styles.profileImage}
           />
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{user?.name || 'John Doe'}</Text>
-            <Text style={styles.profileEmail}>{user?.email || 'john.doe@example.com'}</Text>
-            
+            <Text style={styles.profileEmail}>
+              {user?.email || 'john.doe@example.com'}
+            </Text>
+
             <TouchableOpacity style={styles.editProfileButton}>
               <Text style={styles.editProfileText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>32</Text>
             <Text style={styles.statLabel}>Bookings</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <View style={styles.ratingValue}>
               <Text style={styles.statValue}>4.8</Text>
@@ -58,72 +81,109 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.statLabel}>Rating</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>12</Text>
             <Text style={styles.statLabel}>Reviews</Text>
           </View>
         </View>
-        
-        <View style={styles.impactCard}>
-          <View style={styles.impactHeader}>
-            <Text style={styles.impactTitle}>Environmental Impact</Text>
-            <Leaf size={20} color={COLORS.accent} />
-          </View>
-          
-          <View style={styles.impactStats}>
-            <View style={styles.impactItem}>
-              <View style={styles.impactIconContainer}>
-                <MaterialIcons name="recycling" size={24} color="#4CAF50" />
-              </View>
-              <View>
-                <Text style={styles.impactValue}>12.5 kg</Text>
-                <Text style={styles.impactLabel}>E-waste Avoided</Text>
-              </View>
-            </View>
-            
-            <View style={styles.impactItem}>
-              <View style={[styles.impactIconContainer, { backgroundColor: 'rgba(33, 150, 243, 0.1)' }]}>
-                <MaterialIcons name="co2" size={24} color="#2196F3" />
-              </View>
-              <View>
-                <Text style={styles.impactValue}>8.3 kg</Text>
-                <Text style={styles.impactLabel}>CO₂ Saved</Text>
+
+        <View style={styles.impactCardContainer}>
+          <LinearGradient
+            colors={['rgba(232, 245, 233, 1)', 'rgba(200, 230, 201, 1)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.impactCard}
+          >
+            <View style={styles.impactHeader}>
+              <View style={styles.impactHeaderLeft}>
+                <MaterialIcons
+                  name="eco"
+                  size={24}
+                  color="rgba(56, 142, 60, 1)"
+                />
+                <Text style={styles.impactTitle}>Environmental Impact</Text>
               </View>
             </View>
-          </View>
+
+            <View style={styles.impactStats}>
+              <View style={styles.impactStatCard}>
+                <View
+                  style={[
+                    styles.impactIconContainer,
+                    { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                  ]}
+                >
+                  <MaterialIcons name="recycling" size={24} color="#4CAF50" />
+                </View>
+                <View style={styles.impactStatText}>
+                  <Text style={styles.impactValue}>12.5 kg</Text>
+                  <Text style={styles.impactLabel}>e-waste avoided</Text>
+                </View>
+              </View>
+
+              <View style={styles.impactStatCard}>
+                <View
+                  style={[
+                    styles.impactIconContainer,
+                    { backgroundColor: 'rgba(33, 150, 243, 0.1)' },
+                  ]}
+                >
+                  <Cloud size={24} color="#2196F3" />
+                </View>
+                <View style={styles.impactStatText}>
+                  <Text style={styles.impactValue}>8.3 kg</Text>
+                  <Text style={styles.impactLabel}>CO₂ saved</Text>
+                </View>
+              </View>
+            </View>
+          </LinearGradient>
         </View>
-        
+
         <View style={styles.tabsContainer}>
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 'provider' && styles.activeTab]} 
-            onPress={() => setActiveTab('provider')}>
-            <Text style={[styles.tabText, activeTab === 'provider' && styles.activeTabText]}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'provider' && styles.activeTab]}
+            onPress={() => setActiveTab('provider')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'provider' && styles.activeTabText,
+              ]}
+            >
               As Provider
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 'client' && styles.activeTab]} 
-            onPress={() => setActiveTab('client')}>
-            <Text style={[styles.tabText, activeTab === 'client' && styles.activeTabText]}>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'client' && styles.activeTab]}
+            onPress={() => setActiveTab('client')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'client' && styles.activeTabText,
+              ]}
+            >
               As Client
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.ratingsSection}>
           <Text style={styles.sectionTitle}>Recent Ratings</Text>
-          
+
           {activeTab === 'provider' ? (
             <>
               <View style={styles.ratingCard}>
                 <View style={styles.ratingHeader}>
-                  <Image 
-                    source={{ uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg' }} 
-                    style={styles.raterImage} 
+                  <Image
+                    source={{
+                      uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+                    }}
+                    style={styles.raterImage}
                   />
                   <View>
                     <Text style={styles.raterName}>Emma Johnson</Text>
@@ -134,7 +194,7 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingBadgeText}>4.9</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.ratingCategories}>
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Respect</Text>
@@ -143,7 +203,7 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.ratingCategoryValue}>4.8</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Trust</Text>
                     <View style={styles.ratingBar}>
@@ -151,15 +211,17 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.ratingCategoryValue}>5.0</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
-                    <Text style={styles.ratingCategoryLabel}>Communication</Text>
+                    <Text style={styles.ratingCategoryLabel}>
+                      Communication
+                    </Text>
                     <View style={styles.ratingBar}>
                       <View style={[styles.ratingFill, { width: '90%' }]} />
                     </View>
                     <Text style={styles.ratingCategoryValue}>4.5</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Punctuality</Text>
                     <View style={styles.ratingBar}>
@@ -168,17 +230,21 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingCategoryValue}>5.0</Text>
                   </View>
                 </View>
-                
+
                 <Text style={styles.ratingComment}>
-                  John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!
+                  John was extremely professional and fixed our kitchen sink
+                  perfectly. He was on time and very respectful. Would
+                  definitely hire again!
                 </Text>
               </View>
-              
+
               <View style={styles.ratingCard}>
                 <View style={styles.ratingHeader}>
-                  <Image 
-                    source={{ uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg' }} 
-                    style={styles.raterImage} 
+                  <Image
+                    source={{
+                      uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
+                    }}
+                    style={styles.raterImage}
                   />
                   <View>
                     <Text style={styles.raterName}>Michael Chen</Text>
@@ -189,7 +255,7 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingBadgeText}>4.7</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.ratingCategories}>
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Respect</Text>
@@ -198,7 +264,7 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.ratingCategoryValue}>5.0</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Trust</Text>
                     <View style={styles.ratingBar}>
@@ -206,15 +272,17 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.ratingCategoryValue}>4.5</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
-                    <Text style={styles.ratingCategoryLabel}>Communication</Text>
+                    <Text style={styles.ratingCategoryLabel}>
+                      Communication
+                    </Text>
                     <View style={styles.ratingBar}>
                       <View style={[styles.ratingFill, { width: '90%' }]} />
                     </View>
                     <Text style={styles.ratingCategoryValue}>4.5</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Punctuality</Text>
                     <View style={styles.ratingBar}>
@@ -223,9 +291,10 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingCategoryValue}>4.8</Text>
                   </View>
                 </View>
-                
+
                 <Text style={styles.ratingComment}>
-                  Great service repairing our dishwasher. Explained everything clearly and did a thorough job.
+                  Great service repairing our dishwasher. Explained everything
+                  clearly and did a thorough job.
                 </Text>
               </View>
             </>
@@ -233,9 +302,11 @@ export default function ProfileScreen() {
             <>
               <View style={styles.ratingCard}>
                 <View style={styles.ratingHeader}>
-                  <Image 
-                    source={{ uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg' }} 
-                    style={styles.raterImage} 
+                  <Image
+                    source={{
+                      uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+                    }}
+                    style={styles.raterImage}
                   />
                   <View>
                     <Text style={styles.raterName}>Sarah Wilson</Text>
@@ -246,7 +317,7 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingBadgeText}>4.8</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.ratingCategories}>
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Respect</Text>
@@ -255,15 +326,17 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.ratingCategoryValue}>5.0</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
-                    <Text style={styles.ratingCategoryLabel}>Communication</Text>
+                    <Text style={styles.ratingCategoryLabel}>
+                      Communication
+                    </Text>
                     <View style={styles.ratingBar}>
                       <View style={[styles.ratingFill, { width: '95%' }]} />
                     </View>
                     <Text style={styles.ratingCategoryValue}>4.8</Text>
                   </View>
-                  
+
                   <View style={styles.ratingCategoryItem}>
                     <Text style={styles.ratingCategoryLabel}>Payment</Text>
                     <View style={styles.ratingBar}>
@@ -272,56 +345,86 @@ export default function ProfileScreen() {
                     <Text style={styles.ratingCategoryValue}>4.5</Text>
                   </View>
                 </View>
-                
+
                 <Text style={styles.ratingComment}>
-                  Great client! Clear about requirements and very respectful of my time. Prompt payment.
+                  Great client! Clear about requirements and very respectful of
+                  my time. Prompt payment.
                 </Text>
               </View>
             </>
           )}
-          
+
           <TouchableOpacity style={styles.viewAllButton}>
             <Text style={styles.viewAllText}>View All Ratings</Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/add-service')}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push('/add-service')}
+          >
             <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(0, 207, 232, 0.1)' }]}>
-                <MaterialIcons name="add-business" size={24} color={COLORS.accent} />
+              <View
+                style={[
+                  styles.menuIcon,
+                  { backgroundColor: 'rgba(0, 207, 232, 0.1)' },
+                ]}
+              >
+                <MaterialIcons
+                  name="add-business"
+                  size={24}
+                  color={COLORS.accent}
+                />
               </View>
               <Text style={styles.menuItemText}>Add New Service</Text>
             </View>
             <ChevronRight size={20} color="#9E9E9E" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(255, 184, 0, 0.1)' }]}>
+              <View
+                style={[
+                  styles.menuIcon,
+                  { backgroundColor: 'rgba(255, 184, 0, 0.1)' },
+                ]}
+              >
                 <Award size={24} color="#FFB800" />
               </View>
               <Text style={styles.menuItemText}>My Services</Text>
             </View>
             <ChevronRight size={20} color="#9E9E9E" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(76, 175, 80, 0.1)' }]}>
+              <View
+                style={[
+                  styles.menuIcon,
+                  { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                ]}
+              >
                 <MaterialIcons name="payment" size={24} color="#4CAF50" />
               </View>
               <Text style={styles.menuItemText}>Payment Methods</Text>
             </View>
             <ChevronRight size={20} color="#9E9E9E" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(244, 67, 54, 0.1)' }]}>
+              <View
+                style={[
+                  styles.menuIcon,
+                  { backgroundColor: 'rgba(244, 67, 54, 0.1)' },
+                ]}
+              >
                 <LogOut size={24} color="#F44336" />
               </View>
-              <Text style={[styles.menuItemText, { color: '#F44336' }]}>Logout</Text>
+              <Text style={[styles.menuItemText, { color: '#F44336' }]}>
+                Logout
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -441,54 +544,61 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     alignSelf: 'center',
   },
-  impactCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    padding: 20,
+  impactCardContainer: {
     marginHorizontal: 20,
-    marginBottom: 16,
-    ...SHADOWS.card,
+    marginVertical: 16,
+    borderRadius: RADIUS.card,
+    borderWidth: 1,
+    borderColor: 'rgba(165, 214, 167, 1)',
+    overflow: 'hidden',
   },
-  impactHeader: {
+  impactCard: {
+    padding: 16,
+  },
+  impactHeader: {},
+  impactHeaderLeft: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    gap: 8,
   },
   impactTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(56, 142, 60, 1)',
+    fontFamily: 'Inter-SemiBold',
   },
   impactStats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
   },
-  impactItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  impactStatCard: {
     flex: 1,
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
   },
   impactIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+  },
+  impactStatText: {
+    alignItems: 'center',
+    textAlign: 'center',
   },
   impactValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.text.heading,
+    color: 'rgba(56, 142, 60, 1)',
     marginBottom: 4,
     fontFamily: 'Inter-Bold',
   },
   impactLabel: {
     fontSize: 12,
-    color: COLORS.text.body,
+    color: 'rgba(56, 142, 60, 1)',
     fontFamily: 'Inter-Regular',
   },
   tabsContainer: {

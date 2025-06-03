@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   nearbyList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
   },
   trendingList: {
   },

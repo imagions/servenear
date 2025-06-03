@@ -12,6 +12,17 @@ type ServiceCardProps = {
 };
 
 export default function ServiceCard({ service, icon }: ServiceCardProps) {
+  const handleViewLocation = () => {
+    router.push({
+      pathname: '/map',
+      params: { 
+        latitude: service.latitude || 37.7749,
+        longitude: service.longitude || -122.4194,
+        serviceId: service.id
+      }
+    });
+  };
+
   const hasImage = !!service.image;
 
   return (
@@ -75,7 +86,7 @@ export default function ServiceCard({ service, icon }: ServiceCardProps) {
 
           <TouchableOpacity 
             style={styles.viewButton}
-            onPress={() => router.push('/map')}>
+            onPress={handleViewLocation}>
             <MaterialIcons 
               name="location-on" 
               size={14} 
