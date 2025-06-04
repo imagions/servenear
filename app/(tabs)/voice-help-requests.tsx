@@ -189,21 +189,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.text.heading,
-    marginBottom: 16,
+    marginBottom: 13,
     fontFamily: 'Inter-Bold',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    padding: 12,
+    borderRadius: 10,
+    paddingHorizontal: 12,
     ...SHADOWS.card,
   },
   searchInput: {

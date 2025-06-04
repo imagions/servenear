@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { StyleSheet } from 'react-native';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -42,23 +43,25 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <Stack screenOptions={{ headerShown: false }}>
-        {/* {!isAuthenticated ? (
+    <SnackbarProvider>
+      <GestureHandlerRootView style={styles.container}>
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* {!isAuthenticated ? (
           <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
         ) : (
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
         )} */}
-        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen name="service/[id]" />
-        <Stack.Screen name="category/[id]" />
-        <Stack.Screen name="add-service" />
-        <Stack.Screen name="cart" />
-        <Stack.Screen name="schedule" />
-      </Stack>
-      <StatusBar style="auto" />
-    </GestureHandlerRootView>
+          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="service/[id]" />
+          <Stack.Screen name="category/[id]" />
+          <Stack.Screen name="add-service" />
+          <Stack.Screen name="cart" />
+          <Stack.Screen name="schedule" />
+        </Stack>
+        <StatusBar style="auto" />
+      </GestureHandlerRootView>
+    </SnackbarProvider>
   );
 }
 

@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   },
   toggleAvailabilityButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 40,
     left: 20,
     right: 20,
     backgroundColor: COLORS.accent,

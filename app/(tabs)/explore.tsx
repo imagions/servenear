@@ -366,7 +366,14 @@ export default function ExploreScreen() {
         />
         <Text style={styles.sectionTitle}>Trending Now</Text>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingVertical: 10,
+          paddingHorizontal: 5,
+        }}
+      >
         {data.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -400,7 +407,10 @@ export default function ExploreScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.providersList}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 5,
+        }}
       >
         {data.map((provider, index) => (
           <TouchableOpacity key={index} style={styles.providerCard}>
@@ -433,7 +443,11 @@ export default function ExploreScreen() {
   const SpecialOffers = ({ data }) => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Special Offers</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
+      >
         {data.map((offer, index) => (
           <TouchableOpacity key={index} style={styles.offerCard}>
             <LinearGradient
@@ -546,6 +560,7 @@ export default function ExploreScreen() {
               <FeaturedProviders data={FEATURED_PROVIDERS} />
               <SpecialOffers data={SPECIAL_OFFERS} />
               <RecommendedServices />
+              <View style={{ marginTop: 40 }} />
             </>
           )}
         </ScrollView>
@@ -568,7 +583,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
@@ -579,7 +594,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 2,
     marginRight: 12,
     ...SHADOWS.card,
   },
@@ -591,8 +606,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
   },
   mapButton: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: 24,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
@@ -601,8 +616,8 @@ const styles = StyleSheet.create({
     ...SHADOWS.card,
   },
   filterButton: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: 24,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
@@ -803,7 +818,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
   },
   section: {
-    marginTop: 24,
+    marginTop: 10,
     paddingHorizontal: 16,
   },
   sectionHeader: {
@@ -1009,6 +1024,7 @@ const styles = StyleSheet.create({
   },
   recommendedList: {
     gap: 16,
+    paddingHorizontal: 5,
   },
   recommendedCard: {
     height: 200,

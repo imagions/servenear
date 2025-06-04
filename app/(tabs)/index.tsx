@@ -26,6 +26,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ServiceCard from '@/components/ServiceCard';
+import { useSnackbar } from '@/context/SnackbarContext';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -38,8 +39,17 @@ export default function HomeScreen() {
     fetchNearbyServices,
   } = useServiceStore();
   const { user } = useAuthStore();
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
+    // Show location notification when app opens
+    showSnackbar({
+      message: 'Getting your accurate location...',
+      icon: 'my-location',
+      iconColor: COLORS.accent,
+      duration: 3000,
+    });
+
     fetchCategories();
     fetchTrendingServices();
 
@@ -82,25 +92,36 @@ export default function HomeScreen() {
   );
 
   const renderNearbyItem = ({ item }: { item: TrendingService }) => (
-    <View style={styles.nearbyItemContainer}>
-      <ServiceCard 
-        service={item}
-        icon={item.icon || 'home-repair-service'}
-      />
-    </View>
+    <TouchableOpacity
+      style={styles.nearbyItem}
+      onPress={() => router.push(`/service/${item.id}`)}
+    >
+      <Image source={{ uri: item.image }} style={styles.nearbyImage} />
+      <View style={styles.nearbyOverlay}>
+        <View style={styles.nearbyContent}>
+          <Text style={styles.nearbyTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <View style={styles.nearbyInfo}>
+            <View style={styles.nearbyRating}>
+              <Star size={12} color="#FFB800" fill="#FFB800" />
+              <Text style={styles.nearbyRatingText}>{item.rating}</Text>
+            </View>
+            <Text style={styles.nearbyPrice}>${item.price}/hr</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 
   // Replace trending items section with ServiceCard
   const renderTrendingItem = ({ item }: { item: TrendingService }) => (
-    <ServiceCard 
-      service={item}
-      icon={item.icon || 'trending-up'}
-    />
+    <ServiceCard service={item} icon={item.icon || 'trending-up'} />
   );
 
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right',]}
+      edges={['top', 'left', 'right']}
       style={{
         backgroundColor: COLORS.background,
       }}
@@ -123,7 +144,9 @@ export default function HomeScreen() {
                   <Text style={styles.badgeText}>3</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/voice-help-requests')}>
+              <TouchableOpacity
+                onPress={() => router.push('/voice-help-requests')}
+              >
                 <MaterialIcons
                   name="record-voice-over"
                   size={24}
@@ -164,32 +187,31 @@ export default function HomeScreen() {
           <View style={styles.nearbySection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Near You</Text>
-              <TouchableOpacity onPress={() => router.push('/explore')}>
+              <TouchableOpacity onPress={() => router.push('/services?type=nearby')}>
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={nearbyServices}
-              renderItem={renderNearbyItem}
-              keyExtractor={(item) => item.id}
+            <ScrollView
+              contentContainerStyle={{flexDirection: 'row',}}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.nearbyList}
-            />
+            >
+              {trendingServices.map((item) => (
+                <View key={item.id}>{renderNearbyItem({ item })}</View>
+              ))}
+            </ScrollView>
           </View>
 
           <View style={styles.trendingSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Trending Now</Text>
-              <TouchableOpacity onPress={() => router.push('/explore')}>
+              <TouchableOpacity onPress={() => router.push('/services?type=trending')}>
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.trendingList}>
+            <View style={{flexDirection: 'column',}}>
               {trendingServices.map((item) => (
-                <View key={item.id}>
-                  {renderTrendingItem({ item })}
-                </View>
+                <View key={item.id}>{renderTrendingItem({ item })}</View>
               ))}
             </View>
           </View>
@@ -369,14 +391,64 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontFamily: 'Inter-SemiBold',
   },
+  nearbyItem: {
+    width: 150,
+    height: 200,
+    marginRight: 16,
+    borderRadius: RADIUS.card,
+    overflow: 'hidden',
+  },
+  nearbyImage: {
+    width: '100%',
+    height: '100%',
+  },
+  nearbyOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    padding: 12,
+  },
+  nearbyContent: {
+    justifyContent: 'flex-end',
+  },
+  nearbyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 8,
+    fontFamily: 'Inter-SemiBold',
+  },
+  nearbyInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  nearbyRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nearbyRatingText: {
+    fontSize: 12,
+    color: 'white',
+    marginLeft: 4,
+    fontFamily: 'Inter-Medium',
+  },
+  nearbyPrice: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white',
+    fontFamily: 'Inter-Bold',
+  },
   nearbyItemContainer: {
     width: 300,
     marginRight: 16,
   },
   nearbyList: {
     paddingHorizontal: 5,
-  },
-  trendingList: {
   },
   trendingSection: {
     marginTop: 24,
@@ -385,6 +457,7 @@ const styles = StyleSheet.create({
   bannerSection: {
     paddingHorizontal: 20,
     marginBottom: 100,
+    marginTop: 20,
   },
   banner: {
     flexDirection: 'row',
@@ -403,13 +476,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 8,
+    marginBottom: 2,
     fontFamily: 'Inter-Bold',
   },
   bannerText: {
     fontSize: 14,
     color: 'white',
-    marginBottom: 12,
+    marginBottom: 8,
     fontFamily: 'Inter-Regular',
   },
   bannerButton: {
