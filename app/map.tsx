@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,18 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Star, MapPin, Search } from 'lucide-react-native';
+import { ArrowLeft, Star, MapPin, Search, Clock } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import * as Location from 'expo-location';
 import ServiceCard from '@/components/ServiceCard';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
-import { GestureHandlerRootView, PanGestureHandler, GestureDetector, Gesture } from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+  GestureDetector,
+  Gesture,
+} from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
 
@@ -27,53 +32,135 @@ const { width } = Dimensions.get('window');
 let isNavigating = false;
 
 // Memoized service card component
-const ServiceListItem = memo(({ item, onPress, isSelected, distance }) => {
-  const onGestureEvent = useCallback(({ nativeEvent }) => {
-    if (nativeEvent.translationY < -50 && !isNavigating) {
-      isNavigating = true;
-      requestAnimationFrame(() => {
-        router.push(`/service/${item.id}`);
-        // Reset after navigation
-        setTimeout(() => {
-          isNavigating = false;
-        }, 1000);
-      });
-    }
-  }, [item.id]);
+const ServiceListItem = memo(
+  ({ item, onPress, isSelected, distance, routeInfo }) => {
+    const onGestureEvent = useCallback(
+      ({ nativeEvent }) => {
+        if (nativeEvent.translationY < -50 && !isNavigating) {
+          isNavigating = true;
+          requestAnimationFrame(() => {
+            router.push(`/service/${item.id}`);
+            // Reset after navigation
+            setTimeout(() => {
+              isNavigating = false;
+            }, 1000);
+          });
+        }
+      },
+      [item.id]
+    );
 
-  return (
-    <PanGestureHandler onGestureEvent={onGestureEvent} minDist={20}>
-      <Animated.View>
-        <View style={styles.pullBarContainer}>
-          <View style={styles.pullBar} />
-        </View>
-        <TouchableOpacity 
+    return (
+      <PanGestureHandler onGestureEvent={onGestureEvent} minDist={20}>
+        <Animated.View
           style={[
-            styles.serviceCard,
-            isSelected && styles.selectedServiceCard
+            styles.cardContainer,
+            isSelected && styles.selectedCardContainer,
           ]}
-          onPress={onPress}
         >
-          <Image 
-            source={{ uri: item.image }} 
-            style={styles.serviceImage} 
-          />
-          <View style={styles.serviceInfo}>
-            <Text style={styles.serviceTitle} numberOfLines={1}>{item.title}</Text>
-            <TouchableOpacity onPress={() => router.push(`/provider/${item.providerId}`)}>
-              <Text style={[styles.serviceProvider, { color: COLORS.accent }]}>{item.provider}</Text>
-            </TouchableOpacity>
-            {distance && isSelected && (
-              <Text style={styles.distanceText}>{distance} km away</Text>
-            )}
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    </PanGestureHandler>
-  );
-});
+          <TouchableOpacity style={styles.serviceCard} onPress={onPress}>
+            {/* Main Row */}
+            <View style={styles.bottomSheetHandle} />
+            <View style={styles.mainRow}>
+              <Image source={{ uri: item.image }} style={styles.serviceImage} />
+              <View style={styles.mainInfo}>
+                <Text style={styles.serviceTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <View style={styles.providerRow}>
+                  <Text style={styles.serviceProvider}>{item.provider}</Text>
+                  {item.verified && (
+                    <MaterialIcons
+                      name="verified"
+                      size={14}
+                      color={COLORS.accent}
+                    />
+                  )}
+                </View>
+              </View>
+              <View style={styles.ratingBadge}>
+                <Star size={12} color="#FFB800" fill="#FFB800" />
+                <Text style={styles.ratingText}>{item.rating}</Text>
+              </View>
+            </View>
 
-const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Add your API key here
+            {/* Description */}
+            <Text style={styles.serviceDescription} numberOfLines={2}>
+              {item.description}
+            </Text>
+
+            {/* Footer */}
+            <View style={styles.cardFooter}>
+              <View style={styles.locationInfo}>
+                <MapPin size={14} color={COLORS.accent} />
+                <Text style={styles.distanceText}>
+                  {distance ? `${distance} km` : 'Calculating...'}
+                </Text>
+                {routeInfo && (
+                  <>
+                    <View style={styles.dotSeparator} />
+                    <Clock size={14} color={COLORS.accent} />
+                    <Text style={styles.timeText}>
+                      {Math.round(routeInfo.duration)} min
+                    </Text>
+                  </>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={styles.viewButton}
+                onPress={() => router.push(`/service/${item.id}`)}
+              >
+                <Text style={styles.viewButtonText}>View</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      </PanGestureHandler>
+    );
+  }
+);
+
+const GOOGLE_MAPS_API_KEY = 'AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg';
+
+// Add this custom hook for debouncing location updates
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Add Memoized Marker component
+const ServiceMarker = memo(({ service, isSelected, onPress }) => (
+  <Marker
+    coordinate={{
+      latitude: service.location.latitude,
+      longitude: service.location.longitude,
+    }}
+    onPress={() => onPress(service)}
+  >
+    <View style={styles.markerWrapper}>
+      <View style={styles.markerContainer}>
+        <MaterialIcons
+          name="location-pin"
+          size={38}
+          color={isSelected ? COLORS.accent : '#666'}
+        />
+      </View>
+      <View style={styles.markerTail} />
+    </View>
+  </Marker>
+));
 
 export default function MapScreen() {
   const params = useLocalSearchParams();
@@ -92,7 +179,7 @@ export default function MapScreen() {
   const [polylineCoordinates, setPolylineCoordinates] = useState([]);
   const [distance, setDistance] = useState(null);
   const [routeInfo, setRouteInfo] = useState(null);
-  const mapRef = useRef(null);
+  const mapRef = useRef<MapView>(null);
   const listRef = useRef(null);
   const mounted = useRef(false); // Add this line
 
@@ -116,6 +203,19 @@ export default function MapScreen() {
           const service = services.find((s) => s.id === params.serviceId);
           if (service) {
             setSelectedService(service);
+
+            // If scrollTo param is true, scroll to the service card
+            if (params.scrollTo === 'true') {
+              const serviceIndex = services.findIndex(
+                (s) => s.id === params.serviceId
+              );
+              if (serviceIndex !== -1) {
+                // Add slight delay to ensure list is rendered
+                setTimeout(() => {
+                  scrollToService(serviceIndex);
+                }, 500);
+              }
+            }
           }
         }
       } else {
@@ -141,33 +241,33 @@ export default function MapScreen() {
     return () => {
       mounted.current = false;
     };
-  }, [params.latitude, params.longitude, params.serviceId, services]);
+  }, [
+    params.latitude,
+    params.longitude,
+    params.serviceId,
+    params.scrollTo,
+    services,
+  ]);
 
-  const handleMarkerPress = (service) => {
-    setSelectedService(service);
-  };
-
-  const renderMarker = (service) => (
-    <Marker
-      key={service.id}
-      coordinate={{
+  const handleMarkerPress = useCallback((service) => {
+    const currentServices = filteredServices.length > 0 ? filteredServices : services || [];
+    const serviceIndex = currentServices.findIndex(s => s.id === service.id);
+    
+    if (serviceIndex !== -1) {
+      setSelectedService(service);
+      
+      // Scroll the card list to the selected service
+      scrollToService(serviceIndex);
+      
+      // Animate map to center on the selected service
+      mapRef.current?.animateToRegion({
         latitude: service.location.latitude,
         longitude: service.location.longitude,
-      }}
-      onPress={() => handleMarkerPress(service)}
-    >
-      <View style={styles.markerWrapper}>
-        <View style={styles.markerContainer}>
-          <MaterialIcons 
-            name="location-pin" 
-            size={38} 
-            color={selectedService?.id === service.id ? COLORS.accent : '#666'} 
-          />
-        </View>
-        <View style={styles.markerTail} />
-      </View>
-    </Marker>
-  );
+        latitudeDelta: 0.005, // Zoom in closer when marker is tapped
+        longitudeDelta: 0.005,
+      }, 500);
+    }
+  }, [filteredServices, services]);
 
   // Helper function for distance calculation
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -188,9 +288,10 @@ export default function MapScreen() {
   const handleSearch = (text) => {
     setSearchText(text);
     if (text.trim()) {
-      const filtered = services.filter(service => 
-        service.title.toLowerCase().includes(text.toLowerCase()) ||
-        service.provider.toLowerCase().includes(text.toLowerCase())
+      const filtered = services.filter(
+        (service) =>
+          service.title.toLowerCase().includes(text.toLowerCase()) ||
+          service.provider.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredServices(filtered);
     } else {
@@ -211,7 +312,7 @@ export default function MapScreen() {
   };
 
   const handleToggleMapType = () => {
-    setMapType(prev => prev === 'standard' ? 'hybrid' : 'standard');
+    setMapType((prev) => (prev === 'standard' ? 'hybrid' : 'standard'));
   };
 
   const handleLocatePress = async () => {
@@ -219,48 +320,21 @@ export default function MapScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
+          accuracy: Location.Accuracy.BestForNavigation,
+          maximumAge: 10000, // Use locations no older than 10 seconds
         });
-        
+
         const userLoc = {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
         };
 
-        // Update user location first
         setUserLocation(userLoc);
-
-        // Update polyline with delay to avoid UI frame guard error
-        if (selectedService) {
-          const serviceLoc = {
-            latitude: selectedService.location.latitude,
-            longitude: selectedService.location.longitude,
-          };
-
-          setTimeout(() => {
-            setPolylineCoordinates([userLoc, serviceLoc]);
-          }, 100);
-
-          const dist = calculateDistance(
-            userLoc.latitude,
-            userLoc.longitude,
-            serviceLoc.latitude,
-            serviceLoc.longitude
-          );
-          setDistance(dist.toFixed(1));
-
-          mapRef.current?.fitToCoordinates([userLoc, serviceLoc], {
-            edgePadding: { top: 50, right: 50, bottom: 150, left: 50 },
-            animated: true,
-          });
-        } else {
-          setPolylineCoordinates([]);
-          mapRef.current?.animateToRegion({
-            ...userLoc,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }, 1000);
-        }
+        mapRef.current?.animateToRegion({
+          ...userLoc,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
       }
     } catch (error) {
       console.log('Error getting location:', error);
@@ -288,58 +362,183 @@ export default function MapScreen() {
     }
   };
 
-  // Add this function to scroll to selected service
-  const scrollToService = (index) => {
-    listRef.current?.scrollToIndex({
+  // Update getItemLayout to include the correct dimensions
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: 320 + 12, // card width + margin
+      offset: (320 + 12) * index, // card width + margin
       index,
+    }),
+    []
+  );
+
+  // Update scrollToService function to center the item
+  const scrollToService = (index) => {
+    const screenWidth = Dimensions.get('window').width;
+    const itemWidth = 320 + 12; // card width + margin
+    const offset = index * itemWidth;
+    const centerOffset = (screenWidth - itemWidth) / 2;
+
+    listRef.current?.scrollToOffset({
+      offset: offset - centerOffset,
       animated: true,
-      viewOffset: 20
     });
   };
 
   // Add this function to handle scroll events
-  const handleScroll = (event) => {
+  const handleScroll = useCallback((event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const itemWidth = 280 + 12; // card width + margin
+    const itemWidth = 320 + 12; // card width + margin
     const index = Math.round(scrollPosition / itemWidth);
     const service = (filteredServices.length > 0 ? filteredServices : services)[index];
-    
+
     if (service) {
       handleServicePress(service);
-      
-      // Animate map to show the service location
-      const serviceLoc = {
-        latitude: service.latitude,
-        longitude: service.longitude,
-      };
-      
+
+      // Center map on service location with animation
       mapRef.current?.animateToRegion({
-        ...serviceLoc,
+        latitude: service.location.latitude,
+        longitude: service.location.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }, 500);
     }
-  };
+  }, [filteredServices, services, handleServicePress]);
 
   const keyExtractor = useCallback((item) => item.id, []);
 
-  const renderItem = useCallback(({ item, index }) => (
-    <ServiceListItem
-      item={item}
-      isSelected={selectedService?.id === item.id}
-      distance={selectedService?.id === item.id ? distance : null}
-      onPress={() => {
-        handleServicePress(item);
-        scrollToService(index);
-      }}
-    />
-  ), [selectedService?.id, distance, handleServicePress]);
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <ServiceListItem
+        item={item}
+        isSelected={selectedService?.id === item.id}
+        distance={selectedService?.id === item.id ? distance : null}
+        onPress={() => {
+          handleServicePress(item);
+          scrollToService(index);
+        }}
+        routeInfo={routeInfo}
+      />
+    ),
+    [selectedService?.id, distance, handleServicePress]
+  );
 
-  const getItemLayout = useCallback((data, index) => ({
-    length: 280 + 12, // item width + margin
-    offset: (280 + 12) * index,
-    index,
-  }), []);
+  // Add this helper function to generate random nearby coordinates
+  const generateNearbyLocation = (center, radiusInKm = 1) => {
+    const radiusInDeg = radiusInKm / 111; // roughly 1 degree = 111 km
+    const randomAngle = Math.random() * 2 * Math.PI;
+    const randomRadius = Math.sqrt(Math.random()) * radiusInDeg;
+
+    return {
+      latitude: center.latitude + (randomRadius * Math.cos(randomAngle)),
+      longitude: center.longitude + (randomRadius * Math.sin(randomAngle))
+    };
+  };
+
+  // Update showNearbyServices function
+  const showNearbyServices = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.BestForNavigation,
+        });
+
+        const userLoc = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+
+        setUserLocation(userLoc);
+
+        // Create nearby services by modifying their locations
+        const nearbyServices = services.map(service => ({
+          ...service,
+          location: generateNearbyLocation(userLoc)
+        }));
+
+        setFilteredServices(nearbyServices);
+
+        // Fit map to show all services
+        const coordinates = [
+          userLoc,
+          ...nearbyServices.map(s => ({
+            latitude: s.location.latitude,
+            longitude: s.location.longitude,
+          })),
+        ];
+
+        setTimeout(() => {
+          mapRef.current?.fitToCoordinates(coordinates, {
+            edgePadding: { top: 70, right: 70, bottom: 200, left: 70 },
+            animated: true,
+          });
+        }, 100);
+
+        // Select and scroll to first service
+        if (nearbyServices.length > 0) {
+          setSelectedService(nearbyServices[0]);
+          setTimeout(() => {
+            scrollToService(0);
+          }, 600);
+        }
+      }
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  };
+
+  // Debounce user location updates
+  const debouncedUserLocation = useDebounce(userLocation, 1000);
+
+  // Memoize markers list
+  const markers = useMemo(() => {
+    const servicesToShow = filteredServices.length > 0 ? filteredServices : services;
+    if (!servicesToShow) return null;
+
+    return servicesToShow.map(service => (
+      <ServiceMarker
+        key={service.id}
+        service={service}
+        isSelected={selectedService?.id === service.id}
+        onPress={handleMarkerPress}
+      />
+    ));
+  }, [filteredServices, services, selectedService?.id]);
+
+  // Update location watching with debounce
+  useEffect(() => {
+    let locationSubscription;
+
+    const watchLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        locationSubscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.BestForNavigation,
+            timeInterval: 3000, // Increase interval to 3 seconds
+            distanceInterval: 10,
+          },
+          (location) => {
+            if (mounted.current) {
+              setUserLocation({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              });
+            }
+          }
+        );
+      }
+    };
+
+    watchLocation();
+
+    return () => {
+      if (locationSubscription) {
+        locationSubscription.remove();
+      }
+    };
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -351,12 +550,8 @@ export default function MapScreen() {
           region={region}
           mapType={mapType}
         >
-          {/* User location marker */}
-          {userLocation && (
-            <Marker
-              coordinate={userLocation}
-              title="You are here"
-            >
+          {debouncedUserLocation && (
+            <Marker coordinate={debouncedUserLocation} title="You are here">
               <View style={styles.userMarker}>
                 <View style={styles.userMarkerDot} />
                 <View style={styles.userMarkerRing} />
@@ -364,13 +559,11 @@ export default function MapScreen() {
             </Marker>
           )}
 
-          {/* Service markers using actual locations */}
-          {(filteredServices.length > 0 ? filteredServices : services).map(renderMarker)}
+          {markers}
 
-          {/* Replace Polyline with Directions */}
-          {userLocation && selectedService && (
+          {debouncedUserLocation && selectedService && (
             <MapViewDirections
-              origin={userLocation}
+              origin={debouncedUserLocation}
               destination={{
                 latitude: selectedService.location.latitude,
                 longitude: selectedService.location.longitude,
@@ -397,20 +590,21 @@ export default function MapScreen() {
         {routeInfo && (
           <View style={styles.routeInfo}>
             <Text style={styles.routeText}>
-              {routeInfo.distance.toFixed(1)} km • {routeInfo.duration.toFixed(0)} min
+              {routeInfo.distance.toFixed(1)} km •{' '}
+              {routeInfo.duration.toFixed(0)} min
             </Text>
           </View>
         )}
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <ArrowLeft size={24} color={COLORS.text.heading} />
         </TouchableOpacity>
 
         {/* Search bar */}
-        <Animated.View 
-          entering={FadeIn}
-          style={styles.searchContainer}
-        >
+        <Animated.View entering={FadeIn} style={styles.searchContainer}>
           <View style={styles.searchBar}>
             <Search size={20} color={COLORS.text.body} />
             <TextInput
@@ -429,8 +623,11 @@ export default function MapScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.servicesList}
-          contentContainerStyle={styles.servicesListContent}
-          snapToInterval={280 + 12}
+          contentContainerStyle={[
+            styles.servicesListContent,
+            { paddingHorizontal: (Dimensions.get('window').width - 320) / 2 }, // Center padding
+          ]}
+          snapToInterval={320 + 12}
           decelerationRate="fast"
           onMomentumScrollEnd={handleScroll}
           keyExtractor={keyExtractor}
@@ -444,20 +641,36 @@ export default function MapScreen() {
 
         {/* Map controls */}
         <View style={styles.mapControls}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.controlButton}
             onPress={handleLocatePress}
           >
-            <MaterialIcons name="my-location" size={24} color={COLORS.text.heading} />
+            <MaterialIcons
+              name="my-location"
+              size={24}
+              color={COLORS.text.heading}
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.mapButton} onPress={handleToggleMapType}>
-            <MaterialIcons 
-              name={mapType === 'standard' ? 'satellite' : 'map'} 
-              size={24} 
+          <TouchableOpacity
+            style={styles.mapButton}
+            onPress={handleToggleMapType}
+          >
+            <MaterialIcons
+              name={mapType === 'standard' ? 'satellite' : 'map'}
+              size={24}
               color={COLORS.text.heading}
             />
           </TouchableOpacity>
         </View>
+
+        {/* Add this new button just before closing View */}
+        <TouchableOpacity
+          style={styles.demoButton}
+          onPress={showNearbyServices}
+        >
+          <MaterialIcons name="place" size={24} color="white" />
+          <Text style={styles.demoButtonText}>Show Nearby</Text>
+        </TouchableOpacity>
       </View>
     </GestureHandlerRootView>
   );
@@ -491,8 +704,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  markerTail: {
-  },
+  markerTail: {},
   calloutContainer: {
     width: 200,
     backgroundColor: 'white',
@@ -654,61 +866,128 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 0,
     right: 0,
-    maxHeight: 150,
+    maxHeight: 200, // Increased from 150 to 200
   },
   servicesListContent: {
     paddingHorizontal: 16,
   },
+  cardContainer: {
+    marginBottom: 0,
+  },
+  selectedCardContainer: {
+    transform: [{ scale: 1.02 }],
+  },
+  bottomSheetHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+  },
   serviceCard: {
-    width: 280,
-    height: 120,
+    width: 320,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.card,
-    flexDirection: 'row',
-    padding: 12,
     marginRight: 12,
+    paddingRight: 16,
+    paddingLeft: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
     ...SHADOWS.card,
   },
-  selectedServiceCard: {
-    borderColor: COLORS.accent,
-    borderWidth: 2,
+  mainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12, // Increased from 8 to 12
   },
   serviceImage: {
-    width: 96,
-    height: '100%',
+    width: 50,
+    height: 50,
     borderRadius: 8,
+    marginRight: 12,
   },
-  serviceInfo: {
+  mainInfo: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
+    marginRight: 8,
   },
   serviceTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text.heading,
+    marginBottom: 4,
     fontFamily: 'Inter-SemiBold',
   },
-  serviceProvider: {
-    fontSize: 14,
-    color: COLORS.text.body,
-    fontFamily: 'Inter-Regular',
+  providerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
-  distanceText: {
+  serviceProvider: {
     fontSize: 14,
     color: COLORS.accent,
     fontFamily: 'Inter-Medium',
   },
-  pullBarContainer: {
+  ratingBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 184, 0, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  pullBar: {
-    width: 40,
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFB800',
+    marginLeft: 4,
+    fontFamily: 'Inter-SemiBold',
+  },
+  serviceDescription: {
+    fontSize: 13,
+    color: COLORS.text.body,
+    lineHeight: 18,
+    marginBottom: 16, // Increased from 12 to 16
+    fontFamily: 'Inter-Regular',
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 4, // Add top padding
+  },
+  locationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  distanceText: {
+    fontSize: 13,
+    color: COLORS.accent,
+    fontFamily: 'Inter-Medium',
+  },
+  dotSeparator: {
+    width: 4,
     height: 4,
-    backgroundColor: COLORS.text.body,
-    opacity: 0.3,
     borderRadius: 2,
+    backgroundColor: COLORS.accent,
+    opacity: 0.5,
+  },
+  timeText: {
+    fontSize: 13,
+    color: COLORS.accent,
+    fontFamily: 'Inter-Medium',
+  },
+  viewButton: {
+    backgroundColor: `${COLORS.accent}15`,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  viewButtonText: {
+    fontSize: 13,
+    color: COLORS.accent,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
   routeInfo: {
     position: 'absolute',
@@ -725,5 +1004,24 @@ const styles = StyleSheet.create({
     color: COLORS.text.body,
     fontFamily: 'Inter-Medium',
     textAlign: 'center',
+  },
+  demoButton: {
+    position: 'absolute',
+    left: 20,
+    bottom: 200,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    gap: 8,
+    ...SHADOWS.card,
+  },
+  demoButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
 });

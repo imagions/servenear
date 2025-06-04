@@ -9,21 +9,49 @@ import { Service } from '@/types';
 type ServiceCardProps = {
   service: Service;
   icon: string;
+  searchQuery?: string;
+  mode?: 'normal' | 'search';
+  scrollToCard?: boolean;
 };
 
-export default function ServiceCard({ service, icon }: ServiceCardProps) {
+export default function ServiceCard({   service,
+  icon,
+  searchQuery,
+  mode = 'normal',
+  scrollToCard = false,
+}: ServiceCardProps) {
   const handleViewLocation = () => {
     router.push({
       pathname: '/map',
       params: { 
-        latitude: service.latitude || 37.7749,
-        longitude: service.longitude || -122.4194,
-        serviceId: service.id
+        latitude: service.lat || 37.7749,
+        longitude: service.long || -122.4194,
+        serviceId: service.id,
+        scrollTo: scrollToCard ? 'true' : 'false'
       }
     });
   };
 
+
   const hasImage = !!service.image;
+
+  const highlightText = (text: string, query: string) => {
+    if (!query?.trim()) return text;
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <Text key={i} style={styles.highlightedText}>
+              {part}
+            </Text>
+          ) : (
+            <Text key={i}>{part}</Text>
+          )
+        )}
+      </>
+    );
+  };
 
   return (
     <TouchableOpacity 
@@ -46,9 +74,9 @@ export default function ServiceCard({ service, icon }: ServiceCardProps) {
         )}
         
         <View style={styles.headerContent}>
-          <View style={styles.titleRow}>
+                    <View style={styles.titleRow}>
             <Text style={styles.title} numberOfLines={1}>
-              {service.title}
+              {searchQuery ? highlightText(service.title, searchQuery) : service.title}
             </Text>
             <View style={styles.ratingBadge}>
               <Star size={14} color="#FFB800" fill="#FFB800" />
@@ -234,5 +262,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
+  },
+    highlightedText: {
+    backgroundColor: `${COLORS.accent}20`,
+    color: COLORS.accent,
+    fontWeight: '600',
   },
 });

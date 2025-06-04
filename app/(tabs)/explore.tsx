@@ -25,6 +25,8 @@ import { ServiceItem } from '@/types';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import FilterModal from '@/components/FilterModal';
+import ServiceCard from '@/components/ServiceCard';
+import { mockServices } from '@/constants/mock';
 
 // Dummy Data
 const TRENDING_SEARCHES = [
@@ -102,33 +104,6 @@ const SPECIAL_OFFERS = [
   },
 ];
 
-const RECOMMENDED_SERVICES = [
-  {
-    id: '1',
-    title: 'Professional AC Repair',
-    provider: 'CoolAir Services',
-    rating: 4.8,
-    price: 49,
-    image: 'https://picsum.photos/300',
-  },
-  {
-    id: '2',
-    title: 'Deep House Cleaning',
-    provider: 'CleanPro',
-    rating: 4.9,
-    price: 79,
-    image: 'https://picsum.photos/301',
-  },
-  {
-    id: '3',
-    title: 'Electrical Maintenance',
-    provider: 'PowerFix',
-    rating: 4.7,
-    price: 59,
-    image: 'https://picsum.photos/302',
-  },
-];
-
 // Update MapExploreButton component
 const MapExploreButton = () => (
   <TouchableOpacity
@@ -158,7 +133,7 @@ const RecommendedServices = () => (
       <Text style={styles.sectionTitle}>Recommended for You</Text>
     </View>
     <View style={styles.recommendedList}>
-      {RECOMMENDED_SERVICES.map((service) => (
+      {mockServices.slice(0, 3).map((service) => (
         <TouchableOpacity
           key={service.id}
           style={styles.recommendedCard}
@@ -200,7 +175,7 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
   <View style={styles.searchHistoryContainer}>
     <View style={styles.searchHistoryHeader}>
       <Text style={styles.searchHistoryTitle}>Recent Searches</Text>
-      {history.length > 0 && (
+      {history?.length > 0 && (
         <TouchableOpacity onPress={() => onClear(history)}>
           <Text style={styles.clearAllText}>Clear All</Text>
         </TouchableOpacity>
@@ -228,6 +203,40 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
     </View>
   </View>
 );
+
+// Add mock search results data
+const MOCK_SEARCH_RESULTS = [
+  {
+    id: '1',
+    title: 'Professional Plumbing Service',
+    provider: "Mike's Plumbing",
+    rating: 4.8,
+    price: 75,
+    image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+    distance: 2.5,
+    category: 'plumbing',
+  },
+  {
+    id: '2',
+    title: 'Expert Electrician',
+    provider: 'PowerFix Solutions',
+    rating: 4.9,
+    price: 85,
+    image: 'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+    distance: 1.8,
+    category: 'electrical',
+  },
+  {
+    id: '3',
+    title: 'Home Cleaning Service',
+    provider: 'CleanPro',
+    rating: 4.7,
+    price: 45,
+    image: 'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg',
+    distance: 3.2,
+    category: 'cleaning',
+  },
+];
 
 export default function ExploreScreen() {
   const params = useGlobalSearchParams(); // Change this line
@@ -272,6 +281,23 @@ export default function ExploreScreen() {
     // Handle the filters here
     console.log('Applied filters:', filters);
     setIsFilterModalVisible(false);
+  };
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+
+    if (text.trim()) {
+      const filtered = mockServices.filter(
+        (service) =>
+          service.title.toLowerCase().includes(text.toLowerCase()) ||
+          service.provider.toLowerCase().includes(text.toLowerCase()) ||
+          service.category.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredServices(filtered);
+      setIsFocused(false); // Hide search history
+    } else {
+      setFilteredServices([]);
+    }
   };
 
   const renderServiceGridItem = ({ item }: { item: ServiceItem }) => (
@@ -436,50 +462,26 @@ export default function ExploreScreen() {
     </View>
   );
 
-  const RecommendedServices = () => (
-    <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <MaterialIcons name="recommend" size={24} color={COLORS.accent} />
-        <Text style={styles.sectionTitle}>Recommended for You</Text>
-      </View>
-      <View style={styles.recommendedList}>
-        {RECOMMENDED_SERVICES.map((service) => (
-          <TouchableOpacity
-            key={service.id}
-            style={styles.recommendedCard}
-            onPress={() => router.push(`/service/${service.id}`)}
-          >
-            <Image
-              source={{ uri: service.image }}
-              style={styles.recommendedImage}
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.8)']}
-              style={styles.recommendedGradient}
-            >
-              <View style={styles.recommendedContent}>
-                <View style={styles.recommendedHeader}>
-                  <Text style={styles.recommendedTitle}>{service.title}</Text>
-                  <View style={styles.recommendedRating}>
-                    <Star size={12} color="#FFB800" fill="#FFB800" />
-                    <Text style={styles.recommendedRatingText}>
-                      {service.rating}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.recommendedFooter}>
-                  <Text style={styles.recommendedProvider}>
-                    {service.provider}
-                  </Text>
-                  <Text style={styles.recommendedPrice}>
-                    ${service.price}/hr
-                  </Text>
-                </View>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-      </View>
+  const SearchResults = ({ results, query }) => (
+    <View style={styles.searchResults}>
+      <Text style={styles.resultsCount}>
+        {results?.length || 0} services found
+      </Text>
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        data={results}
+        renderItem={({ item }) => (
+          <ServiceCard
+            service={item}
+            icon={item.category.toLowerCase()}
+            searchQuery={query}
+            mode="search"
+            scrollToCard={true}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.searchResultsList}
+      />
     </View>
   );
 
@@ -494,12 +496,11 @@ export default function ExploreScreen() {
             style={styles.searchInput}
             placeholder="Search services nearby..."
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearch}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
           />
           {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <TouchableOpacity onPress={() => handleSearch('')}>
               <X size={20} color={COLORS.text.body} />
             </TouchableOpacity>
           )}
@@ -520,29 +521,35 @@ export default function ExploreScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView>
-        {/* Search History or Main Content */}
-        {isFocused ? (
-          <SearchHistory
-            history={searchHistory}
-            onSelect={(query) => {
-              setSearchQuery(query);
-              searchInputRef.current?.blur();
-            }}
-            onClear={(query) => {
-              setSearchHistory((history) => history.filter((h) => h !== query));
-            }}
-          />
-        ) : (
-          <>
-            <TrendingSearches data={TRENDING_SEARCHES} />
-            <MapExploreButton />
-            <FeaturedProviders data={FEATURED_PROVIDERS} />
-            <SpecialOffers data={SPECIAL_OFFERS} />
-            <RecommendedServices />
-          </>
-        )}
-      </ScrollView>
+      {searchQuery ? (
+        <SearchResults results={filteredServices} query={searchQuery} />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Search History or Main Content */}
+          {isFocused ? (
+            <SearchHistory
+              history={searchHistory}
+              onSelect={(query) => {
+                setSearchQuery(query);
+                searchInputRef.current?.blur();
+              }}
+              onClear={(query) => {
+                setSearchHistory((history) =>
+                  history.filter((h) => h !== query)
+                );
+              }}
+            />
+          ) : (
+            <>
+              <TrendingSearches data={TRENDING_SEARCHES} />
+              <MapExploreButton />
+              <FeaturedProviders data={FEATURED_PROVIDERS} />
+              <SpecialOffers data={SPECIAL_OFFERS} />
+              <RecommendedServices />
+            </>
+          )}
+        </ScrollView>
+      )}
 
       <FilterModal
         visible={isFilterModalVisible}
@@ -1068,5 +1075,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.accent,
     fontFamily: 'Inter-Bold',
+  },
+  searchResults: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  resultsCount: {
+    fontSize: 14,
+    color: COLORS.text.body,
+    marginVertical: 16,
+    fontFamily: 'Inter-Regular',
+  },
+  searchResultsList: {
+    paddingBottom: 20,
   },
 });
