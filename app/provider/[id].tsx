@@ -298,7 +298,7 @@ export default function ProviderProfileScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => router.push(`/call/${provider.id}`)}
+            onPress={() => router.push(`/call/${provider.id}` as any)}
           >
             <Phone size={20} color={COLORS.accent} />
             <Text style={styles.secondaryButtonText}>Call Now</Text>

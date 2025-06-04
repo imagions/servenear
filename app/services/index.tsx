@@ -106,7 +106,7 @@ export default function ServicesScreen() {
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
             <ServiceCard 
-              service={item}
+              service={item as any}
               icon={item.image || 'location-on'}
               mode="normal"
             />
