@@ -21,13 +21,23 @@ import {
   ShoppingCart,
 } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
+import { useCartStore } from '@/store/useCartStore'; // Add this import
 import { ReviewItem } from '@/types';
 import * as Haptics from 'expo-haptics';
+import { MaterialIcons } from '@expo/vector-icons';
+
+const DUMMY_REVIEW_IMAGES = [
+  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+  'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg',
+  'https://images.pexels.com/photos/1181674/pexels-photo-1181674.jpeg',
+];
 
 export default function ServiceDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { getServiceById, reviews } = useServiceStore();
+  const { addToCart } = useCartStore();
   const service = getServiceById(id as string);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -54,13 +64,30 @@ export default function ServiceDetailsScreen() {
   };
 
   const handleAddToCart = () => {
-    // Add to cart logic here
+    addToCart({
+      id: service.id,
+      title: service.title,
+      price: Math.min(service.fixedPrice, service.price),
+      image: service.image,
+      provider: service.provider,
+    });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  };
+
+  const handleProviderPress = () => {
+    router.push(`/provider/${service.providerId}`);
+  };
+
+  const handleUserPress = (userId: string) => {
+    router.push(`/user/${userId}`);
   };
 
   const renderReviewItem = ({ item }: { item: ReviewItem }) => (
     <View style={styles.reviewItem}>
-      <View style={styles.reviewHeader}>
+      <TouchableOpacity
+        style={styles.reviewHeader}
+        onPress={() => handleUserPress(item.userId)}
+      >
         <Image source={{ uri: item.userImage }} style={styles.reviewerImage} />
         <View>
           <Text style={styles.reviewerName}>{item.userName}</Text>
@@ -70,15 +97,46 @@ export default function ServiceDetailsScreen() {
           <Star size={14} color="#FFB800" fill="#FFB800" />
           <Text style={styles.reviewRatingText}>{item.rating}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
       <Text style={styles.reviewComment}>{item.comment}</Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.reviewPhotos}
+      >
+        {DUMMY_REVIEW_IMAGES.slice(0, 2).map((photo, index) => (
+          <Image
+            key={index}
+            source={{ uri: photo }}
+            style={styles.reviewPhoto}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  const renderReviewPhotos = () => (
+    <View style={styles.reviewPhotosSection}>
+      <Text style={styles.sectionTitle}>Reviews & Photos</Text>
+      <View style={styles.photosGrid}>
+        {mockPhotos.map((photo, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.photoItem}
+            onPress={() => router.push(`/service/${id}/photos`)}
+          >
+            <Image source={{ uri: photo }} style={styles.reviewPhoto} />
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView>
         <View style={styles.imageContainer}>
           <Image source={{ uri: service.image }} style={styles.serviceImage} />
 
@@ -115,7 +173,10 @@ export default function ServiceDetailsScreen() {
             </View>
           </View>
 
-          <View style={styles.providerContainer}>
+          <TouchableOpacity
+            style={styles.providerContainer}
+            onPress={handleProviderPress}
+          >
             <Image
               source={{ uri: service.providerImage }}
               style={styles.providerImage}
@@ -129,7 +190,7 @@ export default function ServiceDetailsScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About This Service</Text>
@@ -180,109 +241,60 @@ export default function ServiceDetailsScreen() {
             </View>
           </View>
 
+          {/* Reviews Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
-              <TouchableOpacity>
-                <Text style={styles.seeAllText}>See All</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.ratingsBreakdown}>
+              <Text style={styles.sectionTitle}>Reviews & Photos</Text>
               <View style={styles.overallRating}>
                 <Text style={styles.overallRatingValue}>{service.rating}</Text>
                 <View style={styles.starsContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={16}
-                      color="#FFB800"
-                      fill={
-                        star <= Math.floor(service.rating)
-                          ? '#FFB800'
-                          : 'transparent'
-                      }
-                    />
-                  ))}
+                  <Star size={16} color="#FFB800" fill={'#FFB800'} />
                 </View>
-                <Text style={styles.overallRatingText}>Overall Rating</Text>
-              </View>
-
-              <View style={styles.ratingBreakdownItems}>
-                <View style={styles.ratingBreakdownItem}>
-                  <Text style={styles.ratingCategoryText}>Respect</Text>
-                  <View style={styles.ratingBar}>
-                    <View
-                      style={[
-                        styles.ratingFill,
-                        { width: `${(service.ratings.respect / 5) * 100}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.ratingValueText}>
-                    {service.ratings.respect}
-                  </Text>
-                </View>
-
-                <View style={styles.ratingBreakdownItem}>
-                  <Text style={styles.ratingCategoryText}>Trust</Text>
-                  <View style={styles.ratingBar}>
-                    <View
-                      style={[
-                        styles.ratingFill,
-                        { width: `${(service.ratings.trust / 5) * 100}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.ratingValueText}>
-                    {service.ratings.trust}
-                  </Text>
-                </View>
-
-                <View style={styles.ratingBreakdownItem}>
-                  <Text style={styles.ratingCategoryText}>Communication</Text>
-                  <View style={styles.ratingBar}>
-                    <View
-                      style={[
-                        styles.ratingFill,
-                        {
-                          width: `${
-                            (service.ratings.communication / 5) * 100
-                          }%`,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.ratingValueText}>
-                    {service.ratings.communication}
-                  </Text>
-                </View>
-
-                <View style={styles.ratingBreakdownItem}>
-                  <Text style={styles.ratingCategoryText}>Punctuality</Text>
-                  <View style={styles.ratingBar}>
-                    <View
-                      style={[
-                        styles.ratingFill,
-                        {
-                          width: `${(service.ratings.punctuality / 5) * 100}%`,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.ratingValueText}>
-                    {service.ratings.punctuality}
-                  </Text>
-                </View>
+                <Text style={styles.totalReviews}>({service.reviewCount})</Text>
               </View>
             </View>
 
-            <FlatList
-              data={reviews}
-              renderItem={renderReviewItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
+            {/* Photos Grid */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.reviewPhotosContainer}
+            >
+              {reviews.slice(0, 6).map(
+                (review, index) =>
+                  review.photos &&
+                  review.photos.map((photo, photoIndex) => (
+                    <TouchableOpacity
+                      key={`${index}-${photoIndex}`}
+                      style={styles.photoPreview}
+                      onPress={() =>
+                        router.push(`/service/${service.id}/photos`)
+                      }
+                    >
+                      <Image
+                        source={{ uri: photo }}
+                        style={styles.photoThumbnail}
+                      />
+                    </TouchableOpacity>
+                  ))
+              )}
+              <TouchableOpacity
+                style={styles.viewAllPhotos}
+                onPress={() => router.push(`/service/${service.id}/photos`)}
+              >
+                <MaterialIcons
+                  name="photo-library"
+                  size={24}
+                  color={COLORS.text.body}
+                />
+                <Text style={styles.viewAllPhotosText}>View All</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Recent Reviews */}
+            {reviews
+              .slice(0, 2)
+              .map((review) => renderReviewItem({ item: review }))}
           </View>
         </View>
       </ScrollView>
@@ -443,7 +455,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 0,
   },
   sectionTitle: {
     fontSize: 18,
@@ -516,71 +528,26 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontFamily: 'Inter-Bold',
   },
-  ratingsBreakdown: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    padding: 16,
-    marginBottom: 20,
-    ...SHADOWS.card,
-  },
   overallRating: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#E0E0E0',
-    paddingRight: 16,
-    marginRight: 16,
+    gap: 4,
   },
   overallRatingValue: {
-    fontSize: 36,
     fontWeight: 'bold',
     color: COLORS.text.heading,
-    marginBottom: 8,
+    marginBottom: 4,
     fontFamily: 'Inter-Bold',
   },
   starsContainer: {
     flexDirection: 'row',
-    marginBottom: 8,
+    gap: 4,
+    marginBottom: 4,
   },
-  overallRatingText: {
+  totalReviews: {
     fontSize: 14,
     color: COLORS.text.body,
     fontFamily: 'Inter-Regular',
-  },
-  ratingBreakdownItems: {
-    flex: 1,
-  },
-  ratingBreakdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  ratingCategoryText: {
-    width: 100,
-    fontSize: 14,
-    color: COLORS.text.body,
-    fontFamily: 'Inter-Regular',
-  },
-  ratingBar: {
-    flex: 1,
-    height: 6,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 3,
-    marginHorizontal: 8,
-  },
-  ratingFill: {
-    height: '100%',
-    backgroundColor: COLORS.accent,
-    borderRadius: 3,
-  },
-  ratingValueText: {
-    width: 30,
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text.heading,
-    textAlign: 'right',
-    fontFamily: 'Inter-Medium',
   },
   reviewItem: {
     backgroundColor: COLORS.surface,
@@ -690,6 +657,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+    fontFamily: 'Inter-SemiBold',
+  },
+  reviewPhotosContainer: {
+    marginVertical: 16,
+  },
+  photoPreview: {
+    width: 120,
+    height: 120,
+    marginRight: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  photoThumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  viewAllPhotos: {
+    width: 120,
+    height: 120,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  viewAllPhotosText: {
+    fontSize: 14,
+    color: COLORS.text.body,
+    marginTop: 8,
+    fontFamily: 'Inter-Medium',
+  },
+  seeAllReviews: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  seeAllReviewsText: {
+    fontSize: 16,
+    color: COLORS.accent,
+    fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
   },
 });

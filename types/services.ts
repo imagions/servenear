@@ -98,6 +98,7 @@ export interface ReviewItem {
   rating: number;
   comment: string;
   date: string;
+  photos: string[];
 }
 
 export interface ServiceCreateParams {

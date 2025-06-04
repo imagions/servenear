@@ -457,12 +457,7 @@ export default function ExploreScreen() {
               style={styles.offerGradient}
             >
               <View style={styles.offerIconContainer}>
-                <MaterialIcons
-                  name={offer.icon}
-                  size={32}
-                  color="white"
-                  style={styles.offerIcon}
-                />
+                <MaterialIcons name={offer.icon} size={60} color="white" />
               </View>
               <View style={styles.offerBadge}>
                 <Text style={styles.offerDiscount}>{offer.discount}</Text>
@@ -661,10 +656,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   resultsCount: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
     color: COLORS.text.body,
-    fontFamily: 'Inter-Medium',
+    marginVertical: 16,
+    fontFamily: 'Inter-Regular',
   },
   viewToggle: {
     flexDirection: 'row',
@@ -1095,12 +1090,6 @@ const styles = StyleSheet.create({
   searchResults: {
     flex: 1,
     paddingHorizontal: 20,
-  },
-  resultsCount: {
-    fontSize: 14,
-    color: COLORS.text.body,
-    marginVertical: 16,
-    fontFamily: 'Inter-Regular',
   },
   searchResultsList: {
     paddingBottom: 20,

@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import { X, Star, BadgeCheck } from 'lucide-react-native';
+import { FilterModalProps } from '@/types';
 
 const DISTANCES = [
   { label: 'All', value: null },
@@ -42,22 +43,7 @@ const AUTHENTICITY_OPTIONS = [
   { value: 'unverified', label: 'Unverified' },
 ];
 
-interface FilterModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onApply: (filters: {
-    distance: number;
-    priceRange: { min: number; max: number };
-    rating: number;
-    verifiedOnly: boolean;
-  }) => void;
-}
-
-export default function FilterModal({
-  visible,
-  onClose,
-  onApply,
-}: FilterModalProps) {
+const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['85%'], []);
 
@@ -327,7 +313,7 @@ export default function FilterModal({
       )}
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -574,3 +560,5 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
 });
+
+export default FilterModal;

@@ -406,7 +406,12 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
     rating: 4.9,
     comment: 'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
-    date: 'May 15, 2024'
+    date: 'May 15, 2024',
+    photos: [
+      'https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg',
+      'https://images.pexels.com/photos/4239147/pexels-photo-4239147.jpeg',
+      'https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg'
+    ]
   },
   {
     id: 'review-2',
@@ -416,7 +421,11 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
     rating: 4.7,
     comment: 'Great service repairing our dishwasher. Explained everything clearly and did a thorough job.',
-    date: 'May 10, 2024'
+    date: 'May 10, 2024',
+    photos: [
+      'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
+      'https://images.pexels.com/photos/4239150/pexels-photo-4239150.jpeg'
+    ]
   },
   {
     id: 'review-3',

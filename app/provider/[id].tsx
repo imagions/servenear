@@ -24,6 +24,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   Leaf,
+  Phone,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -38,7 +39,8 @@ const PROVIDER_DATA = {
   completedJobs: 156,
   experience: 5,
   location: 'San Francisco, CA',
-  about: 'Professional plumber with over 5 years of experience specializing in residential and commercial plumbing services. Licensed and insured.',
+  about:
+    'Professional plumber with over 5 years of experience specializing in residential and commercial plumbing services. Licensed and insured.',
   skills: [
     { name: 'Pipe Repair', level: 95 },
     { name: 'Drain Cleaning', level: 90 },
@@ -46,7 +48,11 @@ const PROVIDER_DATA = {
     { name: 'Fixture Installation', level: 92 },
   ],
   certifications: [
-    { name: 'Master Plumber License', issuer: 'California State Board', year: 2020 },
+    {
+      name: 'Master Plumber License',
+      issuer: 'California State Board',
+      year: 2020,
+    },
     { name: 'Green Plumbing Certification', issuer: 'IAPMO', year: 2021 },
   ],
   languages: ['English', 'Spanish'],
@@ -107,13 +113,15 @@ const PROVIDER_DATA = {
       id: '1',
       user: {
         name: 'Emma Johnson',
-        image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+        image:
+          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
         verified: true,
       },
       rating: 5,
       date: 'May 15, 2024',
       service: 'Pipe Repair',
-      comment: 'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
+      comment:
+        'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
       photos: [
         'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
         'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
@@ -148,13 +156,13 @@ export default function ProviderProfileScreen() {
         <Text style={styles.serviceName}>{item.name}</Text>
         <Text style={styles.servicePrice}>${item.price}</Text>
       </View>
-      
+
       <View style={styles.serviceDetails}>
         <View style={styles.serviceDetail}>
           <Clock size={16} color={COLORS.text.body} />
           <Text style={styles.serviceDetailText}>{item.duration}</Text>
         </View>
-        
+
         <View style={styles.serviceDetail}>
           <Leaf size={16} color="#4CAF50" />
           <Text style={styles.sustainabilityScore}>
@@ -174,7 +182,9 @@ export default function ProviderProfileScreen() {
         <Image source={{ uri: item.user.image }} style={styles.reviewerImage} />
         <View style={styles.reviewerInfo}>
           <View style={styles.reviewerNameContainer}>
-            <Text style={[styles.reviewerName, { color: COLORS.accent }]}>{item.user.name}</Text>
+            <Text style={[styles.reviewerName, { color: COLORS.accent }]}>
+              {item.user.name}
+            </Text>
             {item.user.verified && (
               <BadgeCheck size={16} color={COLORS.accent} />
             )}
@@ -191,16 +201,16 @@ export default function ProviderProfileScreen() {
       <Text style={styles.reviewComment}>{item.comment}</Text>
 
       {item.photos && item.photos.length > 0 && (
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.reviewPhotos}
         >
           {item.photos.map((photo, index) => (
-            <Image 
+            <Image
               key={index}
-              source={{ uri: photo }} 
-              style={styles.reviewPhoto} 
+              source={{ uri: photo }}
+              style={styles.reviewPhoto}
             />
           ))}
         </ScrollView>
@@ -211,7 +221,7 @@ export default function ProviderProfileScreen() {
           <ThumbsUp size={16} color={COLORS.text.body} />
           <Text style={styles.helpfulCount}>{item.helpful}</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.helpfulButton}>
           <ThumbsDown size={16} color={COLORS.text.body} />
           <Text style={styles.helpfulCount}>{item.notHelpful}</Text>
@@ -237,11 +247,13 @@ export default function ProviderProfileScreen() {
                   <BadgeCheck size={20} color={COLORS.accent} />
                 )}
               </View>
-              
+
               <View style={styles.ratingContainer}>
                 <Star size={16} color="#FFB800" fill="#FFB800" />
                 <Text style={styles.rating}>{provider.rating}</Text>
-                <Text style={styles.ratingCount}>({provider.completedJobs} jobs)</Text>
+                <Text style={styles.ratingCount}>
+                  ({provider.completedJobs} jobs)
+                </Text>
               </View>
 
               <View style={styles.locationContainer}>
@@ -258,16 +270,16 @@ export default function ProviderProfileScreen() {
             <Text style={styles.statValue}>{provider.completedJobs}</Text>
             <Text style={styles.statLabel}>Jobs Done</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{provider.experience}+</Text>
             <Text style={styles.statLabel}>Years Exp.</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{provider.ratings.total}</Text>
             <Text style={styles.statLabel}>Reviews</Text>
@@ -276,48 +288,63 @@ export default function ProviderProfileScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, styles.primaryButton]}
             onPress={() => router.push(`/chat/${provider.id}`)}
           >
             <MessageCircle size={20} color="white" />
             <Text style={styles.primaryButtonText}>Message</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
             onPress={() => router.push(`/book/${provider.id}`)}
           >
-            <Calendar size={20} color={COLORS.accent} />
-            <Text style={styles.secondaryButtonText}>Book Now</Text>
+            <Phone size={20} color={COLORS.accent} />
+            <Text style={styles.secondaryButtonText}>Call Now</Text>
           </TouchableOpacity>
         </View>
 
         {/* Content Tabs */}
         <View style={styles.tabs}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tab, selectedTab === 'about' && styles.activeTab]}
             onPress={() => setSelectedTab('about')}
           >
-            <Text style={[styles.tabText, selectedTab === 'about' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === 'about' && styles.activeTabText,
+              ]}
+            >
               About
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.tab, selectedTab === 'services' && styles.activeTab]}
             onPress={() => setSelectedTab('services')}
           >
-            <Text style={[styles.tabText, selectedTab === 'services' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === 'services' && styles.activeTabText,
+              ]}
+            >
               Services
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.tab, selectedTab === 'reviews' && styles.activeTab]}
             onPress={() => setSelectedTab('reviews')}
           >
-            <Text style={[styles.tabText, selectedTab === 'reviews' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === 'reviews' && styles.activeTabText,
+              ]}
+            >
               Reviews
             </Text>
           </TouchableOpacity>
@@ -390,7 +417,9 @@ export default function ProviderProfileScreen() {
               <Text style={styles.sectionTitle}>Service Area</Text>
               <View style={styles.serviceArea}>
                 <MapPin size={20} color={COLORS.text.body} />
-                <Text style={styles.serviceAreaText}>{provider.serviceArea}</Text>
+                <Text style={styles.serviceAreaText}>
+                  {provider.serviceArea}
+                </Text>
               </View>
             </View>
           </View>
@@ -424,7 +453,11 @@ export default function ProviderProfileScreen() {
                       key={star}
                       size={16}
                       color="#FFB800"
-                      fill={star <= Math.floor(provider.ratings.overall) ? '#FFB800' : 'none'}
+                      fill={
+                        star <= Math.floor(provider.ratings.overall)
+                          ? '#FFB800'
+                          : 'none'
+                      }
                     />
                   ))}
                 </View>
@@ -434,22 +467,24 @@ export default function ProviderProfileScreen() {
               </View>
 
               <View style={styles.ratingCategories}>
-                {Object.entries(provider.ratings.categories).map(([key, value]) => (
-                  <View key={key} style={styles.ratingCategoryItem}>
-                    <Text style={styles.ratingCategoryLabel}>
-                      {key.replace(/([A-Z])/g, ' $1').trim()}
-                    </Text>
-                    <View style={styles.ratingBar}>
-                      <View
-                        style={[
-                          styles.ratingFill,
-                          { width: `${(value / 5) * 100}%` },
-                        ]}
-                      />
+                {Object.entries(provider.ratings.categories).map(
+                  ([key, value]) => (
+                    <View key={key} style={styles.ratingCategoryItem}>
+                      <Text style={styles.ratingCategoryLabel}>
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </Text>
+                      <View style={styles.ratingBar}>
+                        <View
+                          style={[
+                            styles.ratingFill,
+                            { width: `${(value / 5) * 100}%` },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.ratingValue}>{value}</Text>
                     </View>
-                    <Text style={styles.ratingValue}>{value}</Text>
-                  </View>
-                ))}
+                  )
+                )}
               </View>
             </View>
 
@@ -464,7 +499,7 @@ export default function ProviderProfileScreen() {
       </ScrollView>
 
       {/* Chat Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.chatButton}
         onPress={() => router.push(`/chat/${provider.id}`)}
       >
