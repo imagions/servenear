@@ -166,15 +166,15 @@ export default function ProviderProfileScreen() {
   );
 
   const renderReview = ({ item }) => (
-    <Pressable 
-      style={styles.reviewCard}
-      onPress={() => router.push(`/user/${item.user.id}`)}
-    >
-      <View style={styles.reviewHeader}>
+    <View style={styles.reviewCard}>
+      <TouchableOpacity
+        style={styles.reviewHeader}
+        onPress={() => router.push(`/user/${item.user.id}`)}
+      >
         <Image source={{ uri: item.user.image }} style={styles.reviewerImage} />
         <View style={styles.reviewerInfo}>
           <View style={styles.reviewerNameContainer}>
-            <Text style={styles.reviewerName}>{item.user.name}</Text>
+            <Text style={[styles.reviewerName, { color: COLORS.accent }]}>{item.user.name}</Text>
             {item.user.verified && (
               <BadgeCheck size={16} color={COLORS.accent} />
             )}
@@ -185,7 +185,7 @@ export default function ProviderProfileScreen() {
           <Star size={16} color="#FFB800" fill="#FFB800" />
           <Text style={styles.reviewRatingText}>{item.rating}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
       <Text style={styles.reviewService}>Service: {item.service}</Text>
       <Text style={styles.reviewComment}>{item.comment}</Text>
@@ -217,7 +217,7 @@ export default function ProviderProfileScreen() {
           <Text style={styles.helpfulCount}>{item.notHelpful}</Text>
         </TouchableOpacity>
       </View>
-    </Pressable>
+    </View>
   );
 
   return (

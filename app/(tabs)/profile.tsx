@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from 'react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -24,13 +25,85 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isProviderMode, toggleProviderMode } = useAuthStore();
   const [activeTab, setActiveTab] = useState('provider');
 
   const handleLogout = () => {
     logout();
     router.replace('/login');
   };
+
+  const renderProviderModeSwitch = () => (
+    <View style={styles.providerModeCard}>
+      <View style={styles.providerModeContent}>
+        <View>
+          <Text style={styles.providerModeTitle}>
+            {isProviderMode ? 'Provider Mode Active' : 'Enable Provider Mode'}
+          </Text>
+          <Text style={styles.providerModeDesc}>
+            {isProviderMode
+              ? 'You can now manage services and bookings'
+              : 'Switch to provider mode to offer services'}
+          </Text>
+        </View>
+        <Switch
+          value={isProviderMode}
+          onValueChange={async () => {
+            await toggleProviderMode();
+          }}
+          trackColor={{ false: '#E0E0E0', true: `${COLORS.accent}50` }}
+          thumbColor={isProviderMode ? COLORS.accent : '#9E9E9E'}
+        />
+      </View>
+      {isProviderMode && (
+        <View style={styles.providerModeStats}>
+          <View style={styles.providerModeStat}>
+            <Text style={styles.providerModeStatValue}>0</Text>
+            <Text style={styles.providerModeStatLabel}>Active Services</Text>
+          </View>
+          <View style={styles.providerModeStat}>
+            <Text style={styles.providerModeStatValue}>0</Text>
+            <Text style={styles.providerModeStatLabel}>Help Requests</Text>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+
+  const renderProviderMenuItems = () =>
+    isProviderMode ? (
+      <>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/provider/add-service')}
+        >
+          <View style={styles.menuItemLeft}>
+            <View
+              style={[styles.menuIcon, { backgroundColor: 'rgba(0, 207, 232, 0.1)' }]}
+            >
+              <MaterialIcons name="add-business" size={24} color={COLORS.accent} />
+            </View>
+            <Text style={styles.menuItemText}>Add New Service</Text>
+          </View>
+          <ChevronRight size={20} color="#9E9E9E" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/provider/services')}
+        >
+          <View style={styles.menuItemLeft}>
+            <View
+              style={[styles.menuIcon, { backgroundColor: 'rgba(255, 184, 0, 0.1)' }]}
+            >
+              <Award size={24} color="#FFB800" />
+            </View>
+            <Text style={styles.menuItemText}>My Services</Text>
+          </View>
+          <ChevronRight size={20} color="#9E9E9E" />
+        </TouchableOpacity>
+      </>
+    ) : null;
 
   return (
     <View style={styles.container}>
@@ -65,6 +138,8 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {renderProviderModeSwitch()}
 
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
@@ -360,42 +435,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => router.push('/add-service')}
-          >
-            <View style={styles.menuItemLeft}>
-              <View
-                style={[
-                  styles.menuIcon,
-                  { backgroundColor: 'rgba(0, 207, 232, 0.1)' },
-                ]}
-              >
-                <MaterialIcons
-                  name="add-business"
-                  size={24}
-                  color={COLORS.accent}
-                />
-              </View>
-              <Text style={styles.menuItemText}>Add New Service</Text>
-            </View>
-            <ChevronRight size={20} color="#9E9E9E" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View
-                style={[
-                  styles.menuIcon,
-                  { backgroundColor: 'rgba(255, 184, 0, 0.1)' },
-                ]}
-              >
-                <Award size={24} color="#FFB800" />
-              </View>
-              <Text style={styles.menuItemText}>My Services</Text>
-            </View>
-            <ChevronRight size={20} color="#9E9E9E" />
-          </TouchableOpacity>
+          {renderProviderMenuItems()}
 
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
@@ -768,5 +808,53 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.text.heading,
     fontFamily: 'Inter-Medium',
+  },
+  providerModeCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.card,
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    ...SHADOWS.card,
+  },
+  providerModeContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  providerModeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.heading,
+    marginBottom: 4,
+    fontFamily: 'Inter-SemiBold',
+  },
+  providerModeDesc: {
+    fontSize: 12,
+    color: COLORS.text.body,
+    maxWidth: '80%',
+    fontFamily: 'Inter-Regular',
+  },
+  providerModeStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 16,
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F5',
+  },
+  providerModeStat: {
+    alignItems: 'center',
+  },
+  providerModeStatValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+  },
+  providerModeStatLabel: {
+    fontSize: 12,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Regular',
   },
 });

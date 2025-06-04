@@ -60,7 +60,9 @@ const ServiceListItem = memo(({ item, onPress, isSelected, distance }) => {
           />
           <View style={styles.serviceInfo}>
             <Text style={styles.serviceTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.serviceProvider}>{item.provider}</Text>
+            <TouchableOpacity onPress={() => router.push(`/provider/${item.providerId}`)}>
+              <Text style={[styles.serviceProvider, { color: COLORS.accent }]}>{item.provider}</Text>
+            </TouchableOpacity>
             {distance && isSelected && (
               <Text style={styles.distanceText}>{distance} km away</Text>
             )}
