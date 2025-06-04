@@ -16,43 +16,57 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-1', 
     name: 'Pipe Repair', 
     categoryId: 'cat-1',
-    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg' 
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
+    startingPrice: 50,
+    servicesCount: 12
   },
   { 
     id: 'subcat-2', 
     name: 'Drain Cleaning', 
     categoryId: 'cat-1',
-    image: 'https://images.pexels.com/photos/5728297/pexels-photo-5728297.jpeg' 
+    image: 'https://images.pexels.com/photos/5728297/pexels-photo-5728297.jpeg',
+    startingPrice: 60,
+    servicesCount: 8
   },
   { 
     id: 'subcat-3', 
     name: 'Fixture Installation', 
     categoryId: 'cat-1',
-    image: 'https://images.pexels.com/photos/5570224/pexels-photo-5570224.jpeg' 
+    image: 'https://images.pexels.com/photos/5570224/pexels-photo-5570224.jpeg',
+    startingPrice: 70,
+    servicesCount: 10
   },
   { 
     id: 'subcat-4', 
     name: 'Wiring', 
     categoryId: 'cat-2',
-    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg' 
+    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    startingPrice: 80,
+    servicesCount: 15
   },
   { 
     id: 'subcat-5', 
     name: 'Lighting', 
     categoryId: 'cat-2',
-    image: 'https://images.pexels.com/photos/5738351/pexels-photo-5738351.jpeg' 
+    image: 'https://images.pexels.com/photos/5738351/pexels-photo-5738351.jpeg',
+    startingPrice: 55,
+    servicesCount: 9
   },
   { 
     id: 'subcat-6', 
     name: 'House Cleaning', 
     categoryId: 'cat-3',
-    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg' 
+    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    startingPrice: 45,
+    servicesCount: 14
   },
   { 
     id: 'subcat-7', 
     name: 'Carpet Cleaning', 
     categoryId: 'cat-3',
-    image: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg' 
+    image: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
+    startingPrice: 65,
+    servicesCount: 7
   }
 ];
 
@@ -313,41 +327,45 @@ export const mockTrendingServices: TrendingService[] = [
     distance: 3.1
   },
   {
-    id: 'service-5',
-    title: 'Hair Styling & Makeup',
-    provider: 'Emily Wong',
-    rating: 4.9,
-    price: 120,
-    image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
-    distance: 2.7
-  },
-  {
-    id: 'service-6',
-    title: 'Computer Repair & IT Support',
-    provider: 'David Kim',
-    rating: 4.8,
-    price: 65,
-    image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
-    distance: 3.5
-  },
-  {
-    id: 'service-3',
-    title: 'Deep House Cleaning',
-    provider: 'Maria Garcia',
-    rating: 4.7,
-    price: 40,
-    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
-    distance: 1.8
-  },
-  {
-    id: 'service-8',
-    title: 'Grocery & Food Delivery',
-    provider: 'James Wilson',
-    rating: 4.7,
-    price: 25,
-    image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
-    distance: 1.5
-  }
+      id: 'service-5',
+      title: 'Hair Styling & Makeup',
+      description: 'Professional hair styling and makeup services for special events, weddings, photoshoots, or just to treat yourself. Using high-quality products and latest techniques.',
+      provider: 'Emily Wong',
+      rating: 4.9,
+      price: 120,
+      image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
+      distance: 2.7
+    },
+    {
+      id: 'service-6',
+      title: 'Computer Repair & IT Support',
+      description: 'Expert computer repair and IT support for both Mac and PC. Services include virus removal, hardware replacement, software installation, and general troubleshooting.',
+      provider: 'David Kim',
+      rating: 4.8,
+      price: 65,
+      image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
+      distance: 3.5
+    },
+    {
+      id: 'service-3',
+      title: 'Deep House Cleaning',
+      description: 'Thorough house cleaning service using eco-friendly products. Services include dusting, vacuuming, mopping, bathroom and kitchen cleaning, and interior window washing.',
+      provider: 'Maria Garcia',
+      rating: 4.7,
+      price: 40,
+      image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+      distance: 1.8
+    },
+    {
+      id: 'service-8',
+      title: 'Grocery & Food Delivery',
+      description: 'Prompt and reliable grocery and food delivery service. Shop from your favorite stores and restaurants and have items delivered to your doorstep.',
+      provider: 'James Wilson',
+      rating: 4.7,
+      price: 25,
+      image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
+      distance: 1.5
+    }
 ];
 
 export const mockBookings: BookingItem[] = [

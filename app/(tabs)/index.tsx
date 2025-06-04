@@ -115,7 +115,7 @@ export default function HomeScreen() {
   );
 
   // Replace trending items section with ServiceCard
-  const renderTrendingItem = ({ item }: { item: TrendingService }) => (
+  const renderTrendingItem = ({ item }) => (
     <ServiceCard service={item} icon={item.icon || 'trending-up'} />
   );
 
@@ -187,12 +187,14 @@ export default function HomeScreen() {
           <View style={styles.nearbySection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Near You</Text>
-              <TouchableOpacity onPress={() => router.push('/services?type=nearby')}>
+              <TouchableOpacity
+                onPress={() => router.push('/services?type=nearby')}
+              >
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
             <ScrollView
-              contentContainerStyle={{flexDirection: 'row',}}
+              contentContainerStyle={{ flexDirection: 'row' }}
               horizontal
               showsHorizontalScrollIndicator={false}
             >
@@ -205,11 +207,13 @@ export default function HomeScreen() {
           <View style={styles.trendingSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Trending Now</Text>
-              <TouchableOpacity onPress={() => router.push('/services?type=trending')}>
+              <TouchableOpacity
+                onPress={() => router.push('/services?type=trending')}
+              >
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
-            <View style={{flexDirection: 'column',}}>
+            <View style={{ flexDirection: 'column' }}>
               {trendingServices.map((item) => (
                 <View key={item.id}>{renderTrendingItem({ item })}</View>
               ))}

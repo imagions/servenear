@@ -290,7 +290,7 @@ export default function ProviderProfileScreen() {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.primaryButton]}
-            onPress={() => router.push(`/chat/${provider.id}`)}
+            onPress={() => router.push(`/chat/${provider.id}` as any)}
           >
             <MessageCircle size={20} color="white" />
             <Text style={styles.primaryButtonText}>Message</Text>
@@ -298,7 +298,7 @@ export default function ProviderProfileScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => router.push(`/book/${provider.id}`)}
+            onPress={() => router.push(`/call/${provider.id}`)}
           >
             <Phone size={20} color={COLORS.accent} />
             <Text style={styles.secondaryButtonText}>Call Now</Text>
@@ -501,7 +501,7 @@ export default function ProviderProfileScreen() {
       {/* Chat Button */}
       <TouchableOpacity
         style={styles.chatButton}
-        onPress={() => router.push(`/chat/${provider.id}`)}
+        onPress={() => router.push(`/chat/${provider.id}` as any)}
       >
         <MessageCircle size={24} color="white" />
       </TouchableOpacity>

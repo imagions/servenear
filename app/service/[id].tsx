@@ -75,7 +75,7 @@ export default function ServiceDetailsScreen() {
   };
 
   const handleProviderPress = () => {
-    router.push(`/provider/${service.providerId}`);
+    router.push(`/provider/${service.id}`);
   };
 
   const handleUserPress = (userId: string) => {
@@ -101,36 +101,11 @@ export default function ServiceDetailsScreen() {
 
       <Text style={styles.reviewComment}>{item.comment}</Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.reviewPhotos}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {DUMMY_REVIEW_IMAGES.slice(0, 2).map((photo, index) => (
-          <Image
-            key={index}
-            source={{ uri: photo }}
-            style={styles.reviewPhoto}
-          />
+          <Image key={index} source={{ uri: photo }} />
         ))}
       </ScrollView>
-    </View>
-  );
-
-  const renderReviewPhotos = () => (
-    <View style={styles.reviewPhotosSection}>
-      <Text style={styles.sectionTitle}>Reviews & Photos</Text>
-      <View style={styles.photosGrid}>
-        {mockPhotos.map((photo, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.photoItem}
-            onPress={() => router.push(`/service/${id}/photos`)}
-          >
-            <Image source={{ uri: photo }} style={styles.reviewPhoto} />
-          </TouchableOpacity>
-        ))}
-      </View>
     </View>
   );
 

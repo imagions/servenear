@@ -63,6 +63,8 @@ export interface SubCategory {
   id: string;
   name: string;
   categoryId: string;
+  startingPrice: number;
+  servicesCount: number;
   image: string;
 }
 

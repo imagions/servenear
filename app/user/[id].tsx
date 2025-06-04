@@ -30,7 +30,8 @@ const USER_DATA = {
   verified: true,
   memberSince: 'March 2023',
   location: 'San Francisco, CA',
-  about: 'Passionate about finding quality service providers and maintaining a sustainable lifestyle. Always looking for eco-friendly solutions for home maintenance.',
+  about:
+    'Passionate about finding quality service providers and maintaining a sustainable lifestyle. Always looking for eco-friendly solutions for home maintenance.',
   stats: {
     totalBookings: 48,
     completionRate: 96,
@@ -52,20 +53,24 @@ const USER_DATA = {
     {
       id: '1',
       providerName: 'John Smith',
-      providerImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+      providerImage:
+        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
       serviceType: 'Plumbing Service',
       rating: 5,
       date: 'May 15, 2024',
-      comment: 'Excellent service! Fixed our kitchen sink perfectly. Very professional and punctual.',
+      comment:
+        'Excellent service! Fixed our kitchen sink perfectly. Very professional and punctual.',
     },
     {
       id: '2',
       providerName: 'Sarah Wilson',
-      providerImage: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+      providerImage:
+        'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
       serviceType: 'House Cleaning',
       rating: 4.8,
       date: 'May 10, 2024',
-      comment: 'Great attention to detail and very thorough with the cleaning. Would recommend!',
+      comment:
+        'Great attention to detail and very thorough with the cleaning. Would recommend!',
     },
   ],
 };
@@ -75,12 +80,15 @@ export default function UserProfileScreen() {
   const user = USER_DATA; // In real app, fetch based on id
 
   const renderReview = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.reviewCard}
       onPress={() => router.push(`/provider/${item.providerId}`)}
     >
       <View style={styles.reviewHeader}>
-        <Image source={{ uri: item.providerImage }} style={styles.providerImage} />
+        <Image
+          source={{ uri: item.providerImage }}
+          style={styles.providerImage}
+        />
         <View style={styles.reviewInfo}>
           <Text style={styles.providerName}>{item.providerName}</Text>
           <Text style={styles.serviceType}>{item.serviceType}</Text>
@@ -135,16 +143,16 @@ export default function UserProfileScreen() {
             <Text style={styles.statValue}>{user.stats.totalBookings}</Text>
             <Text style={styles.statLabel}>Bookings</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{user.stats.completionRate}%</Text>
             <Text style={styles.statLabel}>Completion</Text>
           </View>
-          
+
           <View style={styles.statDivider} />
-          
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{user.stats.averageRating}</Text>
             <Text style={styles.statLabel}>Avg. Rating</Text>
@@ -167,19 +175,25 @@ export default function UserProfileScreen() {
               <Leaf size={24} color="#4CAF50" />
               <Text style={styles.impactTitle}>Sustainability Impact</Text>
               <View style={styles.impactScore}>
-                <Text style={styles.impactScoreText}>{user.sustainabilityScore.score}</Text>
+                <Text style={styles.impactScoreText}>
+                  {user.sustainabilityScore.score}
+                </Text>
                 <Star size={16} color="#4CAF50" fill="#4CAF50" />
               </View>
             </View>
 
             <View style={styles.impactStats}>
               <View style={styles.impactStatCard}>
-                <Text style={styles.impactValue}>{user.sustainabilityScore.wasteReduced}</Text>
+                <Text style={styles.impactValue}>
+                  {user.sustainabilityScore.wasteReduced}
+                </Text>
                 <Text style={styles.impactLabel}>e-waste reduced</Text>
               </View>
 
               <View style={styles.impactStatCard}>
-                <Text style={styles.impactValue}>{user.sustainabilityScore.co2Saved}</Text>
+                <Text style={styles.impactValue}>
+                  {user.sustainabilityScore.co2Saved}
+                </Text>
                 <Text style={styles.impactLabel}>CO₂ saved</Text>
               </View>
             </View>
@@ -193,14 +207,15 @@ export default function UserProfileScreen() {
             {Object.entries(user.ratingsReceived).map(([key, value]) => (
               <View key={key} style={styles.ratingItem}>
                 <Text style={styles.ratingLabel}>
-                  {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                  {key.charAt(0).toUpperCase() +
+                    key.slice(1).replace(/([A-Z])/g, ' $1')}
                 </Text>
                 <View style={styles.ratingBar}>
-                  <View 
+                  <View
                     style={[
                       styles.ratingFill,
-                      { width: `${(value / 5) * 100}%` }
-                    ]} 
+                      { width: `${(value / 5) * 100}%` },
+                    ]}
                   />
                 </View>
                 <Text style={styles.ratingValue}>{value}</Text>
@@ -232,9 +247,9 @@ export default function UserProfileScreen() {
       </ScrollView>
 
       {/* Message Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.messageButton}
-        onPress={() => router.push(`/chat/${user.id}`)}
+        onPress={() => router.push(`/chat/${user.id}` as any)}
       >
         <MessageCircle size={24} color="white" />
       </TouchableOpacity>

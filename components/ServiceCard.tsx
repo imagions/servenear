@@ -14,7 +14,8 @@ type ServiceCardProps = {
   scrollToCard?: boolean;
 };
 
-export default function ServiceCard({   service,
+export default function ServiceCard({
+  service,
   icon,
   searchQuery,
   mode = 'normal',
@@ -23,15 +24,14 @@ export default function ServiceCard({   service,
   const handleViewLocation = () => {
     router.push({
       pathname: '/map',
-      params: { 
+      params: {
         latitude: service.lat || 37.7749,
         longitude: service.long || -122.4194,
         serviceId: service.id,
-        scrollTo: scrollToCard ? 'true' : 'false'
-      }
+        scrollTo: scrollToCard ? 'true' : 'false',
+      },
     });
   };
-
 
   const hasImage = !!service.image;
 
@@ -54,45 +54,35 @@ export default function ServiceCard({   service,
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/service/${service.id}`)}>
+      onPress={() => router.push(`/service/${service.id}`)}
+    >
       <View style={styles.header}>
         {hasImage ? (
-          <Image 
-            source={{ uri: service.image }} 
-            style={styles.serviceImage}
-          />
+          <Image source={{ uri: service.image }} style={styles.serviceImage} />
         ) : (
           <View style={styles.placeholderIcon}>
-            <MaterialIcons 
-              name={icon as any} 
-              size={32} 
-              color={COLORS.accent}
-            />
+            <MaterialIcons name={icon as any} size={32} color={COLORS.accent} />
           </View>
         )}
-        
+
         <View style={styles.headerContent}>
-                    <View style={styles.titleRow}>
+          <View style={styles.titleRow}>
             <Text style={styles.title} numberOfLines={1}>
-              {searchQuery ? highlightText(service.title, searchQuery) : service.title}
+              {searchQuery
+                ? highlightText(service.title, searchQuery)
+                : service.title}
             </Text>
             <View style={styles.ratingBadge}>
               <Star size={14} color="#FFB800" fill="#FFB800" />
               <Text style={styles.ratingText}>{service.rating}</Text>
             </View>
           </View>
-          
+
           <View style={styles.providerRow}>
-            <MaterialIcons 
-              name="verified" 
-              size={13} 
-              color={COLORS.accent}
-            />
-            <Text style={styles.providerName}>
-              {service.provider}
-            </Text>
+            <MaterialIcons name="verified" size={13} color={COLORS.accent} />
+            <Text style={styles.providerName}>{service.provider}</Text>
           </View>
         </View>
       </View>
@@ -112,14 +102,11 @@ export default function ServiceCard({   service,
             <Text style={styles.distanceText}>{service.distance} km</Text>
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.viewButton}
-            onPress={handleViewLocation}>
-            <MaterialIcons 
-              name="location-on" 
-              size={14} 
-              color={COLORS.accent}
-            />
+            onPress={handleViewLocation}
+          >
+            <MaterialIcons name="location-on" size={14} color={COLORS.accent} />
             <Text style={styles.viewText}>View</Text>
           </TouchableOpacity>
         </View>
@@ -263,7 +250,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 10,
   },
-    highlightedText: {
+  highlightedText: {
     backgroundColor: `${COLORS.accent}20`,
     color: COLORS.accent,
     fontWeight: '600',

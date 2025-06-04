@@ -6,7 +6,6 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import { X, Star, BadgeCheck } from 'lucide-react-native';
-import { FilterModalProps } from '@/types';
 
 const DISTANCES = [
   { label: 'All', value: null },
@@ -43,7 +42,22 @@ const AUTHENTICITY_OPTIONS = [
   { value: 'unverified', label: 'Unverified' },
 ];
 
-const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply }) => {
+interface FilterModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onApply: (filters: {
+    distance: number;
+    priceRange: { min: number; max: number };
+    rating: number;
+    verifiedOnly: boolean;
+  }) => void;
+}
+
+export default function FilterModal({
+  visible,
+  onClose,
+  onApply,
+}: FilterModalProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['85%'], []);
 
@@ -90,9 +104,13 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply }) 
   };
 
   const handleApply = () => {
+    const priceRange = selectedPriceRange || PRICE_RANGES[0];
     onApply({
-      distance: selectedDistance || DISTANCES[0].value,
-      priceRange: selectedPriceRange || PRICE_RANGES[0],
+      distance: selectedDistance ?? 0,
+      priceRange: {
+        min: priceRange.min === null ? 0 : priceRange.min,
+        max: priceRange.max === null ? Infinity : priceRange.max,
+      },
       rating: selectedRating || 0,
       verifiedOnly,
     });
@@ -313,7 +331,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply }) 
       )}
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -559,6 +577,14 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     transform: [{ scale: 0.98 }],
   },
+  resetButtonText: {
+    color: COLORS.text.heading,
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
 });
-
-export default FilterModal;

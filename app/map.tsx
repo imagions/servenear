@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  memo,
+  useMemo,
+} from 'react';
 import {
   View,
   Text,
@@ -25,6 +32,7 @@ import {
   GestureDetector,
   Gesture,
 } from 'react-native-gesture-handler';
+import { ServiceItem } from '@/types';
 
 const { width } = Dimensions.get('window');
 
@@ -33,7 +41,7 @@ let isNavigating = false;
 
 // Memoized service card component
 const ServiceListItem = memo(
-  ({ item, onPress, isSelected, distance, routeInfo }) => {
+  ({ item, onPress, isSelected, distance, routeInfo }: any) => {
     const onGestureEvent = useCallback(
       ({ nativeEvent }) => {
         if (nativeEvent.translationY < -50 && !isNavigating) {
@@ -141,7 +149,7 @@ const useDebounce = (value, delay) => {
 };
 
 // Add Memoized Marker component
-const ServiceMarker = memo(({ service, isSelected, onPress }) => (
+const ServiceMarker = memo(({ service, isSelected, onPress }:any) => (
   <Marker
     coordinate={{
       latitude: service.location.latitude,
@@ -171,16 +179,16 @@ export default function MapScreen() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [selectedService, setSelectedService] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [mapType, setMapType] = useState('standard');
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | undefined>();
+  const [mapType, setMapType] = useState<MapView['props']['mapType']>('standard');
   const [searchText, setSearchText] = useState('');
-  const [filteredServices, setFilteredServices] = useState([]);
+  const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([]);
   const [polylineCoordinates, setPolylineCoordinates] = useState([]);
-  const [distance, setDistance] = useState(null);
-  const [routeInfo, setRouteInfo] = useState(null);
+  const [distance, setDistance] = useState<string | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{ distance: number; duration: number } | null>(null);
   const mapRef = useRef<MapView>(null);
-  const listRef = useRef(null);
+  const listRef = useRef<FlatList<any>>(null);
   const mounted = useRef(false); // Add this line
 
   useEffect(() => {
@@ -249,25 +257,34 @@ export default function MapScreen() {
     services,
   ]);
 
-  const handleMarkerPress = useCallback((service) => {
-    const currentServices = filteredServices.length > 0 ? filteredServices : services || [];
-    const serviceIndex = currentServices.findIndex(s => s.id === service.id);
-    
-    if (serviceIndex !== -1) {
-      setSelectedService(service);
-      
-      // Scroll the card list to the selected service
-      scrollToService(serviceIndex);
-      
-      // Animate map to center on the selected service
-      mapRef.current?.animateToRegion({
-        latitude: service.location.latitude,
-        longitude: service.location.longitude,
-        latitudeDelta: 0.005, // Zoom in closer when marker is tapped
-        longitudeDelta: 0.005,
-      }, 500);
-    }
-  }, [filteredServices, services]);
+  const handleMarkerPress = useCallback(
+    (service) => {
+      const currentServices =
+        filteredServices.length > 0 ? filteredServices : services || [];
+      const serviceIndex = currentServices.findIndex(
+        (s) => s.id === service.id
+      );
+
+      if (serviceIndex !== -1) {
+        setSelectedService(service);
+
+        // Scroll the card list to the selected service
+        scrollToService(serviceIndex);
+
+        // Animate map to center on the selected service
+        mapRef.current?.animateToRegion(
+          {
+            latitude: service.location.latitude,
+            longitude: service.location.longitude,
+            latitudeDelta: 0.005, // Zoom in closer when marker is tapped
+            longitudeDelta: 0.005,
+          },
+          500
+        );
+      }
+    },
+    [filteredServices, services]
+  );
 
   // Helper function for distance calculation
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -321,7 +338,8 @@ export default function MapScreen() {
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.BestForNavigation,
-          maximumAge: 10000, // Use locations no older than 10 seconds
+          timeInterval: 1000,
+          distanceInterval: 10,
         });
 
         const userLoc = {
@@ -386,24 +404,32 @@ export default function MapScreen() {
   };
 
   // Add this function to handle scroll events
-  const handleScroll = useCallback((event: any) => {
-    const scrollPosition = event.nativeEvent.contentOffset.x;
-    const itemWidth = 320 + 12; // card width + margin
-    const index = Math.round(scrollPosition / itemWidth);
-    const service = (filteredServices.length > 0 ? filteredServices : services)[index];
+  const handleScroll = useCallback(
+    (event: any) => {
+      const scrollPosition = event.nativeEvent.contentOffset.x;
+      const itemWidth = 320 + 12; // card width + margin
+      const index = Math.round(scrollPosition / itemWidth);
+      const service = (
+        filteredServices.length > 0 ? filteredServices : services
+      )[index];
 
-    if (service) {
-      handleServicePress(service);
+      if (service) {
+        handleServicePress(service);
 
-      // Center map on service location with animation
-      mapRef.current?.animateToRegion({
-        latitude: service.location.latitude,
-        longitude: service.location.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }, 500);
-    }
-  }, [filteredServices, services, handleServicePress]);
+        // Center map on service location with animation
+        mapRef.current?.animateToRegion(
+          {
+            latitude: service.location.latitude,
+            longitude: service.location.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          500
+        );
+      }
+    },
+    [filteredServices, services, handleServicePress]
+  );
 
   const keyExtractor = useCallback((item) => item.id, []);
 
@@ -430,8 +456,8 @@ export default function MapScreen() {
     const randomRadius = Math.sqrt(Math.random()) * radiusInDeg;
 
     return {
-      latitude: center.latitude + (randomRadius * Math.cos(randomAngle)),
-      longitude: center.longitude + (randomRadius * Math.sin(randomAngle))
+      latitude: center.latitude + randomRadius * Math.cos(randomAngle),
+      longitude: center.longitude + randomRadius * Math.sin(randomAngle),
     };
   };
 
@@ -452,9 +478,9 @@ export default function MapScreen() {
         setUserLocation(userLoc);
 
         // Create nearby services by modifying their locations
-        const nearbyServices = services.map(service => ({
+        const nearbyServices = services.map((service) => ({
           ...service,
-          location: generateNearbyLocation(userLoc)
+          location: generateNearbyLocation(userLoc),
         }));
 
         setFilteredServices(nearbyServices);
@@ -462,7 +488,7 @@ export default function MapScreen() {
         // Fit map to show all services
         const coordinates = [
           userLoc,
-          ...nearbyServices.map(s => ({
+          ...nearbyServices.map((s) => ({
             latitude: s.location.latitude,
             longitude: s.location.longitude,
           })),
@@ -493,10 +519,11 @@ export default function MapScreen() {
 
   // Memoize markers list
   const markers = useMemo(() => {
-    const servicesToShow = filteredServices.length > 0 ? filteredServices : services;
+    const servicesToShow =
+      filteredServices.length > 0 ? filteredServices : services;
     if (!servicesToShow) return null;
 
-    return servicesToShow.map(service => (
+    return servicesToShow.map((service) => (
       <ServiceMarker
         key={service.id}
         service={service}

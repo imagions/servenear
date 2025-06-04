@@ -107,7 +107,7 @@ export default function ServicesScreen() {
           <View style={styles.cardContainer}>
             <ServiceCard 
               service={item}
-              icon={item.icon || 'location-on'}
+              icon={item.image || 'location-on'}
               mode="normal"
             />
           </View>
@@ -127,7 +127,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 16,
