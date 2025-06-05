@@ -29,6 +29,9 @@
       "eas": {
         "projectId": "a816da52-938e-4785-9993-80007dac7a60"
       }
+    },
+    "android": {
+      "package": "app.servenear"
     }
   }
 }

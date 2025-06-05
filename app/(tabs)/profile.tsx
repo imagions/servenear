@@ -23,10 +23,12 @@ import {
 import { useAuthStore } from '@/store/useAuthStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useScrollToHide } from '@/hooks/useScrollToHide';
 
 export default function ProfileScreen() {
   const { user, logout, isProviderMode, toggleProviderMode } = useAuthStore();
   const [activeTab, setActiveTab] = useState('provider');
+  const { scrollProps } = useScrollToHide();
 
   const handleLogout = () => {
     logout();
@@ -107,7 +109,10 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        {...scrollProps}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Profile</Text>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,8 @@ import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ServiceCard from '@/components/ServiceCard';
 import { useSnackbar } from '@/context/SnackbarContext';
+import { useTabBar } from '@/context/TabBarContext';
+import { useScrollToHide } from '@/hooks/useScrollToHide';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -40,6 +42,9 @@ export default function HomeScreen() {
   } = useServiceStore();
   const { user } = useAuthStore();
   const { showSnackbar } = useSnackbar();
+  const { handleScroll } = useTabBar();
+  const { scrollProps } = useScrollToHide();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Show location notification when app opens
@@ -74,6 +79,15 @@ export default function HomeScreen() {
 
     getLocationAndServices();
   }, []);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push({
+        pathname: '/explore',
+        params: { q: searchQuery.trim() },
+      });
+    }
+  };
 
   const renderCategoryItem = ({ item }: { item: ServiceCategory }) => (
     <TouchableOpacity
@@ -127,7 +141,10 @@ export default function HomeScreen() {
       }}
     >
       <View style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          {...scrollProps}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
             <View>
               <Text style={styles.greeting}>Hi {user?.name || 'there'}!</Text>
@@ -168,7 +185,10 @@ export default function HomeScreen() {
               style={styles.searchInput}
               placeholder="Search services nearby"
               placeholderTextColor="#9E9E9E"
-              onFocus={() => router.push('/explore')}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={handleSearch}
+              returnKeyType="search"
             />
           </View>
 

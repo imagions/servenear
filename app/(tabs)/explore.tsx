@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { router, useGlobalSearchParams } from 'expo-router'; // Change this line
+import { router, useLocalSearchParams } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import {
   Search,
@@ -27,6 +27,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import FilterModal from '@/components/FilterModal';
 import ServiceCard from '@/components/ServiceCard';
 import { mockServices } from '@/constants/mock';
+import { useScrollToHide } from '@/hooks/useScrollToHide';
 
 // Dummy Data
 const TRENDING_SEARCHES = [
@@ -189,14 +190,14 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
           onPress={() => onSelect(query)}
         >
           <View style={styles.searchHistoryItemContent}>
-            <MaterialIcons name="history" size={20} color={COLORS.text.body} />
-            <Text style={styles.searchHistoryItemText}>{query}</Text>
+            <MaterialIcons name="history" size={20} color={COLORS.accent} />
+            <Text style={styles.searchHistoryItemText} numberOfLines={1}>{query}</Text>
           </View>
           <TouchableOpacity
             onPress={() => onClear(query)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <X size={16} color={COLORS.text.body} />
+            <X size={16} color={COLORS.accent} />
           </TouchableOpacity>
         </TouchableOpacity>
       ))}
@@ -239,28 +240,44 @@ const MOCK_SEARCH_RESULTS = [
 ];
 
 export default function ExploreScreen() {
-  const params = useGlobalSearchParams(); // Change this line
-  const query = params?.q as string;
-
-  const [searchText, setSearchText] = useState(query || '');
+  const { q } = useLocalSearchParams<{ q: string }>();
+  const [searchQuery, setSearchQuery] = useState(q || '');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isGridView, setIsGridView] = useState(true);
   const { services, categories, filterServices } = useServiceStore();
   const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
+  const { scrollProps } = useScrollToHide();
+  const searchTimeout = useRef<NodeJS.Timeout | number | null>(null);
 
   useEffect(() => {
-    if (query) {
-      setSearchText(query);
+    if (q) {
+      setSearchQuery(q);
+      setSearchHistory((prev) => {
+        if (!prev.includes(q)) {
+          return [q, ...prev].slice(0, 10); // Limit to 10 recent searches
+        }
+        return prev;
+      });
     }
+  }, [q]);
 
-    const filtered = filterServices(searchText, selectedCategories);
+  useEffect(() => {
+    const filtered = filterServices(searchQuery, selectedCategories);
     setFilteredServices(filtered);
-  }, [query, searchText, selectedCategories, services]);
+  }, [q, searchQuery, selectedCategories, services]);
+
+  const saveToSearchHistory = useCallback(
+    (text: string) => {
+      if (text.trim() && !searchHistory.includes(text.trim())) {
+        setSearchHistory((prev) => [text.trim(), ...prev].slice(0, 10));
+      }
+    },
+    [searchHistory]
+  );
 
   const handleCategorySelect = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
@@ -273,7 +290,8 @@ export default function ExploreScreen() {
   };
 
   const handleClearSearch = () => {
-    setSearchText('');
+    setSearchQuery('');
+    setIsFocused(true);
     setFilteredServices(services);
   };
 
@@ -285,6 +303,16 @@ export default function ExploreScreen() {
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
+
+    // Clear previous timeout
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    // Set new timeout for search history
+    searchTimeout.current = setTimeout(() => {
+      saveToSearchHistory(text);
+    }, 1000); // 2 seconds delay
 
     if (text.trim()) {
       const filtered = mockServices.filter(
@@ -299,6 +327,15 @@ export default function ExploreScreen() {
       setFilteredServices([]);
     }
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, []);
 
   const renderServiceGridItem = ({ item }: { item: ServiceItem }) => (
     <TouchableOpacity
@@ -477,6 +514,7 @@ export default function ExploreScreen() {
         {results?.length || 0} services found
       </Text>
       <FlatList
+        {...scrollProps}
         showsVerticalScrollIndicator={false}
         data={results}
         renderItem={({ item }) => (
@@ -509,33 +547,28 @@ export default function ExploreScreen() {
             onFocus={() => setIsFocused(true)}
           />
           {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => handleSearch('')}>
+            <TouchableOpacity onPress={() => handleClearSearch()}>
               <X size={20} color={COLORS.text.body} />
             </TouchableOpacity>
           )}
+
+          <TouchableOpacity onPress={() => setIsFilterModalVisible(true)}>
+            <MaterialIcons
+              name="filter-list"
+              size={20}
+              color={COLORS.text.body}
+            />
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={styles.mapButton}
-          onPress={() => router.push('/map')}
-        >
-          <MapPin size={20} color={COLORS.text.heading} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setIsFilterModalVisible(true)}
-        >
-          <Sliders size={20} color={COLORS.text.heading} />
-        </TouchableOpacity>
       </View>
 
       {searchQuery ? (
         <SearchResults results={filteredServices} query={searchQuery} />
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView {...scrollProps} showsVerticalScrollIndicator={false}>
           {/* Search History or Main Content */}
-          {isFocused ? (
+
+          {isFocused && (
             <SearchHistory
               history={searchHistory}
               onSelect={(query) => {
@@ -548,16 +581,15 @@ export default function ExploreScreen() {
                 );
               }}
             />
-          ) : (
-            <>
-              <TrendingSearches data={TRENDING_SEARCHES} />
-              <MapExploreButton />
-              <FeaturedProviders data={FEATURED_PROVIDERS} />
-              <SpecialOffers data={SPECIAL_OFFERS} />
-              <RecommendedServices />
-              <View style={{ marginTop: 40 }} />
-            </>
           )}
+          <>
+            <TrendingSearches data={TRENDING_SEARCHES} />
+            <MapExploreButton />
+            <FeaturedProviders data={FEATURED_PROVIDERS} />
+            <SpecialOffers data={SPECIAL_OFFERS} />
+            <RecommendedServices />
+            <View style={{ marginTop: 40 }} />
+          </>
         </ScrollView>
       )}
 
@@ -590,7 +622,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 2,
-    marginRight: 12,
     ...SHADOWS.card,
   },
   searchInput: {
@@ -658,7 +689,7 @@ const styles = StyleSheet.create({
   resultsCount: {
     fontSize: 14,
     color: COLORS.text.body,
-    marginVertical: 16,
+    marginVertical: 8,
     fontFamily: 'Inter-Regular',
   },
   viewToggle: {
@@ -975,7 +1006,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
   },
   searchHistoryContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    marginBottom: 15,
   },
   searchHistoryHeader: {
     flexDirection: 'row',
@@ -996,16 +1028,16 @@ const styles = StyleSheet.create({
   },
   searchHistoryList: {
     gap: 8,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
   },
   searchHistoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: COLORS.surface,
-    borderRadius: 8,
-    ...SHADOWS.card,
+    backgroundColor: 'rgba(0, 207, 232, 0.12)',
+    borderRadius: 50,
   },
   searchHistoryItemContent: {
     flexDirection: 'row',
@@ -1014,8 +1046,9 @@ const styles = StyleSheet.create({
   },
   searchHistoryItemText: {
     fontSize: 14,
-    color: COLORS.text.body,
+    color: COLORS.accent,
     fontFamily: 'Inter-Regular',
+    marginRight: 8,
   },
   recommendedList: {
     gap: 16,
@@ -1089,9 +1122,10 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   searchResultsList: {
-    paddingBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
   },
 });

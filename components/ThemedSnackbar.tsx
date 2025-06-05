@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Animated,
+  PanResponder,
   Dimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -31,15 +32,42 @@ export function ThemedSnackbar({
   duration = 4000,
   onHide,
 }: ThemedSnackbarProps) {
-  const translateY = new Animated.Value(100);
-  const opacity = new Animated.Value(0);
+  const position = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        // Restrict movement to vertical only and limit range to -20 to 20
+        const newY = Math.max(-20, Math.min(20, gestureState.dy));
+        position.setValue({ x: 0, y: newY });
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        // If dragged down more than 10px, dismiss
+        if (gestureState.dy > 10) {
+          hideSnackbar();
+          return;
+        }
+
+        // Spring back to original position
+        Animated.spring(position, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: true,
+          bounciness: 8,
+        }).start();
+      },
+    })
+  ).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 200,
+      Animated.spring(position, {
+        toValue: { x: 0, y: 0 },
         useNativeDriver: true,
+        bounciness: 8,
       }),
       Animated.timing(opacity, {
         toValue: 1,
@@ -57,7 +85,7 @@ export function ThemedSnackbar({
 
   const hideSnackbar = () => {
     Animated.parallel([
-      Animated.timing(translateY, {
+      Animated.timing(position.y, {
         toValue: 100,
         duration: 200,
         useNativeDriver: true,
@@ -74,10 +102,14 @@ export function ThemedSnackbar({
 
   return (
     <Animated.View
+      {...panResponder.panHandlers}
       style={[
         styles.container,
         {
-          transform: [{ translateY }],
+          transform: [
+            { translateX: position.x },
+            { translateY: position.y },
+          ],
           opacity,
         },
       ]}
@@ -127,6 +159,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     ...SHADOWS.card,
+    elevation: 8, // Add elevation for better visual feedback
+    zIndex: 1000, // Ensure snackbar stays on top
   },
   iconContainer: {
     padding: 8,

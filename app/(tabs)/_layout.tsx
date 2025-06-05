@@ -8,8 +8,9 @@ import {
   User,
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import VoiceRecordModal from '@/components/VoiceRecordModal';
+import { useTabBar } from '@/context/TabBarContext';
 
 function BoltBadge() {
   return (
@@ -21,6 +22,7 @@ function BoltBadge() {
 
 export default function TabLayout() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const { tabBarHeight } = useTabBar();
 
   const handleVoiceSubmit = (audioUri) => {
     // Handle the recorded audio
@@ -36,9 +38,22 @@ export default function TabLayout() {
           tabBarActiveTintColor: COLORS.accent,
           tabBarInactiveTintColor: '#A0A0A0',
           tabBarStyle: {
-            position: 'relative',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
             borderTopWidth: 0,
             elevation: 0,
+            height: tabBarHeight,
+            backgroundColor: 'white',
+            transform: [
+              {
+                translateY: tabBarHeight.interpolate({
+                  inputRange: [0, 49],
+                  outputRange: [49, 0],
+                }),
+              },
+            ],
           },
           tabBarShowLabel: true,
           tabBarLabelStyle: {

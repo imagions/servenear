@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -13,11 +14,13 @@ import { Calendar, Clock, Check, X } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { BookingItem } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useScrollToHide } from '@/hooks/useScrollToHide';
 
 export default function BookingsScreen() {
   const { bookings } = useServiceStore();
   const { isProviderMode } = useAuthStore();
   const [activeTab, setActiveTab] = useState('upcoming');
+  const { scrollProps } = useScrollToHide();
 
   const filteredBookings = bookings.filter((booking) => {
     if (activeTab === 'upcoming') {
@@ -149,6 +152,7 @@ export default function BookingsScreen() {
       </View>
 
       <FlatList
+        {...scrollProps}
         data={filteredBookings}
         renderItem={renderBookingItem}
         keyExtractor={(item) => item.id}
@@ -209,7 +213,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 40,
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 5,
   },
   headerTitle: {
     fontSize: 24,
@@ -380,7 +384,7 @@ const styles = StyleSheet.create({
   },
   toggleAvailabilityButton: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 90,
     left: 20,
     right: 20,
     backgroundColor: COLORS.accent,

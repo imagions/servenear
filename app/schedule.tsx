@@ -39,7 +39,7 @@ export default function ScheduleScreen() {
   }
   
   // Generate dates for the next 14 days
-  const dates = [];
+  const dates: Date[] = [];
   const today = new Date();
   for (let i = 0; i < 14; i++) {
     const date = new Date(today);
