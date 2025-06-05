@@ -62,7 +62,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="voice-help-requests"
+          name="placeholder"
           options={{
             title: '',
             tabBarIcon: ({ focused }) => (

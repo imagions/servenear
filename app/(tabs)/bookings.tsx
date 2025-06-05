@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  Image 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -19,7 +19,7 @@ export default function BookingsScreen() {
   const { isProviderMode } = useAuthStore();
   const [activeTab, setActiveTab] = useState('upcoming');
 
-  const filteredBookings = bookings.filter(booking => {
+  const filteredBookings = bookings.filter((booking) => {
     if (activeTab === 'upcoming') {
       return booking.status === 'upcoming' || booking.status === 'pending';
     } else if (activeTab === 'completed') {
@@ -29,54 +29,62 @@ export default function BookingsScreen() {
     }
     return true;
   });
-  
+
   const renderBookingItem = ({ item }: { item: BookingItem }) => {
     const isPending = item.status === 'pending';
     const isUpcoming = item.status === 'upcoming';
     const isCompleted = item.status === 'completed';
     const isCancelled = item.status === 'cancelled';
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.bookingItem}
-        onPress={() => router.push(`/service/${item.serviceId}`)}>
-        <Image source={{ uri: item.serviceImage }} style={styles.bookingImage} />
-        
+        onPress={() => router.push(`/service/${item.serviceId}`)}
+      >
+        <Image
+          source={{ uri: item.serviceImage }}
+          style={styles.bookingImage}
+        />
+
         <View style={styles.bookingContent}>
           <View>
             <Text style={styles.bookingTitle}>{item.serviceTitle}</Text>
             <Text style={styles.bookingProvider}>{item.providerName}</Text>
-            
+
             <View style={styles.bookingSchedule}>
               <View style={styles.scheduleItem}>
                 <Calendar size={14} color="#9E9E9E" />
                 <Text style={styles.scheduleText}>{item.date}</Text>
               </View>
-              
+
               <View style={styles.scheduleItem}>
                 <Clock size={14} color="#9E9E9E" />
                 <Text style={styles.scheduleText}>{item.time}</Text>
               </View>
             </View>
           </View>
-          
+
           <View style={styles.bookingFooter}>
             <Text style={styles.bookingPrice}>${item.price}</Text>
-            
-            <View style={[
-              styles.bookingStatus,
-              isPending && styles.pendingStatus,
-              isUpcoming && styles.upcomingStatus,
-              isCompleted && styles.completedStatus,
-              isCancelled && styles.cancelledStatus,
-            ]}>
-              <Text style={[
-                styles.bookingStatusText,
-                isPending && styles.pendingStatusText,
-                isUpcoming && styles.upcomingStatusText,
-                isCompleted && styles.completedStatusText,
-                isCancelled && styles.cancelledStatusText,
-              ]}>
+
+            <View
+              style={[
+                styles.bookingStatus,
+                isPending && styles.pendingStatus,
+                isUpcoming && styles.upcomingStatus,
+                isCompleted && styles.completedStatus,
+                isCancelled && styles.cancelledStatus,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.bookingStatusText,
+                  isPending && styles.pendingStatusText,
+                  isUpcoming && styles.upcomingStatusText,
+                  isCompleted && styles.completedStatusText,
+                  isCancelled && styles.cancelledStatusText,
+                ]}
+              >
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </Text>
             </View>
@@ -85,7 +93,7 @@ export default function BookingsScreen() {
       </TouchableOpacity>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -95,27 +103,45 @@ export default function BookingsScreen() {
       </View>
 
       <View style={styles.tabsContainer}>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]} 
-          onPress={() => setActiveTab('upcoming')}>
-          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+          onPress={() => setActiveTab('upcoming')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'upcoming' && styles.activeTabText,
+            ]}
+          >
             {isProviderMode ? 'New Requests' : 'Upcoming'}
           </Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'completed' && styles.activeTab]} 
-          onPress={() => setActiveTab('completed')}>
-          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+          onPress={() => setActiveTab('completed')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'completed' && styles.activeTabText,
+            ]}
+          >
             {isProviderMode ? 'Completed Jobs' : 'Completed'}
           </Text>
         </TouchableOpacity>
-        
+
         {!isProviderMode && (
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]} 
-            onPress={() => setActiveTab('cancelled')}>
-            <Text style={[styles.tabText, activeTab === 'cancelled' && styles.activeTabText]}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]}
+            onPress={() => setActiveTab('cancelled')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'cancelled' && styles.activeTabText,
+              ]}
+            >
               Cancelled
             </Text>
           </TouchableOpacity>
@@ -130,30 +156,32 @@ export default function BookingsScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Image 
-              source={{ uri: 'https://images.pexels.com/photos/7173043/pexels-photo-7173043.jpeg' }} 
-              style={styles.emptyImage} 
+            <Image
+              source={{
+                uri: 'https://images.pexels.com/photos/7173043/pexels-photo-7173043.jpeg',
+              }}
+              style={styles.emptyImage}
             />
             <Text style={styles.emptyText}>
               No {isProviderMode ? 'help requests' : activeTab + ' bookings'}
             </Text>
             <Text style={styles.emptySubText}>
-              {isProviderMode 
+              {isProviderMode
                 ? activeTab === 'upcoming'
                   ? 'You have no new help requests at the moment'
                   : 'You have not completed any jobs yet'
                 : activeTab === 'upcoming'
-                  ? 'You have no upcoming bookings at the moment'
-                  : activeTab === 'completed'
-                    ? 'You have not completed any bookings yet'
-                    : 'You have not cancelled any bookings'
-              }
+                ? 'You have no upcoming bookings at the moment'
+                : activeTab === 'completed'
+                ? 'You have not completed any bookings yet'
+                : 'You have not cancelled any bookings'}
             </Text>
-            
+
             {!isProviderMode && activeTab === 'upcoming' && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.exploreButton}
-                onPress={() => router.push('/explore')}>
+                onPress={() => router.push('/explore')}
+              >
                 <Text style={styles.exploreButtonText}>Explore Services</Text>
               </TouchableOpacity>
             )}
@@ -162,9 +190,10 @@ export default function BookingsScreen() {
       />
 
       {isProviderMode && activeTab === 'upcoming' && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.toggleAvailabilityButton}
-          onPress={() => router.push('/provider/availability')}>
+          onPress={() => router.push('/provider/availability')}
+        >
           <Text style={styles.toggleAvailabilityText}>Manage Availability</Text>
         </TouchableOpacity>
       )}
@@ -229,8 +258,7 @@ const styles = StyleSheet.create({
   },
   bookingImage: {
     width: 100,
-    height: 'auto',
-    aspectRatio: 3/4,
+    height: '100%',
   },
   bookingContent: {
     flex: 1,
@@ -320,9 +348,8 @@ const styles = StyleSheet.create({
   },
   emptyImage: {
     width: 200,
-    height: 200,
+    height: '100%',
     borderRadius: 100,
-    marginBottom: 24,
   },
   emptyText: {
     fontSize: 18,

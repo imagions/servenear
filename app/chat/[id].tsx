@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
-import { 
-  ArrowLeft, 
-  Video, 
+import {
+  ArrowLeft,
+  Video,
   Phone,
   Camera,
   Image as ImageIcon,
@@ -22,7 +22,7 @@ import {
   Send,
   Mic,
   Plus,
-  X 
+  X,
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -63,12 +63,15 @@ export default function ChatScreen() {
 
   const handleSend = () => {
     if (inputText.trim()) {
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        text: inputText,
-        isSent: true,
-        timestamp: new Date()
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          text: inputText,
+          isSent: true,
+          timestamp: new Date(),
+        },
+      ]);
       setInputText('');
     }
   };
@@ -77,7 +80,7 @@ export default function ChatScreen() {
     setIsRecording(true);
     setRecordingDuration(0);
     recordingTimer.current = setInterval(() => {
-      setRecordingDuration(prev => prev + 1);
+      setRecordingDuration((prev) => prev + 1);
     }, 1000);
     // Start actual recording here
   };
@@ -91,17 +94,17 @@ export default function ChatScreen() {
   };
 
   const toggleAttachments = () => {
-    setShowAttachments(prev => !prev);
+    setShowAttachments((prev) => !prev);
     Animated.timing(attachmentsAnimation, {
       toValue: showAttachments ? 0 : 1,
       duration: 300,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start();
   };
 
   const handleImagePick = async (useCamera: boolean) => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 0.7,
     });
 
@@ -125,9 +128,9 @@ export default function ChatScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color={COLORS.text.heading} />
         </TouchableOpacity>
-        
+
         <View style={styles.headerTitle}>
-          <Image 
+          <Image
             source={{ uri: 'https://picsum.photos/200' }}
             style={styles.providerImage}
           />
@@ -148,7 +151,7 @@ export default function ChatScreen() {
       </View>
 
       {/* Messages */}
-      <ScrollView 
+      <ScrollView
         ref={scrollViewRef}
         style={styles.messagesContainer}
         contentContainerStyle={styles.messagesContent}
@@ -160,7 +163,7 @@ export default function ChatScreen() {
 
       {/* Input Bar */}
       <View style={styles.inputContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.attachButton}
           onPress={toggleAttachments}
         >
@@ -176,10 +179,7 @@ export default function ChatScreen() {
         />
 
         {inputText ? (
-          <TouchableOpacity 
-            style={styles.sendButton}
-            onPress={handleSend}
-          >
+          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
             <Send size={24} color={COLORS.accent} />
           </TouchableOpacity>
         ) : (
@@ -188,14 +188,9 @@ export default function ChatScreen() {
             onLongPress={startRecording}
             onPressOut={stopRecording}
           >
-            <Mic 
-              size={24} 
-              color={isRecording ? 'red' : COLORS.accent} 
-            />
+            <Mic size={24} color={isRecording ? 'red' : COLORS.accent} />
             {isRecording && (
-              <Text style={styles.recordingTime}>
-                {recordingDuration}s
-              </Text>
+              <Text style={styles.recordingTime}>{recordingDuration}s</Text>
             )}
           </TouchableOpacity>
         )}
@@ -203,21 +198,23 @@ export default function ChatScreen() {
 
       {/* Attachments Sheet */}
       {showAttachments && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.attachmentsContainer,
             {
-              transform: [{
-                translateY: attachmentsAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [200, 0]
-                })
-              }]
-            }
+              transform: [
+                {
+                  translateY: attachmentsAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [200, 0],
+                  }),
+                },
+              ],
+            },
           ]}
         >
           <View style={styles.attachmentOptions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.attachmentOption}
               onPress={() => handleImagePick(true)}
             >
@@ -225,7 +222,7 @@ export default function ChatScreen() {
               <Text style={styles.attachmentLabel}>Camera</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.attachmentOption}
               onPress={() => handleImagePick(false)}
             >
@@ -233,7 +230,7 @@ export default function ChatScreen() {
               <Text style={styles.attachmentLabel}>Gallery</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.attachmentOption}
               onPress={handleLocationShare}
             >
@@ -437,10 +434,7 @@ const MessageBubble = ({ message }) => (
       {message.text}
     </Text>
     <Text
-      style={[
-        styles.timestamp,
-        !message.isSent && styles.receivedTimestamp,
-      ]}
+      style={[styles.timestamp, !message.isSent && styles.receivedTimestamp]}
     >
       {message.timestamp.toLocaleTimeString([], {
         hour: '2-digit',

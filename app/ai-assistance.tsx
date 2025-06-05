@@ -33,7 +33,7 @@ export default function AIAssistanceScreen() {
       timestamp: new Date(),
     },
   ]);
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -63,7 +63,7 @@ export default function AIAssistanceScreen() {
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 1,
     });
 

@@ -18,14 +18,14 @@ export default function CallScreen() {
   const [isSpeakerOn, setIsSpeakerOn] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
-  
+
   const rippleAnim1 = useRef(new Animated.Value(0)).current;
   const rippleAnim2 = useRef(new Animated.Value(0)).current;
   const rippleAnim3 = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
-    // Start ripple animations
+    // Start ripple animations - don't stop them here
     const startRippleAnimation = (anim: Animated.Value, delay: number) => {
       Animated.loop(
         Animated.sequence([
@@ -33,6 +33,11 @@ export default function CallScreen() {
           Animated.timing(anim, {
             toValue: 1,
             duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, { // Add reset animation
+            toValue: 0,
+            duration: 0,
             useNativeDriver: true,
           }),
         ])
@@ -43,7 +48,7 @@ export default function CallScreen() {
     startRippleAnimation(rippleAnim2, 666);
     startRippleAnimation(rippleAnim3, 1333);
 
-    // Start text animation
+    // Only start opacity animation for "Calling..." text
     Animated.loop(
       Animated.sequence([
         Animated.timing(textOpacity, {
@@ -83,6 +88,26 @@ export default function CallScreen() {
 
   const handleCallConnect = () => {
     setIsCallConnected(true);
+
+    // Stop ripple animations when call connects
+    Animated.parallel([
+      Animated.timing(rippleAnim1, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rippleAnim2, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rippleAnim3, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     // Trigger heavy haptic feedback
     if (Platform.OS === 'ios') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -94,7 +119,9 @@ export default function CallScreen() {
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
   };
 
   const handleButtonPress = (action: () => void) => {
@@ -120,69 +147,79 @@ export default function CallScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.avatarContainer}>
-          {/* Ripple Effects */}
-          {[rippleAnim1, rippleAnim2, rippleAnim3].map((anim, index) => (
-            <Animated.View
-              key={index}
-              style={[
-                styles.ripple,
-                {
-                  transform: [{
-                    scale: anim.interpolate({
+        <View>
+          <View style={styles.rippleContainer}>
+            {/* Ripple Effects */}
+            {[rippleAnim1, rippleAnim2, rippleAnim3].map((anim, index) => (
+              <Animated.View
+                key={index}
+                style={[
+                  styles.ripple,
+                  {
+                    transform: [
+                      {
+                        scale: anim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [1, 2],
+                        }),
+                      },
+                    ],
+                    opacity: anim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [1, 2],
-                    })
-                  }],
-                  opacity: anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.2, 0],
-                  }),
-                },
-              ]}
-            />
-          ))}
+                      outputRange: [0.2, 0],
+                    }),
+                  },
+                ]}
+              />
+            ))}
 
-          {/* Avatar */}
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JS</Text>
+            {/* Avatar */}
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>JS</Text>
+            </View>
+          </View>
+
+          {/* Call Info */}
+          <View style={styles.callInfo}>
+            <Text style={styles.name}>John Smith</Text>
+            <Animated.Text
+              style={[
+                styles.status,
+                !isCallConnected && { opacity: textOpacity },
+              ]}
+            >
+              {isCallConnected ? formatDuration(callDuration) : 'Calling...'}
+            </Animated.Text>
           </View>
         </View>
 
-        {/* Call Info */}
-        <Text style={styles.name}>John Smith</Text>
-        <Animated.Text
-          style={[
-            styles.status,
-            !isCallConnected && { opacity: textOpacity },
-          ]}
-        >
-          {isCallConnected ? formatDuration(callDuration) : 'Calling...'}
-        </Animated.Text>
-
         {/* Action Buttons */}
         <View style={styles.actions}>
-          <TouchableOpacity
-            style={[styles.actionButton, isSpeakerOn && styles.activeButton]}
-            onPress={() => handleButtonPress(() => setIsSpeakerOn(!isSpeakerOn))}
-          >
-            <Volume2 color="white" size={24} />
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity
+              style={[styles.actionButton, isSpeakerOn && styles.activeButton]}
+              onPress={() =>
+                handleButtonPress(() => setIsSpeakerOn(!isSpeakerOn))
+              }
+            >
+              <Volume2 color="white" size={24} />
+            </TouchableOpacity>
             <Text style={styles.actionText}>Speaker</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, isMuted && styles.activeButton]}
-            onPress={() => handleButtonPress(() => setIsMuted(!isMuted))}
-          >
-            <MicOff color="white" size={24} />
+          </View>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity
+              style={[styles.actionButton, isMuted && styles.activeButton]}
+              onPress={() => handleButtonPress(() => setIsMuted(!isMuted))}
+            >
+              <MicOff color="white" size={24} />
+            </TouchableOpacity>
             <Text style={styles.actionText}>Mute</Text>
-          </TouchableOpacity>
-
+          </View>
           <TouchableOpacity
             style={styles.endCallButton}
             onPress={handleEndCall}
           >
-            <PhoneOff color="white" size={32} />
+            <PhoneOff color="white" size={25} />
           </TouchableOpacity>
         </View>
       </View>
@@ -198,54 +235,55 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 64,
+    justifyContent: 'space-between',
+    paddingTop: 120, // Increased top padding
+    paddingBottom: 48,
   },
-  avatarContainer: {
-    width: 240, // Twice the ripple size
-    height: 240, // Twice the ripple size
+  rippleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
+    position: 'relative',
   },
   ripple: {
     position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
     backgroundColor: 'white',
     top: '50%',
     left: '50%',
-    marginLeft: -60, // Half the width
-    marginTop: -60,  // Half the height
+    marginLeft: -80,
+    marginTop: -80,
   },
   avatar: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 110,
+    height: 110,
+    borderRadius: 60,
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1, // Ensure avatar stays above ripples
+    zIndex: 1,
   },
   avatarText: {
-    fontSize: 32,
+    fontSize: 48,
     fontWeight: 'bold',
     color: COLORS.accent,
     fontFamily: 'Inter-Bold',
   },
+  callInfo: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
   name: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 8,
     fontFamily: 'Inter-Bold',
   },
   status: {
-    fontSize: 16,
+    fontSize: 18,
     color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 64,
     fontFamily: 'Inter-Regular',
   },
   actions: {
@@ -254,13 +292,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     width: '100%',
     paddingHorizontal: 32,
-    position: 'absolute',
-    bottom: 48,
   },
   actionButton: {
     alignItems: 'center',
     padding: 12,
-    borderRadius: 30,
+    borderRadius: 50,
   },
   activeButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -274,6 +310,6 @@ const styles = StyleSheet.create({
   endCallButton: {
     backgroundColor: 'red',
     padding: 16,
-    borderRadius: 30,
+    borderRadius: 50,
   },
 });

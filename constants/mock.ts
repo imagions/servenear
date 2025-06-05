@@ -453,7 +453,8 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1024311/pexels-photo-1024311.jpeg',
     rating: 5.0,
     comment: 'Sarah was amazing! She fixed our electrical issue quickly and efficiently. Very knowledgeable and professional.',
-    date: 'May 18, 2024'
+    date: 'May 18, 2024',
+    photos: []
   },
   {
     id: 'review-4',
@@ -463,6 +464,7 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
     rating: 4.8,
     comment: 'Maria and her team did an excellent job cleaning our home. They were thorough and paid attention to every detail. Our house has never looked better!',
-    date: 'May 12, 2024'
+    date: 'May 12, 2024',
+    photos: []
   }
 ];

@@ -112,7 +112,7 @@ export default function ServiceDetailsScreen() {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.imageContainer}>
+        <View style={styles.imageContainer} key={service.id}>
           <Image source={{ uri: service.image }} style={styles.serviceImage} />
 
           <View style={styles.headerActions}>
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   availabilityText: {
     fontSize: 16,
     color: COLORS.text.body,
-    marginLeft: 12,
+    marginHorizontal: 12,
     fontFamily: 'Inter-Regular',
   },
   pricingContainer: {

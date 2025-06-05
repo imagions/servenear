@@ -5,15 +5,15 @@ export type RootStackParamList = {
   'service/[id]': { id: string };
   'category/[id]': { id: string };
   'add-service': undefined;
-  'cart': undefined;
-  'schedule': { serviceId: string };
-  'map': undefined;
+  cart: undefined;
+  schedule: { serviceId: string };
+  map: undefined;
 };
 
 export type TabParamList = {
   index: undefined;
   explore: undefined;
-  'voice-help-requests': undefined;
+  placeholder: undefined;
   bookings: undefined;
   profile: undefined;
 };

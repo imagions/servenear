@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   serviceImage: {
     width: 100,
-    height: 100,
+    height: '100%',
   },
   serviceDetails: {
     flex: 1,
@@ -334,12 +334,13 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -349,7 +350,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
   },
   datesContainer: {
-    paddingBottom: 8,
+    padding: 8,
   },
   dateItem: {
     width: 64,
@@ -391,6 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    padding: 8,
   },
   timeItem: {
     width: '31%',
