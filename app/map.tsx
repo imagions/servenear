@@ -10,7 +10,7 @@ import {
   FlatList,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE,MapType } from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
+// import MapViewDirections from 'react-native-maps-directions';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Star, MapPin, Search, Clock } from 'lucide-react-native';
@@ -26,6 +26,7 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 import FilterModal from '@/components/FilterModal';
+import { GOOGLE_MAPS_API_KEY } from '@/config/keys';
 
 const { width } = Dimensions.get('window');
 
@@ -121,8 +122,6 @@ const ServiceListItem = memo(
     );
   }
 );
-
-const GOOGLE_MAPS_API_KEY = 'AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg';
 
 // Add this custom hook for debouncing location updates
 const useDebounce = (value, delay) => {
@@ -595,7 +594,7 @@ export default function MapScreen() {
 
           {markers}
 
-          {debouncedUserLocation && selectedService && (
+          {/* {debouncedUserLocation && selectedService && (
             <MapViewDirections
               origin={debouncedUserLocation}
               destination={{
@@ -617,7 +616,7 @@ export default function MapScreen() {
                 });
               }}
             />
-          )}
+          )} */}
         </MapView>
 
         {/* Add route info display */}

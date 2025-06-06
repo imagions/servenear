@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -19,7 +22,13 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow ServeNear to use your location."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -31,7 +40,12 @@
       }
     },
     "android": {
-      "package": "app.servenear"
+      "package": "app.servenear",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"
+        }
+      }
     }
   }
 }
