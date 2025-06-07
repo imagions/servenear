@@ -1,73 +1,165 @@
 import { create } from 'zustand';
-import { ServiceState, ServiceItem, ServiceCreateParams, CartItemParams } from '@/types';
+import { ServiceCategory, ServiceItem, ServiceCreateParams, CartItemParams } from '@/types';
+import { supabase } from '@/lib/supabase';
 import { mockCategories, mockServices, mockSubcategories, mockTrendingServices, mockBookings, mockReviews } from '@/constants/mock';
 
-export const useServiceStore = create<ServiceState>((set, get) => ({
-  services: mockServices,
-  categories: mockCategories,
-  subcategories: mockSubcategories,
+interface ServiceStore {
+  services: ServiceItem[];
+  categories: ServiceCategory[];
+  trendingServices: ServiceItem[];
+  loading: boolean;
+  error: string | null;
+  fetchCategories: () => Promise<void>;
+  fetchTrendingServices: () => Promise<void>;
+  fetchServices: () => Promise<void>;
+  fetchNearbyServices: (coords: { latitude: number; longitude: number }) => Promise<void>;
+  filterServices: (query: string, categories: string[]) => ServiceItem[];
+}
+
+export const useServiceStore = create<ServiceStore>((set, get) => ({
+  services: [],
+  categories: [],
   trendingServices: [],
-  nearbyServices: [],
-  bookings: mockBookings,
-  reviews: mockReviews,
-  cart: [],
-  
-  fetchCategories: () => {
-    // In a real app, we would fetch from an API
-    // For demo purposes, just use mock data
-    set({ categories: mockCategories });
+  loading: false,
+  error: null,
+
+  fetchCategories: async () => {
+    try {
+      set({ loading: true, error: null });
+
+      // For now, use mock data until Supabase is set up
+      set({ categories: mockCategories, loading: false });
+
+      // When Supabase is ready, use this:
+
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      set({ categories: data || [], loading: false });
+
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
   },
-  
-  fetchTrendingServices: () => {
-    // For demo purposes, use a subset of mock services
-    set({ trendingServices: mockTrendingServices });
+
+  fetchTrendingServices: async () => {
+    try {
+      set({ loading: true, error: null });
+
+      // Using mock data for now
+      const trending = mockServices.filter(s => s.rating >= 4.8);
+      set({ trendingServices: trending, loading: false });
+
+      // When Supabase is ready:
+
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .order('rating', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      set({ trendingServices: data || [], loading: false });
+
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
   },
-  
-  fetchNearbyServices: (location) => {
-    // For demo purposes, just use mock data
-    // In a real app, we would use the location to fetch nearby services
-    const nearby = mockTrendingServices.map(service => ({
-      ...service,
-      distance: Math.round(Math.random() * 10 * 10) / 10 // Random distance between 0-10 miles
-    }));
-    
-    set({ nearbyServices: nearby });
+
+  fetchServices: async () => {
+    try {
+      set({ loading: true, error: null });
+
+      const { data, error } = await supabase
+        .from('services')
+        .select(`
+          *,
+          provider_details:provider(
+            name,
+            avatar_url
+          ),
+          subcategory_details:subcategory(
+            name,
+            icon
+          )
+        `)
+        .eq('active', true)
+        .order('rating', { ascending: false });
+
+      if (error) throw error;
+
+      set({ services: data || [], loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
   },
-  
-  filterServices: (query, categories) => {
+
+  fetchNearbyServices: async ({ latitude, longitude }) => {
+    try {
+      set({ loading: true, error: null });
+
+      // Using mock data with distance calculation
+      const nearby = mockServices.map(service => ({
+        ...service,
+        distance: Math.random() * 5 // Random distance for demo
+      })).sort((a, b) => a.distance - b.distance);
+
+      set({ services: nearby, loading: false });
+
+      // When Supabase is ready:
+
+      const { data, error } = await supabase.rpc('nearby_services', {
+        latitude,
+        longitude,
+        radius: 500000
+      });
+      console.log('Nearby services:', data);
+      
+
+      if (error) throw error;
+      set({ services: data || [], loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  filterServices: (query: string, categories: string[]) => {
     const services = get().services;
-    
     return services.filter(service => {
-      const matchesQuery = query === '' || 
+      const matchesQuery = !query ||
         service.title.toLowerCase().includes(query.toLowerCase()) ||
-        service.description.toLowerCase().includes(query.toLowerCase());
-      
-      const matchesCategory = categories.length === 0 || 
-        categories.includes(service.category);
-      
+        service.description?.toLowerCase().includes(query.toLowerCase());
+
+      const matchesCategory = categories.length === 0 ||
+        categories.includes(service.category.toLowerCase());
+
       return matchesQuery && matchesCategory;
     });
   },
-  
+
   getServiceById: (id) => {
     return get().services.find(service => service.id === id);
   },
-  
+
   getCategoryById: (id) => {
     return get().categories.find(category => category.id === id);
   },
-  
+
   getSubcategoriesByCategoryId: (categoryId) => {
     return get().subcategories.filter(subcategory => subcategory.categoryId === categoryId);
   },
-  
+
   getServicesByCategoryId: (categoryId) => {
     const category = get().getCategoryById(categoryId);
     if (!category) return [];
-    
+
     return get().services.filter(service => service.category === category.name);
   },
-  
+
   addService: (params: ServiceCreateParams) => {
     const newService: ServiceItem = {
       id: `service-${Date.now()}`,
@@ -90,12 +182,12 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         punctuality: 0
       }
     };
-    
+
     set(state => ({
       services: [newService, ...state.services]
     }));
   },
-  
+
   addToCart: (params: CartItemParams) => {
     const newCartItem = {
       id: `cart-${Date.now()}`,
@@ -104,18 +196,18 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       time: params.time,
       price: params.price
     };
-    
+
     set(state => ({
       cart: [newCartItem, ...state.cart]
     }));
   },
-  
+
   removeFromCart: (id) => {
     set(state => ({
       cart: state.cart.filter(item => item.id !== id)
     }));
   },
-  
+
   clearCart: () => {
     set({ cart: [] });
   }

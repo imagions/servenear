@@ -19,19 +19,31 @@ export interface ServiceRatings {
 export interface ServiceItem {
   id: string;
   title: string;
-  description: string;
-  provider: string;
-  providerImage: string;
-  category: string;
-  rating: number;
-  reviewCount: number;
-  price: number;
-  fixedPrice: number;
-  image: string;
-  distance: number;
-  location: ServiceLocation;
-  availability: ServiceAvailability;
-  ratings: ServiceRatings;
+  description?: string;
+  hourly_price: number;
+  once_price: number;
+  active?: boolean;
+  lat?: number;
+  long?: number;
+  rating?: number;
+  created_at?: string;
+  tags?: string[];
+  subcategory?: string;
+  provider?: string;
+  terms_and_conditions?: string;
+  image?: string;
+  service_area?: number;
+  verification_status?: string;
+  included?: string[];
+  location?: any;
+  provider_details?: {
+    name: string;
+    avatar_url?: string;
+  };
+  subcategory_details?: {
+    name: string;
+    icon?: string;
+  };
 }
 
 export interface Service {

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -39,6 +40,9 @@ export default function HomeScreen() {
     fetchCategories,
     fetchTrendingServices,
     fetchNearbyServices,
+    services,
+    loading,
+    error,
   } = useServiceStore();
   const { user } = useAuthStore();
   const { showSnackbar } = useSnackbar();
@@ -133,6 +137,14 @@ export default function HomeScreen() {
     <ServiceCard service={item} icon={item.icon || 'trending-up'} />
   );
 
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error loading services</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -194,14 +206,20 @@ export default function HomeScreen() {
 
           <View style={styles.categorySection}>
             <Text style={styles.sectionTitle}>Categories</Text>
-            <FlatList
-              data={categories}
-              renderItem={renderCategoryItem}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryList}
-            />
+            {loading ? (
+              <ActivityIndicator color={COLORS.accent} />
+            ) : categories?.length > 0 ? (
+              <FlatList
+                data={categories}
+                renderItem={renderCategoryItem}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoryList}
+              />
+            ) : (
+              <Text style={styles.emptyText}>No categories found</Text>
+            )}
           </View>
 
           <View style={styles.nearbySection}>
@@ -213,15 +231,21 @@ export default function HomeScreen() {
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView
-              contentContainerStyle={{ flexDirection: 'row' }}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-            >
-              {trendingServices.map((item) => (
-                <View key={item.id}>{renderNearbyItem({ item })}</View>
-              ))}
-            </ScrollView>
+            {loading ? (
+              <ActivityIndicator color={COLORS.accent} />
+            ) : services?.length > 0 ? (
+              <ScrollView
+                contentContainerStyle={{ flexDirection: 'row' }}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+              >
+                {services.map((item) => (
+                  <View key={item.id}>{renderNearbyItem({ item })}</View>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.emptyText}>No services found nearby</Text>
+            )}
           </View>
 
           <View style={styles.trendingSection}>
@@ -233,11 +257,17 @@ export default function HomeScreen() {
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
             </View>
-            <View style={{ flexDirection: 'column' }}>
-              {trendingServices.map((item) => (
-                <View key={item.id}>{renderTrendingItem({ item })}</View>
-              ))}
-            </View>
+            {loading ? (
+              <ActivityIndicator color={COLORS.accent} />
+            ) : trendingServices?.length > 0 ? (
+              <View style={{ flexDirection: 'column' }}>
+                {trendingServices.map((item) => (
+                  <View key={item.id}>{renderTrendingItem({ item })}</View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyText}>No trending services</Text>
+            )}
           </View>
 
           <View style={styles.bannerSection}>
@@ -538,5 +568,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.card,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Regular',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
