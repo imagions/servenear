@@ -21,9 +21,8 @@ import {
   ShoppingCart,
 } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
-import { useCartStore } from '@/store/useCartStore'; // Add this import
+import { useCartStore } from '@/store/useCartStore';
 import { ReviewItem } from '@/types';
-import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const DUMMY_REVIEW_IMAGES = [
@@ -67,15 +66,14 @@ export default function ServiceDetailsScreen() {
     addToCart({
       id: service.id,
       title: service.title,
-      price: Math.min(service.fixedPrice, service.price),
-      image: service.image,
-      provider: service.provider,
+      price: Math.min(service.fixedPrice || service.once_price, service.price || service.hourly_price),
+      image: service.image || '',
+      provider: service.provider_details?.name || 'Unknown Provider',
     });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   const handleProviderPress = () => {
-    router.push(`/provider/${service.id}`);
+    router.push(`/provider/${service.provider || service.id}`);
   };
 
   const handleUserPress = (userId: string) => {
@@ -109,11 +107,22 @@ export default function ServiceDetailsScreen() {
     </View>
   );
 
+  // Use database fields with fallbacks
+  const providerName = service.provider_details?.name || 'Unknown Provider';
+  const providerImage = service.provider_details?.profile_image || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg';
+  const serviceRating = service.rating || 0;
+  const reviewCount = service.reviewCount || 0;
+  const hourlyPrice = service.hourly_price || service.price || 0;
+  const fixedPrice = service.once_price || service.fixedPrice || 0;
+  const serviceImage = service.image || 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg';
+  const serviceDescription = service.description || 'No description available';
+  const serviceAvailability = service.availability || { days: 'Mon-Fri', hours: '9:00 AM - 5:00 PM' };
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.imageContainer} key={service.id}>
-          <Image source={{ uri: service.image }} style={styles.serviceImage} />
+          <Image source={{ uri: serviceImage }} style={styles.serviceImage} />
 
           <View style={styles.headerActions}>
             <TouchableOpacity
@@ -141,9 +150,9 @@ export default function ServiceDetailsScreen() {
             <Text style={styles.serviceTitle}>{service.title}</Text>
             <View style={styles.ratingContainer}>
               <Star size={16} color="#FFB800" fill="#FFB800" />
-              <Text style={styles.ratingText}>{service.rating}</Text>
+              <Text style={styles.ratingText}>{serviceRating.toFixed(1)}</Text>
               <Text style={styles.reviewCount}>
-                ({service.reviewCount} reviews)
+                ({reviewCount} reviews)
               </Text>
             </View>
           </View>
@@ -153,15 +162,15 @@ export default function ServiceDetailsScreen() {
             onPress={handleProviderPress}
           >
             <Image
-              source={{ uri: service.providerImage }}
+              source={{ uri: providerImage }}
               style={styles.providerImage}
             />
             <View style={styles.providerInfo}>
-              <Text style={styles.providerName}>{service.provider}</Text>
+              <Text style={styles.providerName}>{providerName}</Text>
               <View style={styles.locationContainer}>
                 <MapPin size={16} color="#9E9E9E" />
                 <Text style={styles.locationText}>
-                  {/* {service.location.address} */}
+                  {service.lat && service.long ? `${service.lat.toFixed(2)}, ${service.long.toFixed(2)}` : 'Location not available'}
                 </Text>
               </View>
             </View>
@@ -169,7 +178,7 @@ export default function ServiceDetailsScreen() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About This Service</Text>
-            <Text style={styles.descriptionText}>{service.description}</Text>
+            <Text style={styles.descriptionText}>{serviceDescription}</Text>
           </View>
 
           <View style={styles.section}>
@@ -178,14 +187,14 @@ export default function ServiceDetailsScreen() {
               <View style={styles.availabilityItem}>
                 <Clock size={20} color={COLORS.accent} />
                 <Text style={styles.availabilityText}>
-                  Available hours: {service.availability.hours}
+                  Available hours: {serviceAvailability.hours}
                 </Text>
               </View>
 
               <View style={styles.availabilityItem}>
                 <Calendar size={20} color={COLORS.accent} />
                 <Text style={styles.availabilityText}>
-                  Available days: {service.availability.days}
+                  Available days: {serviceAvailability.days}
                 </Text>
               </View>
             </View>
@@ -201,7 +210,7 @@ export default function ServiceDetailsScreen() {
                     Fixed rate for single service
                   </Text>
                 </View>
-                <Text style={styles.pricingValue}>${service.fixedPrice}</Text>
+                <Text style={styles.pricingValue}>${fixedPrice}</Text>
               </View>
 
               <View style={[styles.pricingRow, styles.pricingDivider]}>
@@ -211,7 +220,7 @@ export default function ServiceDetailsScreen() {
                     For time-based services
                   </Text>
                 </View>
-                <Text style={styles.pricingValue}>${service.price}/hr</Text>
+                <Text style={styles.pricingValue}>${hourlyPrice}/hr</Text>
               </View>
             </View>
           </View>
@@ -221,11 +230,11 @@ export default function ServiceDetailsScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Reviews & Photos</Text>
               <View style={styles.overallRating}>
-                <Text style={styles.overallRatingValue}>{service.rating}</Text>
+                <Text style={styles.overallRatingValue}>{serviceRating.toFixed(1)}</Text>
                 <View style={styles.starsContainer}>
                   <Star size={16} color="#FFB800" fill={'#FFB800'} />
                 </View>
-                <Text style={styles.totalReviews}>({service.reviewCount})</Text>
+                <Text style={styles.totalReviews}>({reviewCount})</Text>
               </View>
             </View>
 
@@ -278,7 +287,7 @@ export default function ServiceDetailsScreen() {
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Starting from</Text>
           <Text style={styles.priceValue}>
-            ${Math.min(service.fixedPrice, service.price)}
+            ${Math.min(fixedPrice, hourlyPrice)}
           </Text>
         </View>
 

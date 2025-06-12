@@ -75,18 +75,45 @@ export const mockServices: ServiceItem[] = [
     id: 'service-1',
     title: 'Emergency Plumbing Service',
     description: 'Professional plumbing service for emergency situations. Available 24/7 for leaks, clogs, and pipe repairs. Fast response time and quality workmanship guaranteed.',
-    provider: 'John Smith',
-    providerImage: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
-    category: 'Plumbing',
+    hourly_price: 85,
+    once_price: 150,
+    active: true,
+    lat: 37.7749,
+    long: -122.4194,
     rating: 4.8,
-    reviewCount: 156,
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
-    distance: 2.4,
-    location: {
-      latitude: 37.7749,
-      longitude: -122.4194,
-      address: 'San Francisco, CA'
+    tags: ['emergency', 'plumbing', '24/7'],
+    subcategory: 'subcat-1',
+    provider: 'provider-1',
+    verification_status: 'verified',
+    included: ['Tools', 'Basic materials', 'Cleanup'],
+    
+    // UI computed fields
+    provider_details: {
+      id: 'provider-1',
+      name: 'John Smith',
+      profile_image: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+      bio: 'Professional plumber with 10+ years experience',
+      is_provider: true,
+      verified: true,
+      rating: 4.8,
+      total_serves: 156,
+      experience: 10,
+      active: true,
+      created_at: '2020-01-01'
     },
+    subcategory_details: {
+      id: 'subcat-1',
+      name: 'Pipe Repair',
+      category_id: 'cat-1',
+      icon: 'plumbing'
+    },
+    category: 'Plumbing',
+    reviewCount: 156,
+    distance: 2.4,
+    price: 85,
+    fixedPrice: 150,
+    providerImage: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
     availability: {
       days: 'Mon, Tue, Wed, Thu, Fri, Sat, Sun',
       hours: '24/7'
@@ -102,18 +129,45 @@ export const mockServices: ServiceItem[] = [
     id: 'service-2',
     title: 'Residential Electrical Repair',
     description: 'Licensed electrician offering complete electrical services for your home. Specializing in panel upgrades, outlet installation, lighting, and troubleshooting electrical issues.',
-    provider: 'Sarah Johnson',
-    providerImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
-    category: 'Electrical',
+    hourly_price: 95,
+    once_price: 200,
+    active: true,
+    lat: 37.7833,
+    long: -122.4167,
     rating: 4.9,
-    reviewCount: 203,
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
-    distance: 3.1,
-    location: {
-      latitude: 37.7833,
-      longitude: -122.4167,
-      address: 'San Francisco, CA'
+    tags: ['electrical', 'licensed', 'residential'],
+    subcategory: 'subcat-4',
+    provider: 'provider-2',
+    verification_status: 'verified',
+    included: ['Safety inspection', 'Code compliance', 'Warranty'],
+    
+    // UI computed fields
+    provider_details: {
+      id: 'provider-2',
+      name: 'Sarah Johnson',
+      profile_image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+      bio: 'Licensed electrician with expertise in residential work',
+      is_provider: true,
+      verified: true,
+      rating: 4.9,
+      total_serves: 203,
+      experience: 8,
+      active: true,
+      created_at: '2021-03-15'
     },
+    subcategory_details: {
+      id: 'subcat-4',
+      name: 'Wiring',
+      category_id: 'cat-2',
+      icon: 'electrical-services'
+    },
+    category: 'Electrical',
+    reviewCount: 203,
+    distance: 3.1,
+    price: 95,
+    fixedPrice: 200,
+    providerImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
     availability: {
       days: 'Mon, Tue, Wed, Thu, Fri',
       hours: '8:00 AM - 6:00 PM'
@@ -129,18 +183,45 @@ export const mockServices: ServiceItem[] = [
     id: 'service-3',
     title: 'Deep House Cleaning',
     description: 'Thorough house cleaning service using eco-friendly products. Services include dusting, vacuuming, mopping, bathroom and kitchen cleaning, and interior window washing.',
-    provider: 'Maria Garcia',
-    providerImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-    category: 'Cleaning',
+    hourly_price: 40,
+    once_price: 120,
+    active: true,
+    lat: 37.7883,
+    long: -122.4267,
     rating: 4.7,
-    reviewCount: 178,
     image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
-    distance: 1.8,
-    location: {
-      latitude: 37.7883,
-      longitude: -122.4267,
-      address: 'San Francisco, CA'
+    tags: ['cleaning', 'eco-friendly', 'deep-clean'],
+    subcategory: 'subcat-6',
+    provider: 'provider-3',
+    verification_status: 'verified',
+    included: ['Eco-friendly supplies', 'All rooms', 'Satisfaction guarantee'],
+    
+    // UI computed fields
+    provider_details: {
+      id: 'provider-3',
+      name: 'Maria Garcia',
+      profile_image: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+      bio: 'Professional cleaner specializing in eco-friendly methods',
+      is_provider: true,
+      verified: true,
+      rating: 4.7,
+      total_serves: 178,
+      experience: 5,
+      active: true,
+      created_at: '2022-01-10'
     },
+    subcategory_details: {
+      id: 'subcat-6',
+      name: 'House Cleaning',
+      category_id: 'cat-3',
+      icon: 'cleaning-services'
+    },
+    category: 'Cleaning',
+    reviewCount: 178,
+    distance: 1.8,
+    price: 40,
+    fixedPrice: 120,
+    providerImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
     availability: {
       days: 'Mon, Wed, Fri',
       hours: '9:00 AM - 5:00 PM'
@@ -150,141 +231,6 @@ export const mockServices: ServiceItem[] = [
       trust: 4.7,
       communication: 4.5,
       punctuality: 4.6
-    }
-  },
-  {
-    id: 'service-4',
-    title: 'Professional Moving Help',
-    description: 'Experienced movers to help with your local move. Services include furniture disassembly/assembly, loading/unloading, and safe transport of your belongings.',
-    provider: 'Mike Chen',
-    providerImage: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
-    category: 'Moving',
-    rating: 4.6,
-    reviewCount: 126,
-    image: 'https://images.pexels.com/photos/4246197/pexels-photo-4246197.jpeg',
-    distance: 4.2,
-    location: {
-      latitude: 37.7753,
-      longitude: -122.4194,
-      address: 'San Francisco, CA'
-    },
-    availability: {
-      days: 'Tue, Thu, Sat, Sun',
-      hours: '8:00 AM - 8:00 PM'
-    },
-    ratings: {
-      respect: 4.7,
-      trust: 4.6,
-      communication: 4.5,
-      punctuality: 4.6
-    }
-  },
-  {
-    id: 'service-5',
-    title: 'Hair Styling & Makeup',
-    description: 'Professional hair styling and makeup services for special events, weddings, photoshoots, or just to treat yourself. Using high-quality products and latest techniques.',
-    provider: 'Emily Wong',
-    providerImage: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg',
-    category: 'Beauty',
-    rating: 4.9,
-    reviewCount: 215,
-    image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
-    distance: 2.7,
-    location: {
-      latitude: 37.7923,
-      longitude: -122.4147,
-      address: 'San Francisco, CA'
-    },
-    availability: {
-      days: 'Mon, Tue, Wed, Thu, Fri, Sat',
-      hours: '10:00 AM - 7:00 PM'
-    },
-    ratings: {
-      respect: 5.0,
-      trust: 4.9,
-      communication: 4.8,
-      punctuality: 4.9
-    }
-  },
-  {
-    id: 'service-6',
-    title: 'Computer Repair & IT Support',
-    description: 'Expert computer repair and IT support for both Mac and PC. Services include virus removal, hardware replacement, software installation, and general troubleshooting.',
-    provider: 'David Kim',
-    providerImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
-    category: 'Tech',
-    rating: 4.8,
-    reviewCount: 187,
-    image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
-    distance: 3.5,
-    location: {
-      latitude: 37.7723,
-      longitude: -122.4344,
-      address: 'San Francisco, CA'
-    },
-    availability: {
-      days: 'Mon, Tue, Wed, Thu, Fri',
-      hours: '9:00 AM - 6:00 PM'
-    },
-    ratings: {
-      respect: 4.8,
-      trust: 4.9,
-      communication: 4.7,
-      punctuality: 4.7
-    }
-  },
-  {
-    id: 'service-7',
-    title: 'Math & Science Tutoring',
-    description: 'Experienced tutor for K-12 and college-level mathematics and sciences. Personalized approach to help students understand concepts and improve grades.',
-    provider: 'Jessica Taylor',
-    providerImage: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg',
-    category: 'Tutoring',
-    rating: 4.9,
-    reviewCount: 143,
-    image: 'https://images.pexels.com/photos/3795221/pexels-photo-3795221.jpeg',
-    distance: 2.2,
-    location: {
-      latitude: 37.7853,
-      longitude: -122.4104,
-      address: 'San Francisco, CA'
-    },
-    availability: {
-      days: 'Mon, Tue, Wed, Thu, Fri',
-      hours: '3:00 PM - 8:00 PM'
-    },
-    ratings: {
-      respect: 5.0,
-      trust: 4.9,
-      communication: 4.9,
-      punctuality: 4.8
-    }
-  },
-  {
-    id: 'service-8',
-    title: 'Grocery & Food Delivery',
-    description: 'Prompt and reliable grocery and food delivery service. Shop from your favorite stores and restaurants and have items delivered to your doorstep.',
-    provider: 'James Wilson',
-    providerImage: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-    category: 'Delivery',
-    rating: 4.7,
-    reviewCount: 192,
-    image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
-    distance: 1.5,
-    location: {
-      latitude: 37.7943,
-      longitude: -122.4294,
-      address: 'San Francisco, CA'
-    },
-    availability: {
-      days: 'Mon, Tue, Wed, Thu, Fri, Sat, Sun',
-      hours: '9:00 AM - 9:00 PM'
-    },
-    ratings: {
-      respect: 4.8,
-      trust: 4.7,
-      communication: 4.6,
-      punctuality: 4.7
     }
   }
 ];
@@ -297,6 +243,7 @@ export const mockTrendingServices: TrendingService[] = [
     provider: 'John Smith',
     rating: 4.8,
     hourly_price: 85,
+    once_price: 150,
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     distance: 2.4
   },
@@ -307,49 +254,21 @@ export const mockTrendingServices: TrendingService[] = [
     provider: 'Sarah Johnson',
     rating: 4.9,
     hourly_price: 95,
+    once_price: 200,
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     distance: 3.1
   },
   {
-      id: 'service-5',
-      title: 'Hair Styling & Makeup',
-      description: 'Professional hair styling and makeup services for special events, weddings, photoshoots, or just to treat yourself. Using high-quality products and latest techniques.',
-      provider: 'Emily Wong',
-      rating: 4.9,
-      hourly_price: 120,
-      image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
-      distance: 2.7
-    },
-    {
-      id: 'service-6',
-      title: 'Computer Repair & IT Support',
-      description: 'Expert computer repair and IT support for both Mac and PC. Services include virus removal, hardware replacement, software installation, and general troubleshooting.',
-      provider: 'David Kim',
-      rating: 4.8,
-      hourly_price: 65,
-      image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
-      distance: 3.5
-    },
-    {
-      id: 'service-3',
-      title: 'Deep House Cleaning',
-      description: 'Thorough house cleaning service using eco-friendly products. Services include dusting, vacuuming, mopping, bathroom and kitchen cleaning, and interior window washing.',
-      provider: 'Maria Garcia',
-      rating: 4.7,
-      hourly_price: 40,
-      image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
-      distance: 1.8
-    },
-    {
-      id: 'service-8',
-      title: 'Grocery & Food Delivery',
-      description: 'Prompt and reliable grocery and food delivery service. Shop from your favorite stores and restaurants and have items delivered to your doorstep.',
-      provider: 'James Wilson',
-      rating: 4.7,
-      hourly_price: 25,
-      image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
-      distance: 1.5
-    }
+    id: 'service-3',
+    title: 'Deep House Cleaning',
+    description: 'Thorough house cleaning service using eco-friendly products. Services include dusting, vacuuming, mopping, bathroom and kitchen cleaning, and interior window washing.',
+    provider: 'Maria Garcia',
+    rating: 4.7,
+    hourly_price: 40,
+    once_price: 120,
+    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    distance: 1.8
+  }
 ];
 
 export const mockBookings: BookingItem[] = [
@@ -361,7 +280,7 @@ export const mockBookings: BookingItem[] = [
     providerName: 'John Smith',
     date: 'May 25, 2024',
     time: '10:00 AM',
-    hourly_price: 85,
+    price: 85,
     status: 'upcoming'
   },
   {
@@ -372,30 +291,19 @@ export const mockBookings: BookingItem[] = [
     providerName: 'Maria Garcia',
     date: 'May 30, 2024',
     time: '1:00 PM',
-    hourly_price: 120,
+    price: 120,
     status: 'pending'
   },
   {
     id: 'booking-3',
-    serviceId: 'service-6',
-    serviceTitle: 'Computer Repair & IT Support',
-    serviceImage: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
-    providerName: 'David Kim',
+    serviceId: 'service-2',
+    serviceTitle: 'Residential Electrical Repair',
+    serviceImage: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    providerName: 'Sarah Johnson',
     date: 'May 15, 2024',
     time: '3:00 PM',
-    hourly_price: 65,
+    price: 95,
     status: 'completed'
-  },
-  {
-    id: 'booking-4',
-    serviceId: 'service-5',
-    serviceTitle: 'Hair Styling & Makeup',
-    serviceImage: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
-    providerName: 'Emily Wong',
-    date: 'May 10, 2024',
-    time: '11:00 AM',
-    hourly_price: 120,
-    status: 'cancelled'
   }
 ];
 

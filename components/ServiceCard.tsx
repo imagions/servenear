@@ -4,10 +4,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Star, MapPin } from 'lucide-react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
-import { Service } from '@/types';
+import { ServiceItem } from '@/types';
 
 type ServiceCardProps = {
-  service: Service;
+  service: ServiceItem;
   icon: string;
   searchQuery?: string;
   mode?: 'normal' | 'search';
@@ -53,6 +53,13 @@ export default function ServiceCard({
     );
   };
 
+  // Use provider details from database or fallback to mock data
+  const providerName = service.provider_details?.name || 'Unknown Provider';
+  const providerVerified = service.provider_details?.verified || false;
+  const serviceRating = service.rating || 0;
+  const servicePrice = service.price || service.hourly_price || 0;
+  const serviceDistance = service.distance || 0;
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -76,30 +83,32 @@ export default function ServiceCard({
             </Text>
             <View style={styles.ratingBadge}>
               <Star size={14} color="#FFB800" fill="#FFB800" />
-              <Text style={styles.ratingText}>{service.rating}</Text>
+              <Text style={styles.ratingText}>{serviceRating.toFixed(1)}</Text>
             </View>
           </View>
 
           <View style={styles.providerRow}>
-            <MaterialIcons name="verified" size={13} color={COLORS.accent} />
-            <Text style={styles.providerName}>{service.provider}</Text>
+            {providerVerified && (
+              <MaterialIcons name="verified" size={13} color={COLORS.accent} />
+            )}
+            <Text style={styles.providerName}>{providerName}</Text>
           </View>
         </View>
       </View>
 
       <Text style={styles.description} numberOfLines={2}>
-        {service.description}
+        {service.description || 'No description available'}
       </Text>
 
       <View style={styles.footer}>
         <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>${service.price}/hr</Text>
+          <Text style={styles.priceText}>${servicePrice}/hr</Text>
         </View>
 
         <View style={styles.footerRight}>
           <View style={styles.distanceBadge}>
             <MapPin size={14} color={COLORS.accent} />
-            <Text style={styles.distanceText}>{service.distance} km</Text>
+            <Text style={styles.distanceText}>{serviceDistance.toFixed(1)} km</Text>
           </View>
 
           <TouchableOpacity
