@@ -16,68 +16,86 @@ export interface ServiceRatings {
   punctuality: number;
 }
 
+export interface ServiceProvider {
+  id: string;
+  name: string;
+  bio?: string;
+  profile_image?: string;
+  address?: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  is_provider: boolean;
+  skills?: string[];
+  rating?: number;
+  total_serves?: number;
+  certification_id?: string;
+  gov_id?: string;
+  wallet_balance?: number;
+  active?: boolean;
+  verified?: boolean;
+  created_at?: string;
+  experience?: number;
+}
+
 export interface ServiceItem {
   id: string;
   title: string;
   description?: string;
-  hourly_price: number;
-  once_price: number;
+  provider: ServiceProvider;
+  provider_details?: {
+    name: string;
+    avatar_url?: string;
+  };
+  category?: string;
+  subcategory?: string;
+  subcategory_details?: {
+    name: string;
+    icon: string;
+  };
+  hourly_price?: number;
+  once_price?: number;
   active?: boolean;
-  lat?: number;
-  long?: number;
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  availability?: ServiceAvailability;
   rating?: number;
+  ratings?: ServiceRatings;
+  reviewCount?: number;
+  distance?: number;
   created_at?: string;
   tags?: string[];
-  subcategory?: string;
-  provider?: string;
   terms_and_conditions?: string;
   image?: string;
   service_area?: number;
   verification_status?: string;
   included?: string[];
-  location?: any;
-  provider_details?: {
-    name: string;
-    avatar_url?: string;
-  };
-  subcategory_details?: {
-    name: string;
-    icon?: string;
-  };
-}
-
-export interface Service {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  provider: string;
-  rating: number;
-  distance: string;
-  image: string;
-  category: string;
-  subcategory: {
-    name: string;
-    icon: string;
-  };
-  lat: number;
-  long: number;
-}
-
-export interface ServiceCategory {
-  id: string;
-  name: string;
-  icon: string;
-  image?: string;
 }
 
 export interface SubCategory {
   id: string;
   name: string;
-  categoryId: string;
-  startingPrice: number;
-  servicesCount: number;
-  image: string;
+  description?: string;
+  icon?: string;
+  image?: string;
+  created_at?: string;
+  category_id: string;
+  startingPrice?: number;
+  servicesCount?: number;
+}
+
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  description?: string;
+  icon: string;
+  image?: string;
+  created_at?: string;
+  subcategories?: SubCategory[];
 }
 
 export interface TrendingService {
@@ -86,7 +104,8 @@ export interface TrendingService {
   description: string;
   provider: string;
   rating: number;
-  price: number;
+  once_price?: number;
+  hourly_price: number;
   image: string;
   distance: number;
 }

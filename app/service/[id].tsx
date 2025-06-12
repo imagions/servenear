@@ -102,7 +102,7 @@ export default function ServiceDetailsScreen() {
       <Text style={styles.reviewComment}>{item.comment}</Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {DUMMY_REVIEW_IMAGES.slice(0, 2).map((photo, index) => (
+        {DUMMY_REVIEW_IMAGES?.slice(0, 2).map((photo, index) => (
           <Image key={index} source={{ uri: photo }} />
         ))}
       </ScrollView>
@@ -161,7 +161,7 @@ export default function ServiceDetailsScreen() {
               <View style={styles.locationContainer}>
                 <MapPin size={16} color="#9E9E9E" />
                 <Text style={styles.locationText}>
-                  {service.location.address}
+                  {/* {service.location.address} */}
                 </Text>
               </View>
             </View>
@@ -235,7 +235,7 @@ export default function ServiceDetailsScreen() {
               showsHorizontalScrollIndicator={false}
               style={styles.reviewPhotosContainer}
             >
-              {reviews.slice(0, 6).map(
+              {reviews?.slice(0, 6).map(
                 (review, index) =>
                   review.photos &&
                   review.photos.map((photo, photoIndex) => (
@@ -268,7 +268,7 @@ export default function ServiceDetailsScreen() {
 
             {/* Recent Reviews */}
             {reviews
-              .slice(0, 2)
+              ?.slice(0, 2)
               .map((review) => renderReviewItem({ item: review }))}
           </View>
         </View>

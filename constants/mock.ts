@@ -15,7 +15,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-1', 
     name: 'Pipe Repair', 
-    categoryId: 'cat-1',
+    category_id: 'cat-1',
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     startingPrice: 50,
     servicesCount: 12
@@ -23,7 +23,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-2', 
     name: 'Drain Cleaning', 
-    categoryId: 'cat-1',
+    category_id: 'cat-1',
     image: 'https://images.pexels.com/photos/5728297/pexels-photo-5728297.jpeg',
     startingPrice: 60,
     servicesCount: 8
@@ -31,7 +31,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-3', 
     name: 'Fixture Installation', 
-    categoryId: 'cat-1',
+    category_id: 'cat-1',
     image: 'https://images.pexels.com/photos/5570224/pexels-photo-5570224.jpeg',
     startingPrice: 70,
     servicesCount: 10
@@ -39,7 +39,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-4', 
     name: 'Wiring', 
-    categoryId: 'cat-2',
+    category_id: 'cat-2',
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     startingPrice: 80,
     servicesCount: 15
@@ -47,7 +47,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-5', 
     name: 'Lighting', 
-    categoryId: 'cat-2',
+    category_id: 'cat-2',
     image: 'https://images.pexels.com/photos/5738351/pexels-photo-5738351.jpeg',
     startingPrice: 55,
     servicesCount: 9
@@ -55,7 +55,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-6', 
     name: 'House Cleaning', 
-    categoryId: 'cat-3',
+    category_id: 'cat-3',
     image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
     startingPrice: 45,
     servicesCount: 14
@@ -63,7 +63,7 @@ export const mockSubcategories: SubCategory[] = [
   { 
     id: 'subcat-7', 
     name: 'Carpet Cleaning', 
-    categoryId: 'cat-3',
+    category_id: 'cat-3',
     image: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
     startingPrice: 65,
     servicesCount: 7
@@ -80,8 +80,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Plumbing',
     rating: 4.8,
     reviewCount: 156,
-    price: 85,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     distance: 2.4,
     location: {
@@ -109,8 +107,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Electrical',
     rating: 4.9,
     reviewCount: 203,
-    price: 95,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     distance: 3.1,
     location: {
@@ -138,8 +134,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Cleaning',
     rating: 4.7,
     reviewCount: 178,
-    price: 40,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
     distance: 1.8,
     location: {
@@ -167,8 +161,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Moving',
     rating: 4.6,
     reviewCount: 126,
-    price: 75,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/4246197/pexels-photo-4246197.jpeg',
     distance: 4.2,
     location: {
@@ -196,8 +188,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Beauty',
     rating: 4.9,
     reviewCount: 215,
-    price: 120,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
     distance: 2.7,
     location: {
@@ -225,8 +215,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Tech',
     rating: 4.8,
     reviewCount: 187,
-    price: 65,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
     distance: 3.5,
     location: {
@@ -254,8 +242,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Tutoring',
     rating: 4.9,
     reviewCount: 143,
-    price: 50,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/3795221/pexels-photo-3795221.jpeg',
     distance: 2.2,
     location: {
@@ -283,8 +269,6 @@ export const mockServices: ServiceItem[] = [
     category: 'Delivery',
     rating: 4.7,
     reviewCount: 192,
-    price: 25,
-    fixedPrice: 599,
     image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
     distance: 1.5,
     location: {
@@ -312,7 +296,7 @@ export const mockTrendingServices: TrendingService[] = [
     description: 'Professional plumbing service for emergency situations. Available 24/7 for leaks, clogs, and pipe repairs. Fast response time and quality workmanship guaranteed.',
     provider: 'John Smith',
     rating: 4.8,
-    price: 85,
+    hourly_price: 85,
     image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     distance: 2.4
   },
@@ -322,7 +306,7 @@ export const mockTrendingServices: TrendingService[] = [
     description: 'Licensed electrician offering complete electrical services for your home. Specializing in panel upgrades, outlet installation, lighting, and troubleshooting electrical issues.',
     provider: 'Sarah Johnson',
     rating: 4.9,
-    price: 95,
+    hourly_price: 95,
     image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     distance: 3.1
   },
@@ -332,7 +316,7 @@ export const mockTrendingServices: TrendingService[] = [
       description: 'Professional hair styling and makeup services for special events, weddings, photoshoots, or just to treat yourself. Using high-quality products and latest techniques.',
       provider: 'Emily Wong',
       rating: 4.9,
-      price: 120,
+      hourly_price: 120,
       image: 'https://images.pexels.com/photos/3065171/pexels-photo-3065171.jpeg',
       distance: 2.7
     },
@@ -342,7 +326,7 @@ export const mockTrendingServices: TrendingService[] = [
       description: 'Expert computer repair and IT support for both Mac and PC. Services include virus removal, hardware replacement, software installation, and general troubleshooting.',
       provider: 'David Kim',
       rating: 4.8,
-      price: 65,
+      hourly_price: 65,
       image: 'https://images.pexels.com/photos/2036656/pexels-photo-2036656.jpeg',
       distance: 3.5
     },
@@ -352,7 +336,7 @@ export const mockTrendingServices: TrendingService[] = [
       description: 'Thorough house cleaning service using eco-friendly products. Services include dusting, vacuuming, mopping, bathroom and kitchen cleaning, and interior window washing.',
       provider: 'Maria Garcia',
       rating: 4.7,
-      price: 40,
+      hourly_price: 40,
       image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
       distance: 1.8
     },
@@ -362,7 +346,7 @@ export const mockTrendingServices: TrendingService[] = [
       description: 'Prompt and reliable grocery and food delivery service. Shop from your favorite stores and restaurants and have items delivered to your doorstep.',
       provider: 'James Wilson',
       rating: 4.7,
-      price: 25,
+      hourly_price: 25,
       image: 'https://images.pexels.com/photos/6765842/pexels-photo-6765842.jpeg',
       distance: 1.5
     }
@@ -377,7 +361,7 @@ export const mockBookings: BookingItem[] = [
     providerName: 'John Smith',
     date: 'May 25, 2024',
     time: '10:00 AM',
-    price: 85,
+    hourly_price: 85,
     status: 'upcoming'
   },
   {
@@ -388,7 +372,7 @@ export const mockBookings: BookingItem[] = [
     providerName: 'Maria Garcia',
     date: 'May 30, 2024',
     time: '1:00 PM',
-    price: 120,
+    hourly_price: 120,
     status: 'pending'
   },
   {
@@ -399,7 +383,7 @@ export const mockBookings: BookingItem[] = [
     providerName: 'David Kim',
     date: 'May 15, 2024',
     time: '3:00 PM',
-    price: 65,
+    hourly_price: 65,
     status: 'completed'
   },
   {
@@ -410,7 +394,7 @@ export const mockBookings: BookingItem[] = [
     providerName: 'Emily Wong',
     date: 'May 10, 2024',
     time: '11:00 AM',
-    price: 120,
+    hourly_price: 120,
     status: 'cancelled'
   }
 ];

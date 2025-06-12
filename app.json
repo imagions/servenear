@@ -28,7 +28,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow ServeNear to use your location."
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true

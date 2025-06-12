@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -51,37 +51,34 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Show location notification when app opens
-    showSnackbar({
-      message: 'Getting your accurate location...',
-      icon: 'my-location',
-      iconColor: COLORS.accent,
-      duration: 3000,
-    });
+    const initData = async () => {
+      try {
+        // Add console.log for debugging
+        console.log('Initializing data...');
+        
+        await fetchCategories();
+        await fetchTrendingServices();
 
-    fetchCategories();
-    fetchTrendingServices();
-
-    // Request location permissions and fetch nearby services
-    const getLocationAndServices = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status === 'granted') {
-        const location = await Location.getCurrentPositionAsync({});
-        fetchNearbyServices({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
-      } else {
-        // Use default location if permission not granted
-        fetchNearbyServices({
-          latitude: 37.7749,
-          longitude: -122.4194,
-        });
+        // Request location permissions and fetch nearby services
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          await fetchNearbyServices({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+        } else {
+          await fetchNearbyServices({
+            latitude: 37.7749,
+            longitude: -122.4194,
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing data:', error);
       }
     };
 
-    getLocationAndServices();
+    initData();
   }, []);
 
   const handleSearch = () => {
@@ -93,10 +90,13 @@ export default function HomeScreen() {
     }
   };
 
-  const renderCategoryItem = ({ item }: { item: ServiceCategory }) => (
+  const renderCategoryItem = useCallback(({ item }: { item: ServiceCategory }) => (
     <TouchableOpacity
       style={styles.categoryItem}
-      onPress={() => router.push(`/category/${item.id}`)}
+      onPress={() => {
+        console.log('Category pressed:', item);
+        router.push(`/category/${item.id}`);
+      }}
     >
       <View style={styles.categoryIcon}>
         <MaterialIcons
@@ -107,7 +107,7 @@ export default function HomeScreen() {
       </View>
       <Text style={styles.categoryName}>{item.name}</Text>
     </TouchableOpacity>
-  );
+  ), []);
 
   const renderNearbyItem = ({ item }: { item: TrendingService }) => (
     <TouchableOpacity
@@ -125,7 +125,7 @@ export default function HomeScreen() {
               <Star size={12} color="#FFB800" fill="#FFB800" />
               <Text style={styles.nearbyRatingText}>{item.rating}</Text>
             </View>
-            <Text style={styles.nearbyPrice}>${item.price}/hr</Text>
+            <Text style={styles.nearbyPrice}>${item.hourly_price}/hr</Text>
           </View>
         </View>
       </View>
@@ -136,6 +136,9 @@ export default function HomeScreen() {
   const renderTrendingItem = ({ item }) => (
     <ServiceCard service={item} icon={item.icon || 'trending-up'} />
   );
+
+  // Add console.log to debug categories data
+  console.log('Current categories:', categories);
 
   if (error) {
     return (

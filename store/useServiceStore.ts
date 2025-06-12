@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { ServiceCategory, ServiceItem, ServiceCreateParams, CartItemParams } from '@/types';
+import { ServiceCategory, ServiceItem, ServiceCreateParams, CartItemParams, SubCategory } from '@/types';
 import { supabase } from '@/lib/supabase';
 import { mockCategories, mockServices, mockSubcategories, mockTrendingServices, mockBookings, mockReviews } from '@/constants/mock';
 
 interface ServiceStore {
   services: ServiceItem[];
   categories: ServiceCategory[];
+  subcategories: SubCategory[];
   trendingServices: ServiceItem[];
   loading: boolean;
   error: string | null;
@@ -14,11 +15,13 @@ interface ServiceStore {
   fetchServices: () => Promise<void>;
   fetchNearbyServices: (coords: { latitude: number; longitude: number }) => Promise<void>;
   filterServices: (query: string, categories: string[]) => ServiceItem[];
+  getCategoryById: (id: string) => ServiceCategory | undefined;
 }
 
 export const useServiceStore = create<ServiceStore>((set, get) => ({
   services: [],
   categories: [],
+  subcategories: [],
   trendingServices: [],
   loading: false,
   error: null,
@@ -26,22 +29,39 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   fetchCategories: async () => {
     try {
       set({ loading: true, error: null });
-
-      // For now, use mock data until Supabase is set up
-      set({ categories: mockCategories, loading: false });
-
-      // When Supabase is ready, use this:
+      console.log('Fetching categories from RPC...');
 
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+        .rpc('get_categories_with_subcategories')
+        .single(); // Use single() since we expect one array result
 
-      if (error) throw error;
-      set({ categories: data || [], loading: false });
+      if (error) {
+        console.error('RPC Error:', error);
+        throw error;
+      }
+
+      console.log('Categories fetched:', data);
+
+      // If no data, use mock data as fallback
+      if (!data || data.length === 0) {
+        console.log('No categories found, using mock data');
+        const mockCategoriesWithSubs = mockCategories.map(category => ({
+          ...category,
+          subcategories: mockSubcategories.filter(sub => sub.category_id === category.id)
+        }));
+        set({ categories: mockCategoriesWithSubs, loading: false });
+        return;
+      }
+
+      set({ categories: data, loading: false });
 
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      console.error('Error fetching categories:', error);
+      set({
+        error: error.message,
+        loading: false,
+        categories: []
+      });
     }
   },
 
@@ -55,12 +75,11 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
       // When Supabase is ready:
 
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('active', true)
-        .order('rating', { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.rpc('nearby_services', {
+        latitude: 47.611725,
+        longitude: -122.334718,
+        radius: 500000000
+      });
 
       if (error) throw error;
       set({ trendingServices: data || [], loading: false });
@@ -88,7 +107,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
           )
         `)
         .eq('active', true)
-        .order('rating', { ascending: false });
+        .order('rating', { ascending: false }).limit(2);
 
       if (error) throw error;
 
@@ -99,6 +118,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   },
 
   fetchNearbyServices: async ({ latitude, longitude }) => {
+    console.log('Fetching nearby services for:', latitude, longitude);
+
     try {
       set({ loading: true, error: null });
 
@@ -115,10 +136,10 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       const { data, error } = await supabase.rpc('nearby_services', {
         latitude,
         longitude,
-        radius: 500000
+        radius: 500000000
       });
       console.log('Nearby services:', data);
-      
+
 
       if (error) throw error;
       set({ services: data || [], loading: false });
@@ -150,7 +171,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   },
 
   getSubcategoriesByCategoryId: (categoryId) => {
-    return get().subcategories.filter(subcategory => subcategory.categoryId === categoryId);
+    const category = get().categories.find(c => c.id === categoryId);
+    return category?.subcategories || [];
   },
 
   getServicesByCategoryId: (categoryId) => {
