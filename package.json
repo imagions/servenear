@@ -1,11 +1,14 @@
 {
-  "name": "bolt-expo-starter",
+  "name": "servenear",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "EXPO_NO_TELEMETRY=1 expo start",
     "build:web": "expo export --platform web",
+    "build:web:production": "expo export --platform web --clear",
+    "preview:web": "npx serve dist",
+    "deploy": "expo export --platform web --clear && echo 'Build complete! Upload the dist/ folder to your hosting provider.'",
     "lint": "expo lint"
   },
   "dependencies": {

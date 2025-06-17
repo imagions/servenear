@@ -1,26 +1,48 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "ServeNear",
+    "slug": "servenear",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "servenear",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"
+      },
+      "bundleIdentifier": "com.servenear.app"
+    },
+    "android": {
+      "package": "com.servenear.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"
+        }
       }
     },
     "web": {
       "bundler": "metro",
-      "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "output": "server",
+      "favicon": "./assets/images/favicon.png",
+      "name": "ServeNear - Local Service Marketplace",
+      "shortName": "ServeNear",
+      "description": "Connect with trusted local service providers in your area",
+      "themeColor": "#00CFE8",
+      "backgroundColor": "#F0FCFF",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "https://servenear.app"
+        }
+      ],
       "expo-font",
       "expo-web-browser",
       [
@@ -38,14 +60,6 @@
       "router": {},
       "eas": {
         "projectId": "a816da52-938e-4785-9993-80007dac7a60"
-      }
-    },
-    "android": {
-      "package": "app.servenear",
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyCiVPt3xvlVCL61ZXenr98k5VrvUTb6zJg"
-        }
       }
     }
   }
