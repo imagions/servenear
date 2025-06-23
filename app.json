@@ -40,7 +40,7 @@
       [
         "expo-router",
         {
-          "origin": "https://servenear.app"
+          "origin": "https://servenear.entri.app"
         }
       ],
       "expo-font",

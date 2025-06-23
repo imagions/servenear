@@ -1,5 +1,5 @@
 export function GET() {
-  const baseUrl = 'https://servenear.app';
+  const baseUrl = 'https://servenear.entri.app';
   
   const robots = `User-agent: *
 Allow: /

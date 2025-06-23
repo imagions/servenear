@@ -54,13 +54,13 @@ export default function RootLayout() {
         <meta property="og:title" content="ServeNear - Local Service Marketplace" />
         <meta property="og:description" content="Connect with trusted local service providers in your area" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://servenear.app" />
-        <meta property="og:image" content="https://servenear.app/og-image.png" />
+        <meta property="og:url" content="https://servenear.entri.app" />
+        <meta property="og:image" content="https://servenear.entri.app/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="ServeNear - Local Service Marketplace" />
         <meta name="twitter:description" content="Connect with trusted local service providers in your area" />
-        <meta name="twitter:image" content="https://servenear.app/og-image.png" />
-        <link rel="canonical" href="https://servenear.app" />
+        <meta name="twitter:image" content="https://servenear.entri.app/og-image.png" />
+        <link rel="canonical" href="https://servenear.entri.app" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="theme-color" content="#00CFE8" />

@@ -9,6 +9,8 @@
     "build:web:production": "expo export --platform web --clear",
     "preview:web": "npx serve dist",
     "deploy": "expo export --platform web --clear && echo 'Build complete! Upload the dist/ folder to your hosting provider.'",
+    "deploy:netlify": "expo export --platform web --clear && netlify deploy --prod --dir=dist",
+    "deploy:vercel": "expo export --platform web --clear && vercel --prod",
     "lint": "expo lint"
   },
   "dependencies": {
