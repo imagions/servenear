@@ -312,7 +312,9 @@ export default function MapScreen() {
       const filtered = services.filter(
         (service) =>
           service.title.toLowerCase().includes(text.toLowerCase()) ||
-          service.provider.toLowerCase().includes(text.toLowerCase())
+          service.provider_details?.name
+            .toLowerCase()
+            .includes(text.toLowerCase())
       );
       setFilteredServices(filtered as any);
     } else {

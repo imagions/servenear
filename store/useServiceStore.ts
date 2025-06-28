@@ -14,20 +14,20 @@ interface ServiceStore {
   cart: any[];
   loading: boolean;
   error: string | null;
-  
+
   // Fetch functions
   fetchCategories: () => Promise<void>;
   fetchTrendingServices: () => Promise<void>;
   fetchServices: () => Promise<void>;
   fetchNearbyServices: (coords: { latitude: number; longitude: number }) => Promise<void>;
-  
+
   // Utility functions
   filterServices: (query: string, categories: string[]) => ServiceItem[];
   getCategoryById: (id: string) => ServiceCategory | undefined;
   getServiceById: (id: string) => ServiceItem | undefined;
   getSubcategoriesByCategoryId: (categoryId: string) => SubCategory[];
   getServicesByCategoryId: (categoryId: string) => ServiceItem[];
-  
+
   // CRUD operations
   addService: (params: ServiceCreateParams) => void;
   addToCart: (params: CartItemParams) => void;
@@ -36,7 +36,7 @@ interface ServiceStore {
 }
 
 // Helper function to transform database service to UI service
-const transformDatabaseService = (dbService: DatabaseService & { 
+const transformDatabaseService = (dbService: DatabaseService & {
   provider_details?: DatabaseUser;
   subcategory_details?: DatabaseSubcategory;
   category_details?: DatabaseCategory;
@@ -61,17 +61,15 @@ const transformDatabaseService = (dbService: DatabaseService & {
     service_area: dbService.service_area,
     verification_status: dbService.verification_status,
     included: dbService.included,
-    
+
     // Transform joined data
     provider_details: dbService.provider_details,
     subcategory_details: dbService.subcategory_details,
     category_details: dbService.category_details,
-    
+
     // UI computed fields
     price: dbService.hourly_price,
     fixedPrice: dbService.once_price,
-    providerImage: dbService.provider_details?.profile_image,
-    category: dbService.category_details?.name || dbService.subcategory_details?.name,
     reviewCount: 0, // TODO: Calculate from reviews
     distance: 0, // TODO: Calculate based on user location
     availability: {
@@ -169,18 +167,18 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       // If no data, use mock data as fallback
       if (!categoriesData || categoriesData.length === 0) {
         console.log('No categories found, using mock data');
-        set({ 
+        set({
           categories: mockCategories,
           subcategories: mockSubcategories,
-          loading: false 
+          loading: false
         });
         return;
       }
 
-      set({ 
+      set({
         categories: transformedCategories,
         subcategories: transformedSubcategories,
-        loading: false 
+        loading: false
       });
 
     } catch (error: any) {
@@ -199,27 +197,14 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       set({ loading: true, error: null });
       console.log('Fetching trending services...');
 
-      const { data, error } = await supabase
-        .from('services')
-        .select(`
-          *,
-          provider_details:provider(
-            id, name, profile_image, verified, rating
-          ),
-          subcategory_details:subcategory(
-            id, name, icon
-          ),
-          category_details:subcategory(
-            category_id,
-            categories!inner(
-              id, name, icon
-            )
-          )
-        `)
-        .eq('active', true)
-        .gte('rating', 4.5)
-        .order('rating', { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.rpc(
+        'get_services_with_provider_nearby_radius', {
+        user_lat: 28.6139,     // Delhi
+        user_long: 77.2090,
+        radius_km: 50000
+      }
+      );
+
 
       if (error) {
         console.error('Trending services error:', error);
@@ -235,24 +220,13 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       }
 
       const transformedServices = data.map(transformDatabaseService);
-      const trendingServices = transformedServices.map(service => ({
-        id: service.id,
-        title: service.title,
-        description: service.description || '',
-        provider: service.provider_details?.name || 'Unknown Provider',
-        rating: service.rating || 0,
-        once_price: service.once_price,
-        hourly_price: service.hourly_price,
-        image: service.image || '',
-        distance: service.distance || 0
-      }));
 
-      set({ trendingServices, loading: false });
+      set({ trendingServices: transformedServices, loading: false });
 
     } catch (error: any) {
       console.error('Error fetching trending services:', error);
-      set({ 
-        error: error.message, 
+      set({
+        error: error.message,
         loading: false,
         trendingServices: mockTrendingServices // Fallback
       });
@@ -264,25 +238,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       set({ loading: true, error: null });
       console.log('Fetching services...');
 
-      const { data, error } = await supabase
-        .from('services')
-        .select(`
-          *,
-          provider_details:provider(
-            id, name, profile_image, verified, rating
-          ),
-          subcategory_details:subcategory(
-            id, name, icon
-          ),
-          category_details:subcategory(
-            category_id,
-            categories!inner(
-              id, name, icon
-            )
-          )
-        `)
-        .eq('active', true)
-        .order('created_at', { ascending: false })
+      // Use PostGIS function to find nearby services
+      const { data, error } = await supabase.rpc('get_services_with_provider')
         .limit(20);
 
       if (error) {
@@ -303,8 +260,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
     } catch (error: any) {
       console.error('Error fetching services:', error);
-      set({ 
-        error: error.message, 
+      set({
+        error: error.message,
         loading: false,
         services: mockServices // Fallback
       });
@@ -370,8 +327,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
     } catch (error: any) {
       console.error('Error fetching nearby services:', error);
-      set({ 
-        error: error.message, 
+      set({
+        error: error.message,
         loading: false,
         services: mockServices.map(service => ({
           ...service,
@@ -389,7 +346,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         service.description?.toLowerCase().includes(query.toLowerCase());
 
       const matchesCategory = categories.length === 0 ||
-        categories.includes(service.category?.toLowerCase() || '') ||
+        categories.includes(service.category_details?.name?.toLowerCase() || '') ||
         categories.includes(service.subcategory_details?.name.toLowerCase() || '');
 
       return matchesQuery && matchesCategory;
@@ -413,8 +370,8 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
     const category = get().getCategoryById(categoryId);
     if (!category) return [];
 
-    return get().services.filter(service => 
-      service.category === category.name ||
+    return get().services.filter(service =>
+      service.category_details?.name === category.name ||
       service.subcategory_details?.category_id === categoryId
     );
   },

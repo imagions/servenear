@@ -22,6 +22,7 @@ import {
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { supabase } from '@/lib/supabase';
 
 export default function AIAssistanceScreen() {
   const [message, setMessage] = useState('');
@@ -29,13 +30,14 @@ export default function AIAssistanceScreen() {
     {
       id: '1',
       type: 'bot',
-      content: "Hello! I'm your AI assistant. How can I help you find the perfect service provider today?",
+      content:
+        "Hello! I'm your AI assistant. How can I help you find the perfect service provider today?",
       timestamp: new Date(),
     },
   ]);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
 
     // Add user message
@@ -49,12 +51,17 @@ export default function AIAssistanceScreen() {
     setMessages((prev) => [...prev, userMessage]);
     setMessage('');
 
+    const resp = await supabase.functions.invoke('message', {
+      body: JSON.stringify({ message: message, user_id: 'user_id' }),
+    });
+
     // Simulate bot response
     setTimeout(() => {
       const botMessage = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: "I'll help you find the best service providers based on your requirements. Could you please specify what type of service you're looking for?",
+        content:
+          "I'll help you find the best service providers based on your requirements. Could you please specify what type of service you're looking for?",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);

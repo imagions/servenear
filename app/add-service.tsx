@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  TextInput, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
   Image,
   Switch,
-  Alert
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { ArrowLeft, Camera, MapPin, X } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function AddServiceScreen() {
   const { categories, addService } = useServiceStore();
-  
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -26,9 +28,9 @@ export default function AddServiceScreen() {
   const [location, setLocation] = useState({
     latitude: 37.7749,
     longitude: -122.4194,
-    address: 'San Francisco, CA'
+    address: 'San Francisco, CA',
   });
-  
+
   const [availableDays, setAvailableDays] = useState({
     Mon: true,
     Tue: true,
@@ -36,46 +38,107 @@ export default function AddServiceScreen() {
     Thu: true,
     Fri: true,
     Sat: false,
-    Sun: false
+    Sun: false,
   });
-  
+
   const [hours, setHours] = useState('9:00 AM - 5:00 PM');
-  const [imageUri, setImageUri] = useState('https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg');
-  
+  const [imageUri, setImageUri] = useState(
+    'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg'
+  );
+
+  // For time picker
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [timePickerMode, setTimePickerMode] = useState<'start' | 'end'>(
+    'start'
+  );
+  const [startTime, setStartTime] = useState(new Date(2023, 0, 1, 9, 0));
+  const [endTime, setEndTime] = useState(new Date(2023, 0, 1, 17, 0));
+
   const handleAvailabilityToggle = (day: string) => {
-    setAvailableDays(prev => ({
+    setAvailableDays((prev) => ({
       ...prev,
-      [day]: !prev[day]
+      [day]: !prev[day],
     }));
   };
-  
+
+  // Image picker handler
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission required',
+        'Permission to access gallery is required!'
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  // Time formatting helper
+  const formatTime = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  };
+
+  // Handle time picker change
+  const onTimeChange = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(false);
+    if (selectedDate) {
+      if (timePickerMode === 'start') {
+        setStartTime(selectedDate);
+        // If endTime is before startTime, adjust endTime
+        if (selectedDate >= endTime) {
+          const newEnd = new Date(selectedDate);
+          newEnd.setHours(newEnd.getHours() + 1);
+          setEndTime(newEnd);
+        }
+      } else {
+        setEndTime(selectedDate);
+      }
+    }
+  };
+
   const handleSubmit = () => {
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter a service title');
       return;
     }
-    
+
     if (!description.trim()) {
       Alert.alert('Error', 'Please enter a service description');
       return;
     }
-    
+
     if (!price.trim() || isNaN(parseFloat(price))) {
       Alert.alert('Error', 'Please enter a valid price');
       return;
     }
-    
+
     if (!category) {
       Alert.alert('Error', 'Please select a category');
       return;
     }
-    
+
     // Format available days
     const days = Object.entries(availableDays)
       .filter(([_, isAvailable]) => isAvailable)
       .map(([day]) => day)
       .join(', ');
-    
+
+    // Format available hours
+    const formattedHours = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+
     // Add service
     addService({
       title,
@@ -85,52 +148,85 @@ export default function AddServiceScreen() {
       location,
       availability: {
         days,
-        hours
+        hours: formattedHours,
       },
-      image: imageUri
+      image: imageUri,
     });
-    
-    Alert.alert(
-      'Success',
-      'Your service has been created successfully!',
-      [
-        { text: 'OK', onPress: () => router.back() }
-      ]
-    );
+
+    Alert.alert('Success', 'Your service has been created successfully!', [
+      { text: 'OK', onPress: () => router.back() },
+    ]);
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <ArrowLeft size={24} color={COLORS.text.heading} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add New Service</Text>
         <View style={{ width: 40 }} />
       </View>
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.imageContainer}>
           {imageUri ? (
             <>
               <Image source={{ uri: imageUri }} style={styles.serviceImage} />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.removeImageButton}
-                onPress={() => setImageUri('')}>
+                onPress={() => setImageUri('')}
+              >
                 <X size={16} color="white" />
               </TouchableOpacity>
             </>
           ) : (
-            <TouchableOpacity style={styles.addImageButton}>
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={handlePickImage}
+            >
               <Camera size={32} color="#9E9E9E" />
               <Text style={styles.addImageText}>Add Service Image</Text>
             </TouchableOpacity>
           )}
+          {/* Add overlay button for changing image */}
+          {imageUri ? (
+            <TouchableOpacity
+              style={[
+                styles.addImageButton,
+                {
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(0,0,0,0.2)',
+                },
+              ]}
+              onPress={handlePickImage}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: 14,
+                  fontFamily: 'Inter-Medium',
+                }}
+              >
+                Change Image
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
-        
+
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Service Information</Text>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Service Title</Text>
             <TextInput
@@ -140,7 +236,7 @@ export default function AddServiceScreen() {
               onChangeText={setTitle}
             />
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Description</Text>
             <TextInput
@@ -153,7 +249,7 @@ export default function AddServiceScreen() {
               textAlignVertical="top"
             />
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Price (per hour)</Text>
             <View style={styles.priceInputContainer}>
@@ -167,33 +263,38 @@ export default function AddServiceScreen() {
               />
             </View>
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Category</Text>
             <TouchableOpacity style={styles.categorySelector}>
-              <Text style={category ? styles.categoryText : styles.placeholderText}>
+              <Text
+                style={category ? styles.categoryText : styles.placeholderText}
+              >
                 {category || 'Select a category'}
               </Text>
               <MaterialIcons name="arrow-drop-down" size={24} color="#9E9E9E" />
             </TouchableOpacity>
-            
-            <ScrollView 
-              horizontal 
+
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoriesList}>
+              contentContainerStyle={styles.categoriesList}
+            >
               {categories.map((cat) => (
-                <TouchableOpacity 
-                  key={cat.id} 
+                <TouchableOpacity
+                  key={cat.id}
                   style={[
                     styles.categoryChip,
-                    category === cat.name && styles.selectedCategoryChip
+                    category === cat.name && styles.selectedCategoryChip,
                   ]}
-                  onPress={() => setCategory(cat.name)}>
-                  <Text 
+                  onPress={() => setCategory(cat.name)}
+                >
+                  <Text
                     style={[
                       styles.categoryChipText,
-                      category === cat.name && styles.selectedCategoryChipText
-                    ]}>
+                      category === cat.name && styles.selectedCategoryChipText,
+                    ]}
+                  >
                     {cat.name}
                   </Text>
                 </TouchableOpacity>
@@ -201,10 +302,10 @@ export default function AddServiceScreen() {
             </ScrollView>
           </View>
         </View>
-        
+
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Location</Text>
-          
+
           <TouchableOpacity style={styles.locationContainer}>
             <View style={styles.locationInfo}>
               <MapPin size={20} color={COLORS.accent} />
@@ -213,37 +314,83 @@ export default function AddServiceScreen() {
             <Text style={styles.changeLocationText}>Change</Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Availability</Text>
-          
+
           <View style={styles.availabilityDays}>
             <Text style={styles.inputLabel}>Available Days</Text>
-            
+
             {Object.entries(availableDays).map(([day, isAvailable]) => (
               <View key={day} style={styles.dayToggle}>
                 <Text style={styles.dayText}>{day}</Text>
                 <Switch
                   value={isAvailable}
                   onValueChange={() => handleAvailabilityToggle(day)}
-                  trackColor={{ false: '#E0E0E0', true: 'rgba(0, 207, 232, 0.4)' }}
+                  trackColor={{
+                    false: '#E0E0E0',
+                    true: 'rgba(0, 207, 232, 0.4)',
+                  }}
                   thumbColor={isAvailable ? COLORS.accent : '#F5F5F5'}
                 />
               </View>
             ))}
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Available Hours</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. 9:00 AM - 5:00 PM"
-              value={hours}
-              onChangeText={setHours}
-            />
+            <TouchableOpacity
+              style={[
+                styles.input,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                },
+              ]}
+              onPress={() => {
+                setTimePickerMode('start');
+                setShowTimePicker(true);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={{
+                  color: COLORS.text.body,
+                  fontFamily: 'Inter-Regular',
+                  fontSize: 16,
+                }}
+              >
+                {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+              </Text>
+              <MaterialIcons name="access-time" size={20} color="#9E9E9E" />
+            </TouchableOpacity>
+            {/* Show time pickers */}
+            {showTimePicker && (
+              <DateTimePicker
+                value={timePickerMode === 'start' ? startTime : endTime}
+                mode="time"
+                is24Hour={false}
+                display="default"
+                onChange={(event, date) => {
+                  if (event.type === 'set' && date) {
+                    if (timePickerMode === 'start') {
+                      setStartTime(date);
+                      setTimePickerMode('end');
+                      setShowTimePicker(true);
+                    } else {
+                      setEndTime(date);
+                      setShowTimePicker(false);
+                    }
+                  } else {
+                    setShowTimePicker(false);
+                  }
+                }}
+              />
+            )}
           </View>
         </View>
-        
+
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Create Service</Text>
         </TouchableOpacity>

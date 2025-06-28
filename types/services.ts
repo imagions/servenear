@@ -58,16 +58,14 @@ export interface ServiceItem {
   service_area?: number;
   verification_status?: string;
   included?: string[];
-  
+
   // Joined data from relations
   provider_details?: ServiceProvider;
   subcategory_details?: SubCategory;
   category_details?: ServiceCategory;
-  
+
   // Computed fields for UI
   distance?: number;
-  providerImage?: string;
-  category?: string;
   reviewCount?: number;
   availability?: ServiceAvailability;
   ratings?: ServiceRatings;
@@ -84,7 +82,7 @@ export interface SubCategory {
   icon?: string;
   image?: string;
   created_at?: string;
-  
+
   // Computed fields for UI
   startingPrice?: number;
   servicesCount?: number;
@@ -110,6 +108,8 @@ export interface TrendingService {
   once_price?: number;
   hourly_price: number;
   image?: string;
+  lat?: number;
+  long?: number;
   distance?: number;
 }
 

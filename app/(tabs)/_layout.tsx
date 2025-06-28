@@ -8,9 +8,17 @@ import {
   User,
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from 'react-native';
 import VoiceRecordModal from '@/components/VoiceRecordModal';
 import { useTabBar } from '@/context/TabBarContext';
+import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
 
 function BoltBadge() {
   return (
@@ -24,11 +32,57 @@ export default function TabLayout() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const { tabBarHeight } = useTabBar();
 
-  const handleVoiceSubmit = (audioUri) => {
-    // Handle the recorded audio
-    console.log('Audio recorded:', audioUri);
-    // Show success snackbar
-    // You might want to use a snackbar library like react-native-toast-message
+  const handleVoiceSubmit = async (audioUri) => {
+    console.log('audioUri', audioUri);
+
+    const file_name = Date.now() + '.m4a';
+    const fileType = 'audio/m4a';
+
+    try {
+      // Step 1: fetch the file URI
+      const response = await fetch(audioUri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+      }
+
+      // Step 2: convert to ArrayBuffer
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Step 3: upload as ArrayBuffer
+      const { data, error } = await supabase.storage
+        .from('voices')
+        .upload(file_name, arrayBuffer, {
+          contentType: fileType,
+        });
+
+      const audio_url = `https://npibtopuvjbftkstecht.supabase.co/storage/v1/object/public/voices/${file_name}`;
+
+      // Insert into 'requests' table
+      const { data: insertData, error: insertError } = await supabase
+        .from('requests')
+        .insert({
+          text: 'Processing audio...',
+          audio: audio_url,
+          user: '55b68d62-d947-44f9-bcf1-78345d0e6f3e',
+          status: 'Processing...',
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('Insert failed:', insertError);
+        return;
+      }
+
+      // Call Edge Function
+      const resp = await supabase.functions.invoke('operations', {
+        body: JSON.stringify({ audio_url, doc_id: insertData.id }),
+      });
+
+      console.log('Function response:', resp);
+    } catch (err) {
+      console.error('Unexpected error:', err);
+    }
   };
 
   return (

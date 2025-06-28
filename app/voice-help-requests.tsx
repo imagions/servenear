@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,8 @@ import {
   Clock,
 } from 'lucide-react-native';
 import VoiceRecordModal from '@/components/VoiceRecordModal';
+import { supabase } from '@/lib/supabase';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 
 const MOCK_REQUESTS = [
   {
@@ -84,20 +86,131 @@ export default function VoiceHelpRequestsScreen() {
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const handleVoiceSubmit = (audioUri: string) => {
-    console.log('Audio recorded:', audioUri);
-    // Handle the recorded audio
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const audioPlayer = useAudioPlayer();
+  const status = useAudioPlayerStatus(audioPlayer);
+
+  // Reset playingId when audio finishes
+  useEffect(() => {
+    if (status?.didJustFinish) {
+      setPlayingId(null);
+    }
+  }, [status?.didJustFinish]);
+
+  // Create a single audio player instance
+
+  const playAudio = async (audio_url, id) => {
+    console.log('Playing audio:', audio_url);
+
+    await audioPlayer.replace(audio_url);
+    await audioPlayer.play();
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    setLoading(true); // ensure loading is set on fetch
+    try {
+      const { data, error } = await supabase
+        .from('requests')
+        .select(
+          `
+          *,
+          user_details:users (
+            name,
+            profile_image,
+            verified
+          )
+        `
+        )
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setRequests(data || []);
+    } catch (err) {
+      console.error('Error fetching requests:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add refresh function
+  const refreshRequests = async () => {
+    await fetchRequests();
+  };
+
+  const handleVoiceSubmit = async (audioUri) => {
+    console.log('audioUri', audioUri);
+
+    const file_name = Date.now() + '.m4a';
+    const fileType = 'audio/m4a';
+
+    try {
+      // Step 1: fetch the file URI
+      const response = await fetch(audioUri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+      }
+
+      // Step 2: convert to ArrayBuffer
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Step 3: upload as ArrayBuffer
+      const { data, error } = await supabase.storage
+        .from('voices')
+        .upload(file_name, arrayBuffer, {
+          contentType: fileType,
+        });
+
+      const audio_url = `https://npibtopuvjbftkstecht.supabase.co/storage/v1/object/public/voices/${file_name}`;
+
+      // Insert into 'requests' table
+      const { data: insertData, error: insertError } = await supabase
+        .from('requests')
+        .insert({
+          text: 'Processing audio...',
+          audio: audio_url,
+          user: '55b68d62-d947-44f9-bcf1-78345d0e6f3e',
+          status: 'Processing...',
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('Insert failed:', insertError);
+        return;
+      }
+
+      // Call Edge Function
+      const resp = await supabase.functions.invoke('operations', {
+        body: JSON.stringify({ audio_url, doc_id: insertData.id }),
+      });
+
+      
+      fetchRequests();
+
+      console.log('Function response:', resp);
+    } catch (err) {
+      console.error('Unexpected error:', err);
+    }
   };
 
   const renderRequest = ({ item }) => (
     <View style={styles.requestCard}>
       <View style={styles.requestHeader}>
         <View style={styles.userInfo}>
-          <Image source={{ uri: item.userImage }} style={styles.userImage} />
+          <Image
+            source={{ uri: item.user_details.profile_image }}
+            style={styles.userImage}
+          />
           <View>
             <View style={styles.nameContainer}>
-              <Text style={styles.userName}>{item.userName}</Text>
-              {item.isVerified && (
+              <Text style={styles.userName}>{item.user_details.name}</Text>
+              {item.user_details.verified && (
                 <BadgeCheck
                   size={16}
                   color={COLORS.surface}
@@ -105,12 +218,15 @@ export default function VoiceHelpRequestsScreen() {
                 />
               )}
             </View>
-            <Text style={styles.timeAgo}>{item.timeAgo}</Text>
+            <Text style={styles.timeAgo}>{'2 hr ago'}</Text>
           </View>
         </View>
         <TouchableOpacity
           style={styles.playButton}
-          onPress={() => setPlayingId(playingId === item.id ? null : item.id)}
+          onPress={() => {
+            setPlayingId(playingId === item.id ? null : item.id);
+            playAudio(item.audio, item.id);
+          }}
         >
           {playingId === item.id ? (
             <Pause size={20} color={COLORS.accent} />
@@ -120,22 +236,24 @@ export default function VoiceHelpRequestsScreen() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.transcription}>{item.transcription}</Text>
+      <Text style={styles.transcription}>{item.text}</Text>
 
       <View style={styles.requestFooter}>
         <View style={styles.locationInfo}>
           <MapPin size={16} color="#9E9E9E" />
-          <Text style={styles.distance}>{item.distance}</Text>
-          <Text style={styles.location}>{item.location}</Text>
+          <Text style={styles.distance}>{'1 Km'}</Text>
+          <Text style={styles.location}>{'San Francisco'}</Text>
         </View>
       </View>
       <View
         style={[
           styles.statusBadge,
-          { backgroundColor: `${item.statusColor}10` },
+          { backgroundColor: `${MOCK_REQUESTS[0].statusColor}10` },
         ]}
       >
-        <Text style={[styles.statusText, { color: item.statusColor }]}>
+        <Text
+          style={[styles.statusText, { color: MOCK_REQUESTS[0].statusColor }]}
+        >
           {item.status}
         </Text>
       </View>
@@ -158,11 +276,13 @@ export default function VoiceHelpRequestsScreen() {
       </View>
 
       <FlatList
-        data={MOCK_REQUESTS}
+        data={requests}
         renderItem={renderRequest}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.requestsList}
         showsVerticalScrollIndicator={false}
+        refreshing={loading}
+        onRefresh={refreshRequests}
       />
 
       <TouchableOpacity

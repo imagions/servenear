@@ -191,7 +191,9 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
         >
           <View style={styles.searchHistoryItemContent}>
             <MaterialIcons name="history" size={20} color={COLORS.accent} />
-            <Text style={styles.searchHistoryItemText} numberOfLines={1}>{query}</Text>
+            <Text style={styles.searchHistoryItemText} numberOfLines={1}>
+              {query}
+            </Text>
           </View>
           <TouchableOpacity
             onPress={() => onClear(query)}
@@ -318,8 +320,12 @@ export default function ExploreScreen() {
       const filtered = mockServices.filter(
         (service) =>
           service.title.toLowerCase().includes(text.toLowerCase()) ||
-          service.provider.toLowerCase().includes(text.toLowerCase()) ||
-          service.category.toLowerCase().includes(text.toLowerCase())
+          service.provider_details?.name
+            .toLowerCase()
+            .includes(text.toLowerCase()) ||
+          service.category_details?.name
+            .toLowerCase()
+            .includes(text.toLowerCase())
       );
       setFilteredServices(filtered);
       setIsFocused(false); // Hide search history
@@ -520,7 +526,7 @@ export default function ExploreScreen() {
         renderItem={({ item }) => (
           <ServiceCard
             service={item}
-            icon={item.category.toLowerCase()}
+            icon={''}
             searchQuery={query}
             mode="search"
             scrollToCard={true}

@@ -77,7 +77,7 @@ export default function ProfileScreen() {
       <>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => router.push('/provider/add-service')}
+          onPress={() => router.push('/add-service')}
         >
           <View style={styles.menuItemLeft}>
             <View

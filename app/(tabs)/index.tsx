@@ -55,7 +55,7 @@ export default function HomeScreen() {
       try {
         // Add console.log for debugging
         console.log('Initializing data...');
-        
+
         await fetchCategories();
         await fetchTrendingServices();
 
@@ -90,47 +90,64 @@ export default function HomeScreen() {
     }
   };
 
-  const renderCategoryItem = useCallback(({ item }: { item: ServiceCategory }) => (
-    <TouchableOpacity
-      style={styles.categoryItem}
-      onPress={() => {
-        console.log('Category pressed:', item);
-        router.push(`/category/${item.id}`);
-      }}
-    >
-      <View style={styles.categoryIcon}>
-        <MaterialIcons
-          name={item.icon as any}
-          size={28}
-          color={COLORS.accent}
-        />
-      </View>
-      <Text style={styles.categoryName}>{item.name}</Text>
-    </TouchableOpacity>
-  ), []);
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: ServiceCategory }) => (
+      <TouchableOpacity
+        style={styles.categoryItem}
+        onPress={() => {
+          console.log('Category pressed:', item);
+          router.push(`/category/${item.id}`);
+        }}
+      >
+        <View style={styles.categoryIcon}>
+          <MaterialIcons
+            name={item.icon as any}
+            size={28}
+            color={COLORS.accent}
+          />
+        </View>
+        <Text style={styles.categoryName}>{item.name}</Text>
+      </TouchableOpacity>
+    ),
+    []
+  );
 
-  const renderNearbyItem = ({ item }: { item: TrendingService }) => (
-    <TouchableOpacity
-      style={styles.nearbyItem}
-      onPress={() => router.push(`/service/${item.id}`)}
-    >
-      <Image source={{ uri: item.image }} style={styles.nearbyImage} />
-      <View style={styles.nearbyOverlay}>
-        <View style={styles.nearbyContent}>
-          <Text style={styles.nearbyTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <View style={styles.nearbyInfo}>
-            <View style={styles.nearbyRating}>
-              <Star size={12} color="#FFB800" fill="#FFB800" />
-              <Text style={styles.nearbyRatingText}>{item.rating}</Text>
+  const renderNearbyItem = ({ item }: { item: TrendingService }) => {
+    const distance =
+      item.lat && item.long
+        ? calculateDistance(item.lat, item.long, item.lat || 0, item.long || 0)
+        : item.distance;
+
+    const displayDistance = distance
+      ? `${distance.toFixed(1)} km`
+      : 'Distance N/A';
+
+    return (
+      <TouchableOpacity
+        style={styles.nearbyItem}
+        onPress={() => router.push(`/service/${item.id}`)}
+      >
+        <Image source={{ uri: item.image }} style={styles.nearbyImage} />
+        <View style={styles.nearbyOverlay}>
+          <View style={styles.nearbyContent}>
+            <Text style={styles.nearbyTitle} numberOfLines={1}>
+              {item.title}
+            </Text>
+            <View style={styles.nearbyInfo}>
+              <View style={styles.nearbyRating}>
+                <Star size={12} color="#FFB800" fill="#FFB800" />
+                <Text style={styles.nearbyRatingText}>{item.rating}</Text>
+              </View>
+              <View style={styles.locationInfo}>
+                <MapPin size={12} color="white" />
+                <Text style={styles.distanceText}>{displayDistance}</Text>
+              </View>
             </View>
-            <Text style={styles.nearbyPrice}>${item.hourly_price}/hr</Text>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   // Replace trending items section with ServiceCard
   const renderTrendingItem = ({ item }) => (
@@ -156,10 +173,7 @@ export default function HomeScreen() {
       }}
     >
       <View style={styles.container}>
-        <ScrollView
-          {...scrollProps}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView {...scrollProps} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <View>
               <Text style={styles.greeting}>Hi {user?.name || 'there'}!</Text>
@@ -312,6 +326,27 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -489,6 +524,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nearbyRatingText: {
+    fontSize: 12,
+    color: 'white',
+    marginLeft: 4,
+    fontFamily: 'Inter-Medium',
+  },
+  locationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  distanceText: {
     fontSize: 12,
     color: 'white',
     marginLeft: 4,

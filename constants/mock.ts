@@ -214,9 +214,14 @@ export const mockServices: ServiceItem[] = [
       id: 'subcat-6',
       name: 'House Cleaning',
       category_id: 'cat-3',
+      icon: 'cleaning-services',
+      startingPrice: 45,
+    },
+    category_details: {
+      id: 'cat-3',
+      name: 'Cleaning',
       icon: 'cleaning-services'
     },
-    category: 'Cleaning',
     reviewCount: 178,
     distance: 1.8,
     price: 40,

@@ -5,6 +5,7 @@ import { Star, MapPin } from 'lucide-react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
 import { ServiceItem } from '@/types';
+import * as Location from 'expo-location';
 
 type ServiceCardProps = {
   service: ServiceItem;
@@ -12,6 +13,29 @@ type ServiceCardProps = {
   searchQuery?: string;
   mode?: 'normal' | 'search';
   scrollToCard?: boolean;
+  userLocation?: { latitude: number; longitude: number } | null;
+};
+
+// Add helper function for distance calculation
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 };
 
 export default function ServiceCard({
@@ -20,6 +44,7 @@ export default function ServiceCard({
   searchQuery,
   mode = 'normal',
   scrollToCard = false,
+  userLocation,
 }: ServiceCardProps) {
   const handleViewLocation = () => {
     router.push({
@@ -58,12 +83,28 @@ export default function ServiceCard({
   const providerVerified = service.provider_details?.verified || false;
   const serviceRating = service.rating || 0;
   const servicePrice = service.price || service.hourly_price || 0;
-  const serviceDistance = service.distance || 0;
+
+  console.log('locationlocationlocation ', service.lat, service.long);
+
+  // Calculate distance if we have both coordinates
+  const distanceKm = service.lat && service.long
+      ? calculateDistance(41.597281, -122.342499, service.lat, service.long)
+      : null;
+
+  // Use calculated distance or fallback to service distance
+
+  console.log('distanceKm', distanceKm);
+  
+  const displayDistance = distanceKm
+    ? `${distanceKm.toFixed(1)} km`
+    : 'Distance N/A';
 
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/service/${service.id}`)}
+      onPress={() => {
+        router.push(`/service/${service.id}`);
+      }}
     >
       <View style={styles.header}>
         {hasImage ? (
@@ -108,7 +149,7 @@ export default function ServiceCard({
         <View style={styles.footerRight}>
           <View style={styles.distanceBadge}>
             <MapPin size={14} color={COLORS.accent} />
-            <Text style={styles.distanceText}>{serviceDistance.toFixed(1)} km</Text>
+            <Text style={styles.distanceText}>{displayDistance}</Text>
           </View>
 
           <TouchableOpacity

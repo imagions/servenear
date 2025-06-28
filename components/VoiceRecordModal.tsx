@@ -12,15 +12,19 @@ import Animated, {
   withTiming,
   useAnimatedProps,
   Easing,
-  withSpring,
   cancelAnimation,
-  runOnJS,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { COLORS, SHADOWS } from '@/constants/theme';
-import { Mic, X } from 'lucide-react-native';
+import { Mic } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
+import {
+  useAudioRecorder,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  RecordingPresets,
+  AudioModule,
+} from 'expo-audio';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -31,11 +35,8 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
   const [isRecording, setIsRecording] = useState(false);
   const [timeLeft, setTimeLeft] = useState(RECORD_LIMIT / 1000);
   const [hasRecording, setHasRecording] = useState(false);
-  const recording = useRef(null);
-  const timer = useRef(null);
-  const progressAnimation = useRef(null);
-
-  // Replace Animated.Value with useSharedValue
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const timer = useRef<any>(null);
   const progress = useSharedValue(0);
 
   useEffect(() => {
@@ -49,7 +50,6 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
     };
   }, [visible]);
 
-  // Use animatedProps for the circle animation
   const animatedProps = useAnimatedProps(() => ({
     strokeDashoffset: CIRCLE_LENGTH * (1 - progress.value),
   }));
@@ -57,31 +57,22 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
   const startRecording = async () => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const permission = await Audio.requestPermissionsAsync();
+      const permission = await requestRecordingPermissionsAsync();
       if (permission.status !== 'granted') return;
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
-      recording.current = newRecording;
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setIsRecording(true);
       setTimeLeft(RECORD_LIMIT / 1000);
-
-      // Start progress animation
       progress.value = 0;
-      progressAnimation.current = withTiming(1, {
+      progress.value = withTiming(1, {
         duration: RECORD_LIMIT,
         easing: Easing.linear,
       });
-      progress.value = progressAnimation.current;
-
-      // Start countdown timer
       timer.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -102,16 +93,10 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
         clearInterval(timer.current);
         timer.current = null;
       }
-
-      // Stop the animation at current position
-      if (progressAnimation.current) {
-        cancelAnimation(progress);
-      }
-
-      if (recording.current) {
-        await recording.current.stopAndUnloadAsync();
-        setHasRecording(true);
-      }
+      cancelAnimation(progress);
+      // Do NOT reset progress.value here, so the progress bar stays at the last position
+      await recorder.stop();
+      setHasRecording(true);
     } catch (err) {
       console.error('Failed to stop recording', err);
     }
@@ -119,9 +104,8 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
   };
 
   const handleSubmit = async () => {
-    if (recording.current) {
-      const uri = recording.current.getURI();
-      onSubmit(uri);
+    if (recorder.uri) {
+      onSubmit(recorder.uri);
       onClose();
     }
   };
@@ -130,10 +114,12 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
     setIsRecording(false);
     setTimeLeft(RECORD_LIMIT / 1000);
     setHasRecording(false);
-    progress.value = 0; // Only reset progress when starting a new recording
-    if (recording.current) {
-      recording.current = null;
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
     }
+    cancelAnimation(progress);
+    progress.value = 0;
   };
 
   const handlePressIn = () => {

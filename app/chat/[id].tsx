@@ -26,7 +26,7 @@ import {
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, requestRecordingPermissionsAsync, setAudioModeAsync, RecordingPresets } from 'expo-audio';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // Dummy data for testing
@@ -50,10 +50,12 @@ export default function ChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const recordingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const attachmentsAnimation = useRef(new Animated.Value(0)).current;
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
   // Initialize audio recording
   useEffect(() => {
-    Audio.requestPermissionsAsync();
+    requestRecordingPermissionsAsync();
+    setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
     return () => {
       if (recordingTimer.current) {
         clearInterval(recordingTimer.current);
@@ -82,15 +84,19 @@ export default function ChatScreen() {
     recordingTimer.current = setInterval(() => {
       setRecordingDuration((prev) => prev + 1);
     }, 1000);
-    // Start actual recording here
+    await requestRecordingPermissionsAsync();
+    await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+    recorder.record();
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (recordingTimer.current) {
       clearInterval(recordingTimer.current);
     }
     setIsRecording(false);
-    // Stop actual recording here
+    await recorder.stop();
+    setRecordingDuration(0);
+    // Access URI via recorder.uri
   };
 
   const toggleAttachments = () => {
