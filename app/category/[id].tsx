@@ -59,7 +59,9 @@ export default function CategoryScreen() {
           <Text style={styles.subcategoryPrice}>${item.startingPrice}</Text>
         </View>
         <View style={styles.servicesCount}>
-          <Text style={styles.servicesCountText}>{item.servicesCount} services</Text>
+          <Text style={styles.servicesCountText}>
+            {item.servicesCount} services
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
