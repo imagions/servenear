@@ -162,7 +162,7 @@ const RecommendedServices = () => (
                 <Text style={styles.recommendedProvider}>
                   {service.provider}
                 </Text>
-                <Text style={styles.recommendedPrice}>${service.price}/hr</Text>
+                <Text style={styles.recommendedPrice}>₹{service.price}/hr</Text>
               </View>
             </View>
           </LinearGradient>
@@ -176,11 +176,10 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
   <View style={styles.searchHistoryContainer}>
     <View style={styles.searchHistoryHeader}>
       <Text style={styles.searchHistoryTitle}>Recent Searches</Text>
-      {history?.length > 0 && (
-        <TouchableOpacity onPress={() => onClear(history)}>
-          <Text style={styles.clearAllText}>Clear All</Text>
-        </TouchableOpacity>
-      )}
+
+      <TouchableOpacity onPress={() => onClear(history)}>
+        <Text style={styles.clearAllText}>Clear All</Text>
+      </TouchableOpacity>
     </View>
     <View style={styles.searchHistoryList}>
       {history.map((query, index) => (
@@ -207,46 +206,13 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
   </View>
 );
 
-// Add mock search results data
-const MOCK_SEARCH_RESULTS = [
-  {
-    id: '1',
-    title: 'Professional Plumbing Service',
-    provider: "Mike's Plumbing",
-    rating: 4.8,
-    price: 75,
-    image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-    distance: 2.5,
-    category: 'plumbing',
-  },
-  {
-    id: '2',
-    title: 'Expert Electrician',
-    provider: 'PowerFix Solutions',
-    rating: 4.9,
-    price: 85,
-    image: 'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
-    distance: 1.8,
-    category: 'electrical',
-  },
-  {
-    id: '3',
-    title: 'Home Cleaning Service',
-    provider: 'CleanPro',
-    rating: 4.7,
-    price: 45,
-    image: 'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg',
-    distance: 3.2,
-    category: 'cleaning',
-  },
-];
-
 export default function ExploreScreen() {
   const { q } = useLocalSearchParams<{ q: string }>();
   const [searchQuery, setSearchQuery] = useState(q || '');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isGridView, setIsGridView] = useState(true);
-  const { services, categories, filterServices } = useServiceStore();
+  const { services, categories, filterServices, fetchServices } =
+    useServiceStore();
   const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
@@ -272,14 +238,24 @@ export default function ExploreScreen() {
     setFilteredServices(filtered);
   }, [q, searchQuery, selectedCategories, services]);
 
-  const saveToSearchHistory = useCallback(
-    (text: string) => {
-      if (text.trim() && !searchHistory.includes(text.trim())) {
-        setSearchHistory((prev) => [text.trim(), ...prev].slice(0, 10));
-      }
-    },
-    [searchHistory]
-  );
+  useEffect(() => {
+    // Fetch all services if not already loaded
+    if (!services || services.length === 0) {
+      fetchServices();
+    }
+  }, []);
+
+  const saveToSearchHistory = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setSearchHistory((prev) => {
+      // Remove any existing entry (case-insensitive), then add to top, limit to 5
+      const filtered = prev.filter(
+        (h) => h.trim().toLowerCase() !== trimmed.toLowerCase()
+      );
+      return [trimmed, ...filtered].slice(0, 5);
+    });
+  }, []);
 
   const handleCategorySelect = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
@@ -516,29 +492,67 @@ export default function ExploreScreen() {
     </View>
   );
 
-  const SearchResults = ({ results, query }) => (
-    <View style={styles.searchResults}>
-      <Text style={styles.resultsCount}>
-        {results?.length || 0} services found
-      </Text>
-      <FlatList
-        {...scrollProps}
-        showsVerticalScrollIndicator={false}
-        data={results}
-        renderItem={({ item }) => (
-          <ServiceCard
-            service={item}
-            icon={''}
-            searchQuery={query}
-            mode="search"
-            scrollToCard={true}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.searchResultsList}
-      />
-    </View>
-  );
+  // In SearchResults, sort so results matching the first word are on top
+  const SearchResults = ({ results, query }) => {
+    const words = (query || '').toLowerCase().split(/\s+/).filter(Boolean);
+    let sortedResults = results;
+    if (words.length > 0) {
+      const firstWord = words[0];
+      sortedResults = [
+        ...results.filter((item) => {
+          // Gather all searchable fields
+          const searchable: string[] = [
+            item.title || '',
+            item.provider_details?.bio || '',
+            ...(item.provider_details?.skills || []),
+            item.provider_details?.name || item.provider || '',
+            item.category_details?.name || '',
+            item.description || '',
+            ...(item.tags || []),
+            item.subcategory_details?.name || '',
+          ].map((str) => (str || '').toLowerCase());
+          return searchable.some((field) => field.includes(firstWord));
+        }),
+        ...results.filter((item) => {
+          // Same as above, but does NOT match first word
+          const searchable: string[] = [
+            item.title || '',
+            item.provider_details?.bio || '',
+            ...(item.provider_details?.skills || []),
+            item.provider_details?.name || item.provider || '',
+            item.category_details?.name || '',
+            item.description || '',
+            ...(item.tags || []),
+            item.subcategory_details?.name || '',
+          ].map((str) => (str || '').toLowerCase());
+          return !searchable.some((field) => field.includes(firstWord));
+        }),
+      ];
+    }
+    return (
+      <View style={styles.searchResults}>
+        <Text style={styles.resultsCount}>
+          {sortedResults?.length || 0} services found
+        </Text>
+        <FlatList
+          {...scrollProps}
+          showsVerticalScrollIndicator={false}
+          data={sortedResults}
+          renderItem={({ item }) => (
+            <ServiceCard
+              service={item}
+              icon={''}
+              searchQuery={query}
+              mode="search"
+              scrollToCard={true}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.searchResultsList}
+        />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -577,17 +591,27 @@ export default function ExploreScreen() {
         <ScrollView {...scrollProps} showsVerticalScrollIndicator={false}>
           {/* Search History or Main Content */}
 
-          {isFocused && (
+          {isFocused && searchHistory.length > 0 && (
             <SearchHistory
               history={searchHistory}
               onSelect={(query) => {
+                saveToSearchHistory(query); // Deduplicate and move to top
                 setSearchQuery(query);
                 searchInputRef.current?.blur();
               }}
               onClear={(query) => {
-                setSearchHistory((history) =>
-                  history.filter((h) => h !== query)
-                );
+                if (Array.isArray(query)) {
+                  // Clear all
+                  setSearchHistory([]);
+                } else {
+                  // Remove single entry (case-insensitive)
+                  setSearchHistory((history) =>
+                    history.filter(
+                      (h) =>
+                        h.trim().toLowerCase() !== query.trim().toLowerCase()
+                    )
+                  );
+                }
               }}
             />
           )}

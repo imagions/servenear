@@ -143,7 +143,7 @@ export default function ServiceCard({
 
       <View style={styles.footer}>
         <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>${servicePrice}/hr</Text>
+          <Text style={styles.priceText}>₹{servicePrice}/hr</Text>
         </View>
 
         <View style={styles.footerRight}>

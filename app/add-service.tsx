@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,9 @@ import {
   Image,
   Switch,
   Alert,
+  ActivityIndicator,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -19,11 +22,22 @@ import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function AddServiceScreen() {
-  const { categories, addService } = useServiceStore();
+  const {
+    categories,
+    subcategories,
+    fetchCategories,
+    fetchServices,
+    addService,
+  } = useServiceStore();
+
+  // Fetch categories and subcategories from Supabase on mount
+  useEffect(() => {
+    fetchCategories();
+    fetchServices();
+  }, []);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
   const [location, setLocation] = useState({
     latitude: 37.7749,
@@ -54,6 +68,20 @@ export default function AddServiceScreen() {
   const [startTime, setStartTime] = useState(new Date(2023, 0, 1, 9, 0));
   const [endTime, setEndTime] = useState(new Date(2023, 0, 1, 17, 0));
 
+  const [subcategory, setSubcategory] = useState({ id: '', name: '' });
+  const [tags, setTags] = useState('');
+  const [tagList, setTagList] = useState<string[]>([]);
+  const [hourlyRate, setHourlyRate] = useState('');
+  const [oneTimePrice, setOneTimePrice] = useState('');
+  const [duration, setDuration] = useState('');
+  const [serviceArea, setServiceArea] = useState('');
+  const [terms, setTerms] = useState('');
+  const [certificateUri, setCertificateUri] = useState('');
+
+  // Dropdown modal state
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [subcategoryModalVisible, setSubcategoryModalVisible] = useState(false);
+
   const handleAvailabilityToggle = (day: string) => {
     setAvailableDays((prev) => ({
       ...prev,
@@ -79,6 +107,27 @@ export default function AddServiceScreen() {
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImageUri(result.assets[0].uri);
+    }
+  };
+
+  // Certificate picker handler
+  const handlePickCertificate = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission required',
+        'Permission to access files is required!'
+      );
+      return;
+    }
+    const result = (await ImagePicker.launchDocumentPickerAsync)
+      ? await ImagePicker.launchDocumentPickerAsync({ type: '*/*' })
+      : await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: false,
+        });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setCertificateUri(result.assets[0].uri);
     }
   };
 
@@ -109,24 +158,73 @@ export default function AddServiceScreen() {
     }
   };
 
+  // Handle tag input and chip creation
+  const handleTagInput = (text: string) => {
+    // If user types comma, add tag
+    if (text.includes(',')) {
+      const parts = text.split(',');
+      const newTags = parts
+        .slice(0, -1)
+        .map((t) => t.trim())
+        .filter((t) => t && !tagList.includes(t));
+      if (newTags.length > 0) {
+        setTagList([...tagList, ...newTags]);
+      }
+      setTags(parts[parts.length - 1]);
+    } else {
+      setTags(text);
+    }
+  };
+
+  const handleTagSubmit = () => {
+    const trimmed = tags.trim();
+    if (trimmed && !tagList.includes(trimmed)) {
+      setTagList([...tagList, trimmed]);
+    }
+    setTags('');
+  };
+
+  const removeTag = (tag: string) => {
+    setTagList(tagList.filter((t) => t !== tag));
+  };
+
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a service title');
+      Alert.alert('Hey!', 'Please enter a service title');
       return;
     }
 
     if (!description.trim()) {
-      Alert.alert('Error', 'Please enter a service description');
-      return;
-    }
-
-    if (!price.trim() || isNaN(parseFloat(price))) {
-      Alert.alert('Error', 'Please enter a valid price');
+      Alert.alert('Hey!', 'Please enter a service description');
       return;
     }
 
     if (!category) {
-      Alert.alert('Error', 'Please select a category');
+      Alert.alert('Hey!', 'Please select a category');
+      return;
+    }
+    if (!subcategory) {
+      Alert.alert('Hey!', 'Please select a subcategory');
+      return;
+    }
+    if (!hourlyRate.trim() || isNaN(parseFloat(hourlyRate))) {
+      Alert.alert('Hey!', 'Please enter a valid hourly rate');
+      return;
+    }
+    if (!oneTimePrice.trim() || isNaN(parseFloat(oneTimePrice))) {
+      Alert.alert('Hey!', 'Please enter a valid one-time price');
+      return;
+    }
+    if (!duration.trim() || isNaN(parseFloat(duration))) {
+      Alert.alert('Hey!', 'Please enter a valid duration');
+      return;
+    }
+    if (!serviceArea.trim() || isNaN(parseFloat(serviceArea))) {
+      Alert.alert('Hey!', 'Please enter a valid service area radius');
+      return;
+    }
+    if (!terms.trim()) {
+      Alert.alert('Hey!', 'Please enter terms and conditions');
       return;
     }
 
@@ -140,17 +238,29 @@ export default function AddServiceScreen() {
     const formattedHours = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
     // Add service
+    // Add tags from input if not empty
+    let finalTags = tagList;
+    if (tags.trim() && !tagList.includes(tags.trim())) {
+      finalTags = [...tagList, tags.trim()];
+    }
     addService({
       title,
       description,
-      price: parseFloat(price),
       category,
-      location,
+      subcategory: subcategory?.id,
+      tags: finalTags,
+      hourly_price: parseFloat(hourlyRate),
+      once_price: parseFloat(oneTimePrice),
+      duration: parseFloat(duration),
+      service_area: parseFloat(serviceArea),
       availability: {
         days,
         hours: formattedHours,
       },
       image: imageUri,
+      certificate: certificateUri,
+      terms_and_conditions: terms,
+      location,
     });
 
     Alert.alert('Success', 'Your service has been created successfully!', [
@@ -179,12 +289,6 @@ export default function AddServiceScreen() {
           {imageUri ? (
             <>
               <Image source={{ uri: imageUri }} style={styles.serviceImage} />
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => setImageUri('')}
-              >
-                <X size={16} color="white" />
-              </TouchableOpacity>
             </>
           ) : (
             <TouchableOpacity
@@ -227,16 +331,18 @@ export default function AddServiceScreen() {
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Service Information</Text>
 
+          {/* Title */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Service Title</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g. Professional Plumbing Service"
+              placeholder="e.g. Plumbing Service"
               value={title}
               onChangeText={setTitle}
             />
           </View>
 
+          {/* Description */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Description</Text>
             <TextInput
@@ -250,56 +356,218 @@ export default function AddServiceScreen() {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Price (per hour)</Text>
-            <View style={styles.priceInputContainer}>
-              <Text style={styles.currencySymbol}>$</Text>
-              <TextInput
-                style={styles.priceInput}
-                placeholder="0.00"
-                value={price}
-                onChangeText={setPrice}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
-
+          {/* Category Dropdown */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Category</Text>
-            <TouchableOpacity style={styles.categorySelector}>
+            <Pressable
+              style={styles.categorySelector}
+              onPress={() => setCategoryModalVisible(true)}
+            >
               <Text
                 style={category ? styles.categoryText : styles.placeholderText}
               >
                 {category || 'Select a category'}
               </Text>
               <MaterialIcons name="arrow-drop-down" size={24} color="#9E9E9E" />
-            </TouchableOpacity>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoriesList}
+            </Pressable>
+            <Modal
+              visible={categoryModalVisible}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setCategoryModalVisible(false)}
             >
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[
-                    styles.categoryChip,
-                    category === cat.name && styles.selectedCategoryChip,
-                  ]}
-                  onPress={() => setCategory(cat.name)}
+              <Pressable
+                style={styles.modalOverlay}
+                onPress={() => setCategoryModalVisible(false)}
+              >
+                <View style={styles.dropdownModal}>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {categories.map((cat) => (
+                      <TouchableOpacity
+                        key={cat.id}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setCategory(cat.name);
+                          setSubcategory({ id: '', name: '' }); // Reset subcategory when category changes
+                          setCategoryModalVisible(false);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.dropdownItemText,
+                            category === cat.name && {
+                              color: COLORS.accent,
+                              fontWeight: 'bold',
+                            },
+                          ]}
+                        >
+                          {cat.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </Pressable>
+            </Modal>
+          </View>
+
+          {/* Subcategory Dropdown (only show if category selected) */}
+          {category ? (
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Subcategory</Text>
+              <Pressable
+                style={styles.categorySelector}
+                onPress={() => setSubcategoryModalVisible(true)}
+              >
+                <Text
+                  style={
+                    subcategory ? styles.categoryText : styles.placeholderText
+                  }
                 >
-                  <Text
-                    style={[
-                      styles.categoryChipText,
-                      category === cat.name && styles.selectedCategoryChipText,
-                    ]}
-                  >
-                    {cat.name}
-                  </Text>
-                </TouchableOpacity>
+                  {subcategory.name || 'Select a subcategory'}
+                </Text>
+                <MaterialIcons
+                  name="arrow-drop-down"
+                  size={24}
+                  color="#9E9E9E"
+                />
+              </Pressable>
+              <Modal
+                visible={subcategoryModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setSubcategoryModalVisible(false)}
+              >
+                <Pressable
+                  style={styles.modalOverlay}
+                  onPress={() => setSubcategoryModalVisible(false)}
+                >
+                  <View style={styles.dropdownModal}>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      {subcategories
+                        .filter((sub) => {
+                          const cat = categories.find(
+                            (c) => c.name === category
+                          );
+                          return cat && sub.category_id === cat.id;
+                        })
+                        .map((sub) => (
+                          <TouchableOpacity
+                            key={sub.id}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                              setSubcategory({ id: sub.id, name: sub.name });
+                              setSubcategoryModalVisible(false);
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.dropdownItemText,
+                                subcategory.name === sub.name && {
+                                  color: COLORS.accent,
+                                  fontWeight: 'bold',
+                                },
+                              ]}
+                            >
+                              {sub.name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                  </View>
+                </Pressable>
+              </Modal>
+            </View>
+          ) : null}
+
+          {/* Tags */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Tags (comma separated)</Text>
+            <ScrollView
+              horizontal={true}
+              contentContainerStyle={{
+                flexDirection: 'row',
+                gap: 2,
+                marginBottom: 10,
+              }}
+            >
+              {tagList.map((tag) => (
+                <View key={tag} style={styles.tagChip}>
+                  <Text style={styles.tagChipText}>{tag}</Text>
+                  <TouchableOpacity onPress={() => removeTag(tag)}>
+                    <MaterialIcons
+                      name="close"
+                      size={16}
+                      color={COLORS.accent}
+                    />
+                  </TouchableOpacity>
+                </View>
               ))}
             </ScrollView>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. plumbing, repair, emergency"
+              value={tags}
+              onChangeText={handleTagInput}
+              onSubmitEditing={handleTagSubmit}
+              blurOnSubmit={false}
+              autoCorrect={false}
+              autoCapitalize="none"
+            />
+          </View>
+
+          {/* Hourly Rate */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Hourly Rate</Text>
+            <View style={styles.priceInputContainer}>
+              <Text style={styles.currencySymbol}>₹</Text>
+              <TextInput
+                style={styles.priceInput}
+                placeholder="0.00"
+                value={hourlyRate}
+                onChangeText={setHourlyRate}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+
+          {/* One-time Price */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>One-time Price</Text>
+            <View style={styles.priceInputContainer}>
+              <Text style={styles.currencySymbol}>₹</Text>
+              <TextInput
+                style={styles.priceInput}
+                placeholder="0.00"
+                value={oneTimePrice}
+                onChangeText={setOneTimePrice}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+
+          {/* Duration */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Duration (hours)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 2"
+              value={duration}
+              onChangeText={setDuration}
+              keyboardType="numeric"
+            />
+          </View>
+
+          {/* Service Area Radius */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Service Area Radius (km)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 10"
+              value={serviceArea}
+              onChangeText={setServiceArea}
+              keyboardType="numeric"
+            />
           </View>
         </View>
 
@@ -391,8 +659,52 @@ export default function AddServiceScreen() {
           </View>
         </View>
 
+        {/* Certificate Document */}
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>Certificate of Expertise</Text>
+          <TouchableOpacity
+            style={[
+              styles.addCertificateButton,
+              {
+                backgroundColor: certificateUri
+                  ? 'rgba(0,207,232,0.08)'
+                  : '#F5F5F5',
+                borderWidth: certificateUri ? 1 : 0,
+                borderColor: COLORS.accent,
+                marginBottom: 10,
+              },
+            ]}
+            onPress={handlePickCertificate}
+          >
+            <MaterialIcons name="attach-file" size={24} color={COLORS.accent} />
+            <Text style={{ color: COLORS.accent, marginLeft: 8 }}>
+              {certificateUri ? 'Change Certificate' : 'Upload Certificate'}
+            </Text>
+          </TouchableOpacity>
+          {certificateUri ? (
+            <Text style={{ color: COLORS.text.body, fontSize: 13 }}>
+              {certificateUri.split('/').pop()}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* Terms and Conditions */}
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>Terms and Conditions</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Enter terms and conditions for your service..."
+            value={terms}
+            onChangeText={setTerms}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+        </View>
+
+        {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Create Service</Text>
+          <Text style={styles.submitButtonText}>Publish Service</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -458,6 +770,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+    addCertificateButton: {
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
   },
   addImageText: {
     fontSize: 16,
@@ -630,5 +948,50 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     fontFamily: 'Inter-SemiBold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownModal: {
+    width: 300,
+    maxHeight: 350,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.13,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  dropdownItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Regular',
+  },
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,207,232,0.08)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 6,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+  },
+  tagChipText: {
+    color: COLORS.accent,
+    fontSize: 14,
+    marginRight: 4,
+    fontFamily: 'Inter-Medium',
   },
 });

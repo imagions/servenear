@@ -47,7 +47,12 @@ export default function CategoryScreen() {
   const renderSubcategoryItem = ({ item }: { item: SubCategory }) => (
     <TouchableOpacity
       style={styles.subcategoryCard}
-      onPress={() => router.push(`/explore?category=${item.id}`)}
+      onPress={() => {
+        router.push({
+        pathname: '/explore',
+        params: { q: item.name.trim() },
+      });
+      }}
     >
       <Image source={{ uri: item.image }} style={styles.subcategoryImage} />
       <View style={styles.subcategoryContent}>

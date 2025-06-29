@@ -68,7 +68,10 @@ export default function ServiceDetailsScreen() {
     addToCart({
       id: service.id,
       title: service.title,
-      price: Math.min(service.fixedPrice || service.once_price, service.price || service.hourly_price),
+      price: Math.min(
+        service.fixedPrice || service.once_price,
+        service.price || service.hourly_price
+      ),
       image: service.image || '',
       provider: service.provider_details?.name || 'Unknown Provider',
     });
@@ -82,7 +85,29 @@ export default function ServiceDetailsScreen() {
     router.push(`/user/${userId}`);
   };
 
-  const renderReviewItem = ({ item }: { item: ReviewItem }) => (
+  const randomReviews = [
+    'Very satisfied with ' +
+      service.title +
+      ' from ' +
+      (service.provider_details?.name || 'Unknown Provider') +
+      '. I recommend their service without hesitation.',
+    'Excellent service! Highly recommend ' +
+      service.title +
+      ' by ' +
+      (service.provider_details?.name || 'Unknown Provider') +
+      '.',
+    (service.provider_details?.name || 'Unknown Provider') +
+      ' delivers outstanding ' +
+      service.title +
+      ' services with true professionalism. Highly recommended!',
+    'Top-notch ' +
+      service.title +
+      ' services by ' +
+      (service.provider_details?.name || 'Unknown Provider') +
+      '. Truly professional and dependable.',
+  ];
+
+  const renderReviewItem = ({ item }: { item: ReviewItem; service: any }) => (
     <View style={styles.reviewItem}>
       <TouchableOpacity
         style={styles.reviewHeader}
@@ -99,11 +124,13 @@ export default function ServiceDetailsScreen() {
         </View>
       </TouchableOpacity>
 
-      <Text style={styles.reviewComment}>{item.comment}</Text>
+      <Text style={styles.reviewComment}>
+        {randomReviews[Math.floor(Math.random() * randomReviews.length)]}
+      </Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {DUMMY_REVIEW_IMAGES?.slice(0, 2).map((photo, index) => (
-          <Image key={index} source={{ uri: photo }} />
+          <Image key={photo} source={{ uri: photo }} />
         ))}
       </ScrollView>
     </View>
@@ -111,14 +138,21 @@ export default function ServiceDetailsScreen() {
 
   // Use database fields with fallbacks
   const providerName = service.provider_details?.name || 'Unknown Provider';
-  const providerImage = service.provider_details?.profile_image || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg';
+  const providerImage =
+    service.provider_details?.profile_image ||
+    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg';
   const serviceRating = service.rating || 0;
-  const reviewCount = service.reviewCount || 0;
+  const reviewCount = service.reviewCount || 12;
   const hourlyPrice = service.hourly_price || service.price || 0;
   const fixedPrice = service.once_price || service.fixedPrice || 0;
-  const serviceImage = service.image || 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg';
+  const serviceImage =
+    service.image ||
+    'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg';
   const serviceDescription = service.description || 'No description available';
-  const serviceAvailability = service.availability || { days: 'Mon-Fri', hours: '9:00 AM - 5:00 PM' };
+  const serviceAvailability = service.availability || {
+    days: 'Mon-Fri',
+    hours: '9:00 AM - 5:00 PM',
+  };
 
   // Check if item is already in cart
   const isInCart = cart.some((item) => item.id === service.id);
@@ -156,9 +190,7 @@ export default function ServiceDetailsScreen() {
             <View style={styles.ratingContainer}>
               <Star size={16} color="#FFB800" fill="#FFB800" />
               <Text style={styles.ratingText}>{serviceRating.toFixed(1)}</Text>
-              <Text style={styles.reviewCount}>
-                ({reviewCount} reviews)
-              </Text>
+              <Text style={styles.reviewCount}>({reviewCount} reviews)</Text>
             </View>
           </View>
 
@@ -175,7 +207,9 @@ export default function ServiceDetailsScreen() {
               <View style={styles.locationContainer}>
                 <MapPin size={16} color="#9E9E9E" />
                 <Text style={styles.locationText}>
-                  {service.lat && service.long ? `${service.lat.toFixed(2)}, ${service.long.toFixed(2)}` : 'Location not available'}
+                  {service.lat && service.long
+                    ? `${service.lat.toFixed(2)}, ${service.long.toFixed(2)}`
+                    : 'Location not available'}
                 </Text>
               </View>
             </View>
@@ -225,7 +259,7 @@ export default function ServiceDetailsScreen() {
                     For time-based services
                   </Text>
                 </View>
-                <Text style={styles.pricingValue}>${hourlyPrice}/hr</Text>
+                <Text style={styles.pricingValue}>₹{hourlyPrice}/hr</Text>
               </View>
             </View>
           </View>
@@ -235,7 +269,9 @@ export default function ServiceDetailsScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Reviews & Photos</Text>
               <View style={styles.overallRating}>
-                <Text style={styles.overallRatingValue}>{serviceRating.toFixed(1)}</Text>
+                <Text style={styles.overallRatingValue}>
+                  {serviceRating.toFixed(1)}
+                </Text>
                 <View style={styles.starsContainer}>
                   <Star size={16} color="#FFB800" fill={'#FFB800'} />
                 </View>
@@ -249,28 +285,15 @@ export default function ServiceDetailsScreen() {
               showsHorizontalScrollIndicator={false}
               style={styles.reviewPhotosContainer}
             >
-              {reviews?.slice(0, 6).map(
-                (review, index) =>
-                  review.photos &&
-                  review.photos.map((photo, photoIndex) => (
-                    <TouchableOpacity
-                      key={`${index}-${photoIndex}`}
-                      style={styles.photoPreview}
-                      onPress={() =>
-                        router.push(`/service/${service.id}/photos`)
-                      }
-                    >
-                      <Image
-                        source={{ uri: photo }}
-                        style={styles.photoThumbnail}
-                      />
-                    </TouchableOpacity>
-                  ))
-              )}
-              <TouchableOpacity
-                style={styles.viewAllPhotos}
-                onPress={() => router.push(`/service/${service.id}/photos`)}
-              >
+              {DUMMY_REVIEW_IMAGES.slice(0, 4).map((photo, index) => (
+                <TouchableOpacity key={index} style={styles.photoPreview}>
+                  <Image
+                    source={{ uri: photo }}
+                    style={styles.photoThumbnail}
+                  />
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity style={styles.viewAllPhotos} onPress={() => {}}>
                 <MaterialIcons
                   name="photo-library"
                   size={24}
@@ -283,7 +306,9 @@ export default function ServiceDetailsScreen() {
             {/* Recent Reviews */}
             {reviews
               ?.slice(0, 2)
-              .map((review) => renderReviewItem({ item: review }))}
+              .map((review) =>
+                renderReviewItem({ item: review, service: service })
+              )}
           </View>
         </View>
       </ScrollView>
@@ -292,7 +317,7 @@ export default function ServiceDetailsScreen() {
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Starting from</Text>
           <Text style={styles.priceValue}>
-            ${Math.min(fixedPrice, hourlyPrice)}
+            ₹{Math.min(fixedPrice, hourlyPrice)}
           </Text>
         </View>
 

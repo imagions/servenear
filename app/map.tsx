@@ -77,7 +77,9 @@ const ServiceListItem = memo(
                   {item.title}
                 </Text>
                 <View style={styles.providerRow}>
-                  <Text style={styles.serviceProvider}>{item.provider}</Text>
+                  <Text style={styles.serviceProvider}>
+                    {item.provider_details.name}
+                  </Text>
                   {item.verified && (
                     <MaterialIcons
                       name="verified"
@@ -148,30 +150,43 @@ const useDebounce = (value, delay) => {
 };
 
 // Add Memoized Marker component
-const ServiceMarker = memo(({ service, isSelected, onPress }: any) => (
-  <Marker
-    coordinate={{
-      latitude: service.location.latitude,
-      longitude: service.location.longitude,
-    }}
-    onPress={() => onPress(service)}
-  >
-    <View style={styles.markerWrapper}>
-      <View style={styles.markerContainer}>
-        <MaterialIcons
-          name="location-pin"
-          size={38}
-          color={isSelected ? COLORS.accent : '#666'}
-        />
+const ServiceMarker = memo(({ service, isSelected, onPress }: any) => {
+  // Guard: Only render marker if valid coordinates
+  const lat = service?.location?.latitude ?? service?.lat;
+  const lng = service?.location?.longitude ?? service?.long;
+  if (
+    typeof lat !== 'number' ||
+    typeof lng !== 'number' ||
+    isNaN(lat) ||
+    isNaN(lng)
+  ) {
+    return null;
+  }
+  return (
+    <Marker
+      coordinate={{
+        latitude: lat,
+        longitude: lng,
+      }}
+      onPress={() => onPress(service)}
+    >
+      <View style={styles.markerWrapper}>
+        <View style={styles.markerContainer}>
+          <MaterialIcons
+            name="location-pin"
+            size={38}
+            color={isSelected ? COLORS.accent : '#666'}
+          />
+        </View>
+        <View style={styles.markerTail} />
       </View>
-      <View style={styles.markerTail} />
-    </View>
-  </Marker>
-));
+    </Marker>
+  );
+});
 
 export default function MapScreen() {
   const params = useLocalSearchParams();
-  const { services } = useServiceStore();
+  const { services, fetchServices } = useServiceStore();
   const [region, setRegion] = useState({
     latitude: 37.7749,
     longitude: -122.4194,
@@ -260,6 +275,18 @@ export default function MapScreen() {
     params.scrollTo,
     services,
   ]);
+
+  // Always fetch all services on mount if not loaded
+  useEffect(() => {
+    if (!services || services.length === 0) {
+      fetchServices();
+    }
+  }, [services, fetchServices]);
+
+  // Always show all services on map and in ServiceCard list
+  useEffect(() => {
+    setFilteredServices(services);
+  }, [services]);
 
   const handleMarkerPress = useCallback(
     (service) => {
@@ -558,6 +585,7 @@ export default function MapScreen() {
 
   // Memoize markers list
   const markers = useMemo(() => {
+    // Always show all services (filteredServices is always all services unless search/filter applied)
     const servicesToShow =
       filteredServices.length > 0 ? filteredServices : services;
     if (!servicesToShow) return null;
@@ -570,7 +598,7 @@ export default function MapScreen() {
         onPress={handleMarkerPress}
       />
     ));
-  }, [filteredServices, services, selectedService?.id]);
+  }, [filteredServices, services, selectedService?.id, handleMarkerPress]);
 
   // Update location watching with debounce
   useEffect(() => {
@@ -695,6 +723,7 @@ export default function MapScreen() {
         {/* Horizontal Service List */}
         <FlatList
           ref={listRef}
+          // Always show all services unless filteredServices is set by search/filter
           data={filteredServices.length > 0 ? filteredServices : services}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -717,6 +746,13 @@ export default function MapScreen() {
 
         {/* Map controls */}
         <View style={styles.mapControls}>
+          <TouchableOpacity
+            style={styles.controlButton}
+            onPress={showNearbyServices}
+            id='demo-mode'
+          >
+            <MaterialIcons name="place" size={24} color={COLORS.accent} />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.controlButton}
             onPress={handleLocatePress}
@@ -745,14 +781,6 @@ export default function MapScreen() {
           onClose={() => setIsFilterVisible(false)}
           onApply={handleFilterApply}
         />
-        {/* Add this new button just before closing View */}
-        <TouchableOpacity
-          style={styles.demoButton}
-          onPress={showNearbyServices}
-        >
-          <MaterialIcons name="place" size={24} color="white" />
-          <Text style={styles.demoButtonText}>Show Nearby</Text>
-        </TouchableOpacity>
       </View>
     </GestureHandlerRootView>
   );

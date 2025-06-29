@@ -1,14 +1,14 @@
 import { create } from 'zustand';
-import { ServiceCategory, ServiceItem, ServiceCreateParams, CartItemParams, SubCategory, TrendingService, BookingItem, ReviewItem, DatabaseService, DatabaseCategory, DatabaseSubcategory, DatabaseUser } from '@/types';
+import { ServiceCategory, ServiceItem, ServiceCreateParams, CartItemParams, SubCategory, BookingItem, ReviewItem, DatabaseService, DatabaseCategory, DatabaseSubcategory, DatabaseUser } from '@/types';
 import { supabase } from '@/lib/supabase';
-import { mockCategories, mockServices, mockSubcategories, mockTrendingServices, mockBookings, mockReviews } from '@/constants/mock';
+import { mockCategories, mockSubcategories, mockBookings, mockReviews } from '@/constants/mock';
 
 interface ServiceStore {
   services: ServiceItem[];
   categories: ServiceCategory[];
   subcategories: SubCategory[];
-  trendingServices: TrendingService[];
-  nearbyServices: TrendingService[];
+  trendingServices: ServiceItem[]; // Changed from TrendingService[]
+  nearbyServices: ServiceItem[];   // Changed from TrendingService[]
   bookings: BookingItem[];
   reviews: ReviewItem[];
   cart: any[];
@@ -197,14 +197,32 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       set({ loading: true, error: null });
       console.log('Fetching trending services...');
 
-      const { data, error } = await supabase.rpc(
-        'get_services_with_provider_nearby_radius', {
-        user_lat: 28.6139,     // Delhi
-        user_long: 77.2090,
-        radius_km: 50000
-      }
-      ).limit(40);
-
+      const { data, error } = await supabase
+        .from('services')
+        .select(`
+          *,
+          provider_details:users (
+            id,
+            name,
+            profile_image,
+            verified,
+            rating,
+            bio,
+            skills
+          ),
+          subcategory_details:subcategories (
+            id,
+            name,
+            icon,
+            category_details:categories (
+              id,
+              name,
+              icon
+            )
+          )
+        `)
+        .eq('active', true)
+        .limit(40);
 
       if (error) {
         console.error('Trending services error:', error);
@@ -213,23 +231,12 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
       console.log('Trending services fetched:', data);
 
-      if (!data || data.length === 0) {
-        console.log('No trending services found, using mock data');
-        set({ trendingServices: mockTrendingServices, loading: false });
-        return;
-      }
-
       const transformedServices = data.map(transformDatabaseService);
 
-      set({ trendingServices: transformedServices, loading: false });
+      set({ trendingServices: transformedServices, loading: false, error: null });
 
     } catch (error: any) {
       console.error('Error fetching trending services:', error);
-      set({
-        error: error.message,
-        loading: false,
-        trendingServices: mockTrendingServices // Fallback
-      });
     }
   },
 
@@ -238,8 +245,31 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       set({ loading: true, error: null });
       console.log('Fetching services...');
 
-      // Use PostGIS function to find nearby services
-      const { data, error } = await supabase.rpc('get_services_with_provider')
+      const { data, error } = await supabase
+        .from('services')
+        .select(`
+          *,
+          provider_details:users (
+            id,
+            name,
+            profile_image,
+            verified,
+            rating,
+            bio,
+            skills
+          ),
+          subcategory_details:subcategories (
+            id,
+            name,
+            icon,
+            category_details:categories (
+              id,
+              name,
+              icon
+            )
+          )
+        `)
+        .eq('active', true)
         .limit(40);
 
       if (error) {
@@ -249,22 +279,11 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
       console.log('Services fetched:', data);
 
-      if (!data || data.length === 0) {
-        console.log('No services found, using mock data');
-        set({ services: mockServices, loading: false });
-        return;
-      }
-
       const transformedServices = data.map(transformDatabaseService);
-      set({ services: transformedServices, loading: false });
+      set({ services: transformedServices, loading: false, error: null });
 
     } catch (error: any) {
       console.error('Error fetching services:', error);
-      set({
-        error: error.message,
-        loading: false,
-        services: mockServices // Fallback
-      });
     }
   },
 
@@ -274,99 +293,115 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      // Use PostGIS function to find nearby services
-      const { data, error } = await supabase.rpc('nearby_services', {
-        user_lat: latitude,
-        user_lng: longitude,
-        radius_km: 50
-      }).limit(40);
-
-      if (error) {
-        console.error('Nearby services error:', error);
-        // Fallback to regular fetch with mock distance
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('services')
-          .select(`
-            *,
-            provider_details:provider(
-              id, name, profile_image, verified, rating
-            ),
-            subcategory_details:subcategory(
-              id, name, icon
+      const { data, error } = await supabase
+        .from('services')
+        .select(`
+          *,
+          provider_details:users (
+            id,
+            name,
+            profile_image,
+            verified,
+            rating,
+            bio,
+            skills
+          ),
+          subcategory_details:subcategories (
+            id,
+            name,
+            icon,
+            category_details:categories (
+              id,
+              name,
+              icon
             )
-          `)
-          .eq('active', true)
-          .limit(10);
+          )
+        `)
+        .eq('active', true)
+        .limit(40);
 
-        if (fallbackError) throw fallbackError;
+      console.log('Supabase nearby services raw data:', data);
 
-        const transformedServices = (fallbackData || []).map(service => ({
-          ...transformDatabaseService(service),
-          distance: Math.random() * 10 // Mock distance
-        }));
+      if (error) throw error;
 
-        set({ services: transformedServices, loading: false });
-        return;
-      }
+      const transformedServices = data.map(service => ({
+        ...transformDatabaseService(service),
+        distance: Math.random() * 10 // Mock distance
+      }));
 
-      console.log('Nearby services fetched:', data);
-
-      if (!data || data.length === 0) {
-        console.log('No nearby services found, using mock data');
-        const nearby = mockServices.map(service => ({
-          ...service,
-          distance: Math.random() * 5
-        })).sort((a, b) => a.distance - b.distance);
-
-        set({ services: nearby, loading: false });
-        return;
-      }
-
-      const transformedServices = data.map(transformDatabaseService);
-      set({ services: transformedServices, loading: false });
+      set({ nearbyServices: transformedServices, loading: false, error: null });
+      return;
 
     } catch (error: any) {
       console.error('Error fetching nearby services:', error);
-      set({
-        error: error.message,
-        loading: false,
-        services: mockServices.map(service => ({
-          ...service,
-          distance: Math.random() * 5
-        }))
-      });
     }
   },
 
   filterServices: (query: string, categories: string[]) => {
-    const q = (query || '').toLowerCase().trim();
-    return get().services.filter(service => {
-      // Search in title, provider name, and category name (case-insensitive)
-      const title = (service.title || '').toLowerCase();
-      const provider =
-        (service.provider_details?.name || service.provider || '').toLowerCase();
-      const category =
-        (service.category_details?.name || '').toLowerCase();
-        const description = (service.description || '').toLowerCase();
-        const tags = (service.tags || []).map(tag => tag.toLowerCase());
-        const subcategory =
-        (service.subcategory_details?.name || '').toLowerCase();
+    // Split query into words, ignore empty strings
+    const words = (query || '')
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
 
-      const matchesQuery =
-        title.includes(q) ||
-        provider.includes(q) ||
-        category.includes(q) ||
-        description.includes(q) ||
-        tags.some(tag => tag.includes(q)) ||
-        subcategory.includes(q);
+    // If no words, return all services (or filtered by category)
+    if (words.length === 0) {
+      return get().services.filter(service => {
+        const matchesCategory =
+          !categories?.length ||
+          categories.includes(service.category_details?.name!) ||
+          categories.includes(service.category_details?.id!);
+        return matchesCategory;
+      });
+    }
 
-      const matchesCategory =
-        !categories?.length ||
-        categories.includes(service.category_details?.name!) ||
-        categories.includes(service.category_details?.id!);
+    // For each word, find all matching services, then merge and deduplicate
+    const allMatches = words.flatMap(word =>
+      get().services.filter(service => {
+        const searchable: string[] = [
+          service.title || '',
+          service.provider_details?.bio || '',
+          ...(service.provider_details?.skills || []),
+          service.provider_details?.name || service.provider || '',
+          service.category_details?.name || '',
+          service.description || '',
+          ...(service.tags || []),
+          service.subcategory_details?.name || ''
+        ].map(str => (str || '').toLowerCase());
 
-      return matchesQuery && matchesCategory;
+        const matchesQuery = searchable.some(field => field.includes(word));
+
+        const matchesCategory =
+          !categories?.length ||
+          categories.includes(service.category_details?.name!) ||
+          categories.includes(service.category_details?.id!);
+
+        return matchesQuery && matchesCategory;
+      })
+    );
+
+    // Deduplicate by service id
+    const uniqueMatchesMap = new Map<string, ServiceItem>();
+    allMatches.forEach(s => {
+      if (!uniqueMatchesMap.has(s.id)) {
+        uniqueMatchesMap.set(s.id, s);
+      }
     });
+    const uniqueMatches = Array.from(uniqueMatchesMap.values());
+
+    // Sort: services with title match for the first word appear on top
+    if (words.length > 0) {
+      const firstWord = words[0];
+      const matchesTitle = uniqueMatches.filter(service =>
+        (service.title || '').toLowerCase().includes(firstWord)
+      );
+      const notMatchesTitle = uniqueMatches.filter(service =>
+        !(service.title || '').toLowerCase().includes(firstWord)
+      );
+      return [...matchesTitle, ...notMatchesTitle];
+    }
+
+    return uniqueMatches;
   },
 
   getServiceById: (id) => {
@@ -409,7 +444,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
           included: params.included,
           terms_and_conditions: params.terms_and_conditions,
           subcategory: params.subcategory,
-          provider: 'current-user-id', // TODO: Get from auth
+          provider: '55b68d62-d947-44f9-bcf1-78345d0e6f3e',
           active: true
         })
         .select()

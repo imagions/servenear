@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { ServiceCategory, TrendingService } from '@/types';
+import { ServiceCategory, ServiceItem } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -54,6 +54,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const { items: cartItems } = useCartStore();
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     const initData = async () => {
@@ -68,11 +69,19 @@ export default function HomeScreen() {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
           const location = await Location.getCurrentPositionAsync({});
+          setUserLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
           await fetchNearbyServices({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           });
         } else {
+          setUserLocation({
+            latitude: 37.7749,
+            longitude: -122.4194,
+          });
           await fetchNearbyServices({
             latitude: 37.7749,
             longitude: -122.4194,
@@ -130,31 +139,48 @@ export default function HomeScreen() {
     []
   );
 
-  const renderNearbyItem = ({ item }: { item: TrendingService }) => {
-    const distance =
-      item.lat && item.long
-        ? calculateDistance(item.lat, item.long, item.lat || 0, item.long || 0)
-        : item.distance;
+  // Debug log for nearbyServices
+  console.log('nearbyServices:', nearbyServices);
 
-    const displayDistance = distance
-      ? `${distance.toFixed(1)} km`
-      : 'Distance N/A';
+  const renderNearbyItem = ({ item }: { item: ServiceItem }) => {
+    // Use user's actual location for distance calculation
+    let distance = item.distance;
+    if (
+      userLocation &&
+      typeof item.lat === 'number' &&
+      typeof item.long === 'number'
+    ) {
+      distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        item.lat,
+        item.long
+      );
+    }
+
+    const displayDistance =
+      typeof distance === 'number' && !isNaN(distance)
+        ? `${distance.toFixed(1)} km`
+        : 'Distance N/A';
 
     return (
       <TouchableOpacity
         style={styles.nearbyItem}
         onPress={() => router.push(`/service/${item.id}`)}
       >
-        <Image source={{ uri: item.image }} style={styles.nearbyImage} />
+        <Image
+          source={{ uri: item.image || 'https://placehold.co/150x200?text=No+Image' }}
+          style={styles.nearbyImage}
+        />
         <View style={styles.nearbyOverlay}>
           <View style={styles.nearbyContent}>
             <Text style={styles.nearbyTitle} numberOfLines={1}>
-              {item.title}
+              {item.title || 'Untitled'}
             </Text>
             <View style={styles.nearbyInfo}>
               <View style={styles.nearbyRating}>
                 <Star size={12} color="#FFB800" fill="#FFB800" />
-                <Text style={styles.nearbyRatingText}>{item.rating}</Text>
+                <Text style={styles.nearbyRatingText}>{item.rating ?? 0}</Text>
               </View>
               <View style={styles.locationInfo}>
                 <MapPin size={12} color="white" />
@@ -168,8 +194,8 @@ export default function HomeScreen() {
   };
 
   // Replace trending items section with ServiceCard
-  const renderTrendingItem = ({ item }) => (
-    <ServiceCard service={item} icon={item.icon || 'trending-up'} />
+  const renderTrendingItem = ({ item }: { item: ServiceItem }) => (
+    <ServiceCard service={item} icon={item.subcategory_details?.icon || 'trending-up'} />
   );
 
   // Add console.log to debug categories data
@@ -273,16 +299,16 @@ export default function HomeScreen() {
             </View>
             {loading ? (
               <ActivityIndicator color={COLORS.accent} />
-            ) : services?.length > 0 ? (
+            ) : nearbyServices?.length > 0 ? (
               <ScrollView
                 contentContainerStyle={{ flexDirection: 'row' }}
                 horizontal
                 showsHorizontalScrollIndicator={false}
               >
-                {services.map((item) => (
+                {nearbyServices.map((item) => (
                   <View key={item.id}>
                     {renderNearbyItem({
-                      item: { ...item, provider: item.provider ?? '' },
+                      item: { ...item },
                     })}
                   </View>
                 ))}
