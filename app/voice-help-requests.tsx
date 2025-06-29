@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,8 @@ import {
   BadgeCheck,
   MapPin,
   Clock,
+  ChevronLeft,
+  Edit2,
 } from 'lucide-react-native';
 import VoiceRecordModal from '@/components/VoiceRecordModal';
 import { supabase } from '@/lib/supabase';
@@ -87,6 +89,7 @@ export default function VoiceHelpRequestsScreen() {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   const [requests, setRequests] = useState<any[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const audioPlayer = useAudioPlayer();
@@ -111,6 +114,23 @@ export default function VoiceHelpRequestsScreen() {
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  // Realtime offline search
+  useEffect(() => {
+    if (!search.trim()) {
+      setFilteredRequests(requests);
+    } else {
+      const q = search.trim().toLowerCase();
+      setFilteredRequests(
+        requests.filter((item) => {
+          const userName = item.user_details?.name?.toLowerCase() || '';
+          const text = (item.text || '').toLowerCase();
+          const status = (item.status || '').toLowerCase();
+          return userName.includes(q) || text.includes(q) || status.includes(q);
+        })
+      );
+    }
+  }, [search, requests]);
 
   const fetchRequests = async () => {
     setLoading(true); // ensure loading is set on fetch
@@ -190,7 +210,6 @@ export default function VoiceHelpRequestsScreen() {
         body: JSON.stringify({ audio_url, doc_id: insertData.id }),
       });
 
-      
       fetchRequests();
 
       console.log('Function response:', resp);
@@ -199,26 +218,48 @@ export default function VoiceHelpRequestsScreen() {
     }
   };
 
+  // UI: Card status color logic
+  const getStatusColor = (status: string) => {
+    if (status?.toLowerCase().includes('processed')) return COLORS.accent;
+    if (status?.toLowerCase().includes('accepted')) return '#00BCD4';
+    if (status?.toLowerCase().includes('completed')) return '#2196F3';
+    if (status?.toLowerCase().includes('processing')) return '#FF9800';
+    return COLORS.accent;
+  };
+
   const renderRequest = ({ item }) => (
     <View style={styles.requestCard}>
-      <View style={styles.requestHeader}>
-        <View style={styles.userInfo}>
-          <Image
-            source={{ uri: item.user_details.profile_image }}
-            style={styles.userImage}
-          />
-          <View>
-            <View style={styles.nameContainer}>
-              <Text style={styles.userName}>{item.user_details.name}</Text>
-              {item.user_details.verified && (
-                <BadgeCheck
-                  size={16}
-                  color={COLORS.surface}
-                  fill={COLORS.accent}
-                />
-              )}
+      <View style={styles.requestHeaderRow}>
+        <View style={styles.avatarCircle}>
+          {item.user_details?.profile_image ? (
+            <Image
+              source={{ uri: item.user_details.profile_image }}
+              style={styles.avatarImg}
+            />
+          ) : (
+            <View style={styles.avatarFallback}>
+              <Text style={styles.avatarFallbackText}>
+                {item.user_details?.name?.[0] || 'U'}
+              </Text>
             </View>
-            <Text style={styles.timeAgo}>{'2 hr ago'}</Text>
+          )}
+        </View>
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.userName}>
+              {item.user_details?.name || 'User'}
+            </Text>
+            {item.user_details?.verified && (
+              <BadgeCheck
+                size={16}
+                color={COLORS.surface}
+                fill={COLORS.accent}
+              />
+            )}
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Clock size={13} color="#9E9E9E" />
+            <Text style={styles.timeAgo}>{item.timeAgo || 'Just now'}</Text>
           </View>
         </View>
         <TouchableOpacity
@@ -238,45 +279,56 @@ export default function VoiceHelpRequestsScreen() {
 
       <Text style={styles.transcription}>{item.text}</Text>
 
-      <View style={styles.requestFooter}>
-        <View style={styles.locationInfo}>
-          <MapPin size={16} color="#9E9E9E" />
-          <Text style={styles.distance}>{'1 Km'}</Text>
-          <Text style={styles.location}>{'San Francisco'}</Text>
-        </View>
+      <View style={styles.locationRow}>
+        <MapPin size={15} color="#9E9E9E" />
+        <Text style={styles.locationText}>Unknown distance • Patna, Bihar</Text>
+        <TouchableOpacity style={styles.editBtn}>
+          <Edit2 size={16} color={COLORS.accent} />
+        </TouchableOpacity>
       </View>
-      <View
+
+      <TouchableOpacity
         style={[
-          styles.statusBadge,
-          { backgroundColor: `${MOCK_REQUESTS[0].statusColor}10` },
+          styles.statusBtn,
+          {
+            borderColor: getStatusColor(item.status),
+            backgroundColor: getStatusColor(item.status) + '10',
+          },
         ]}
+        activeOpacity={1}
       >
         <Text
-          style={[styles.statusText, { color: MOCK_REQUESTS[0].statusColor }]}
+          style={[styles.statusBtnText, { color: getStatusColor(item.status) }]}
         >
-          {item.status}
+          {item.status || 'Processed'}
         </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Voice Requests</Text>
-        <View style={styles.searchContainer}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBackBtn}
+        >
+          <ChevronLeft size={26} color={COLORS.text.heading} />
+        </TouchableOpacity>
+        <View style={styles.searchBar}>
           <Search size={20} color="#9E9E9E" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search requests..."
+            placeholder="Search Voice Requests"
             value={search}
             onChangeText={setSearch}
+            placeholderTextColor="#B0B0B0"
           />
         </View>
       </View>
 
       <FlatList
-        data={requests}
+        data={filteredRequests}
         renderItem={renderRequest}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.requestsList}
@@ -291,7 +343,7 @@ export default function VoiceHelpRequestsScreen() {
         activeOpacity={0.8}
       >
         <Mic size={20} color="white" />
-        <Text style={styles.fabText}>Ask for help</Text>
+        <Text style={styles.fabText}>Ask for Help</Text>
       </TouchableOpacity>
 
       <VoiceRecordModal
@@ -306,125 +358,152 @@ export default function VoiceHelpRequestsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F7FAFC',
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 5,
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: '#F7FAFC',
+    gap: 8,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    marginBottom: 13,
-    fontFamily: 'Inter-Bold',
+  headerBackBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 6,
   },
-  searchContainer: {
+  searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    height: 40,
     ...SHADOWS.card,
+    marginRight: 14,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
     fontSize: 16,
     color: COLORS.text.body,
     fontFamily: 'Inter-Regular',
   },
   requestsList: {
-    padding: 20,
+    padding: 14,
     paddingBottom: 100,
   },
   requestCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: 'white',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 18,
     ...SHADOWS.card,
+    borderWidth: 1,
+    borderColor: '#E6F1F8',
   },
-  requestHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  userInfo: {
+  requestHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
+    gap: 12,
   },
-  userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  nameContainer: {
-    flexDirection: 'row',
+  avatarCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.accent + '15',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 4,
+    marginRight: 8,
+    overflow: 'hidden',
   },
-  userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text.heading,
-    fontFamily: 'Inter-SemiBold',
+  avatarImg: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
-  timeAgo: {
-    fontSize: 12,
-    color: COLORS.text.body,
-    marginTop: 2,
-    fontFamily: 'Inter-Regular',
-  },
-  playButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: `${COLORS.accent}10`,
+  avatarFallback: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.accent + '22',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  avatarFallbackText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.accent,
+    fontFamily: 'Inter-Bold',
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+  },
+  timeAgo: {
+    fontSize: 13,
+    color: '#9E9E9E',
+    fontFamily: 'Inter-Regular',
+  },
+  playButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.accent + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 'auto',
+  },
   transcription: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.text.body,
-    lineHeight: 20,
-    marginBottom: 12,
+    lineHeight: 22,
+    marginBottom: 10,
     fontFamily: 'Inter-Regular',
+    marginLeft: 2,
   },
-  requestFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  locationInfo: {
+  locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
+    gap: 6,
   },
-  distance: {
-    fontSize: 12,
-    color: COLORS.text.body,
+  locationText: {
+    fontSize: 13,
+    color: '#9E9E9E',
+    fontFamily: 'Inter-Regular',
     marginLeft: 4,
-    marginRight: 8,
-    fontFamily: 'Inter-Regular',
+    flex: 1,
   },
-  location: {
-    fontSize: 12,
-    color: COLORS.text.body,
-    fontFamily: 'Inter-Regular',
+  editBtn: {
+    marginLeft: 'auto',
+    padding: 4,
   },
-  statusBadge: {
-    paddingHorizontal: 40,
-    paddingVertical: 8,
+  statusBtn: {
+    borderWidth: 1.5,
     borderRadius: 16,
-    marginTop: 8,
-    alignSelf: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+    width: '100%',
   },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
-    fontFamily: 'Inter-Medium',
+  statusBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
+    textAlign: 'center',
   },
   fab: {
     position: 'absolute',
@@ -432,15 +511,17 @@ const styles = StyleSheet.create({
     right: 20,
     backgroundColor: COLORS.accent,
     borderRadius: 24,
-    padding: 16,
+    paddingHorizontal: 22,
+    paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     ...SHADOWS.card,
+    elevation: 4,
   },
   fabText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
   },

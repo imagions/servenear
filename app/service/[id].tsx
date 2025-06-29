@@ -19,6 +19,8 @@ import {
   Calendar,
   ChevronRight,
   ShoppingCart,
+  Check as CheckIcon,
+  Trash2,
 } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { useCartStore } from '@/store/useCartStore';
@@ -36,7 +38,7 @@ export default function ServiceDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { getServiceById, reviews } = useServiceStore();
-  const { addToCart } = useCartStore();
+  const { addToCart, removeFromCart, items: cart } = useCartStore();
   const service = getServiceById(id as string);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -117,6 +119,9 @@ export default function ServiceDetailsScreen() {
   const serviceImage = service.image || 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg';
   const serviceDescription = service.description || 'No description available';
   const serviceAvailability = service.availability || { days: 'Mon-Fri', hours: '9:00 AM - 5:00 PM' };
+
+  // Check if item is already in cart
+  const isInCart = cart.some((item) => item.id === service.id);
 
   return (
     <View style={styles.container}>
@@ -292,9 +297,21 @@ export default function ServiceDetailsScreen() {
         </View>
 
         <View style={styles.footerButtons}>
-          <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
-            <ShoppingCart size={24} color={COLORS.accent} />
-          </TouchableOpacity>
+          {isInCart ? (
+            <TouchableOpacity
+              style={styles.cartButton}
+              onPress={() => removeFromCart(service.id)}
+            >
+              <Trash2 size={24} color={COLORS.accent} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.cartButton}
+              onPress={handleAddToCart}
+            >
+              <ShoppingCart size={24} color={COLORS.accent} />
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity style={styles.bookButton} onPress={handleBookNow}>
             <Text style={styles.bookButtonText}>Book Now</Text>

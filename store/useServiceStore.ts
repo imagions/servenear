@@ -134,7 +134,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
-        .order('name');
+        .order('name').limit(40);
 
       if (categoriesError) {
         console.error('Categories Error:', categoriesError);
@@ -203,7 +203,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         user_long: 77.2090,
         radius_km: 50000
       }
-      );
+      ).limit(40);
 
 
       if (error) {
@@ -240,7 +240,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
       // Use PostGIS function to find nearby services
       const { data, error } = await supabase.rpc('get_services_with_provider')
-        .limit(20);
+        .limit(40);
 
       if (error) {
         console.error('Services error:', error);
@@ -279,7 +279,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         user_lat: latitude,
         user_lng: longitude,
         radius_km: 50
-      });
+      }).limit(40);
 
       if (error) {
         console.error('Nearby services error:', error);
@@ -339,15 +339,31 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   },
 
   filterServices: (query: string, categories: string[]) => {
-    const services = get().services;
-    return services.filter(service => {
-      const matchesQuery = !query ||
-        service.title.toLowerCase().includes(query.toLowerCase()) ||
-        service.description?.toLowerCase().includes(query.toLowerCase());
+    const q = (query || '').toLowerCase().trim();
+    return get().services.filter(service => {
+      // Search in title, provider name, and category name (case-insensitive)
+      const title = (service.title || '').toLowerCase();
+      const provider =
+        (service.provider_details?.name || service.provider || '').toLowerCase();
+      const category =
+        (service.category_details?.name || '').toLowerCase();
+        const description = (service.description || '').toLowerCase();
+        const tags = (service.tags || []).map(tag => tag.toLowerCase());
+        const subcategory =
+        (service.subcategory_details?.name || '').toLowerCase();
 
-      const matchesCategory = categories.length === 0 ||
-        categories.includes(service.category_details?.name?.toLowerCase() || '') ||
-        categories.includes(service.subcategory_details?.name.toLowerCase() || '');
+      const matchesQuery =
+        title.includes(q) ||
+        provider.includes(q) ||
+        category.includes(q) ||
+        description.includes(q) ||
+        tags.some(tag => tag.includes(q)) ||
+        subcategory.includes(q);
+
+      const matchesCategory =
+        !categories?.length ||
+        categories.includes(service.category_details?.name!) ||
+        categories.includes(service.category_details?.id!);
 
       return matchesQuery && matchesCategory;
     });
@@ -414,8 +430,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
   addToCart: (params: CartItemParams) => {
     const newCartItem = {
-      id: `cart-${Date.now()}`,
-      serviceId: params.serviceId,
+      id: params.id,
       date: params.date,
       time: params.time,
       price: params.price

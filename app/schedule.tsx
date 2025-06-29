@@ -1,43 +1,110 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Image 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Switch,
+  TextInput,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
-import { ArrowLeft, Calendar, Clock, ChevronRight, Check } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Check,
+  BadgeCheck,
+} from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
+import { useCartStore } from '@/store/useCartStore';
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const timeSlots = [
-  '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
-  '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', 
-  '5:00 PM', '6:00 PM'
+  '10:00 AM',
+  '10:30 AM',
+  '11:00 AM',
+  '11:30 AM',
+  '12:00 PM',
+  '12:30 PM',
+  '01:00 PM',
+  '01:30 PM',
 ];
 
 export default function ScheduleScreen() {
   const { serviceId } = useLocalSearchParams();
-  const { getServiceById, addToCart } = useServiceStore();
+  const { getServiceById } = useServiceStore();
+  const { addToCart, items: cart } = useCartStore();
   const service = getServiceById(serviceId as string);
-  
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  
+
+  // Find existing cart item for this service
+  const existingCartItem = cart.find((item) => item.id === serviceId);
+
+  // Initialize state from cart if editing, else default
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+    if (existingCartItem?.date) {
+      // Try to parse as "MMM DD, YYYY" (e.g. "Jun 10, 2024")
+      const parsed = Date.parse(existingCartItem.date);
+      if (!isNaN(parsed)) return new Date(parsed);
+
+      // Fallback: try to parse manually if Date.parse fails
+      const parts = existingCartItem.date.match(/^([A-Za-z]+) (\d{1,2}), (\d{4})$/);
+      if (parts) {
+        const [_, monthStr, dayStr, yearStr] = parts;
+        const months = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        const monthIdx = months.findIndex(m => m === monthStr);
+        if (monthIdx !== -1) {
+          return new Date(Number(yearStr), monthIdx, Number(dayStr));
+        }
+      }
+    }
+    return null;
+  });
+  const [selectedTime, setSelectedTime] = useState<string | null>(
+    existingCartItem?.time || null
+  );
+  const [isOncePrice, setIsOncePrice] = useState(
+    existingCartItem?.priceType
+      ? existingCartItem.priceType === 'once'
+      : true
+  );
+  const [note, setNote] = useState(existingCartItem?.note || '');
+
+  useEffect(() => {
+    // If cart item changes (e.g. after addToCart), update state
+    if (existingCartItem) {
+      if (existingCartItem.date) {
+        const parsed = Date.parse(existingCartItem.date);
+        if (!isNaN(parsed)) setSelectedDate(new Date(parsed));
+      }
+      if (existingCartItem.time) setSelectedTime(existingCartItem.time);
+      if (existingCartItem.priceType)
+        setIsOncePrice(existingCartItem.priceType === 'once');
+      if (existingCartItem.note !== undefined)
+        setNote(existingCartItem.note);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingCartItem?.date, existingCartItem?.time, existingCartItem?.priceType, existingCartItem?.note]);
+
   if (!service) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Service not found</Text>
-        <TouchableOpacity style={styles.backButtonLarge} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButtonLarge}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
-  
+
   // Generate dates for the next 14 days
   const dates: Date[] = [];
   const today = new Date();
@@ -46,196 +113,205 @@ export default function ScheduleScreen() {
     date.setDate(today.getDate() + i);
     dates.push(date);
   }
-  
+
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
-  
+
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
   };
-  
+
+  // If already in cart, update on schedule change instead of adding duplicate
   const handleConfirm = () => {
     if (selectedDate && selectedTime) {
-      // Format date for display
       const dateString = selectedDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
       });
-      
-      // Add to cart
+
+      // Always update the cart item for this serviceId
       addToCart({
-        serviceId: service.id,
+        id: service.id,
+        title: service.title,
+        price: isOncePrice
+          ? service.once_price || service.fixedPrice || 0
+          : service.hourly_price || service.price || 0,
+        image: service.image || '',
+        provider: service.provider_details?.name || service.provider || '',
+        quantity: 1,
         date: dateString,
         time: selectedTime,
-        price: service.price
+        priceType: isOncePrice ? 'once' : 'hourly',
+        note,
+        oncePrice: service.once_price || service.fixedPrice || 0,
+        hourlyPrice: service.hourly_price || service.price || 0
       });
-      
-      // Navigate to cart
+
       router.push('/cart');
     }
   };
-  
+
   const isDateAvailable = (date: Date) => {
-    // Check if the day is available based on service availability
     const day = daysOfWeek[date.getDay()];
-    return service.availability.days.includes(day);
+    return service.availability?.days?.includes(day);
   };
-  
-  const isTimeAvailable = (time: string) => {
-    // Mock time availability check
-    const unavailableTimes = ['10:00 AM', '2:00 PM', '5:00 PM'];
-    return !unavailableTimes.includes(time);
-  };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <ArrowLeft size={24} color={COLORS.text.heading} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Schedule Appointment</Text>
+        <Text style={styles.headerTitle}>Book Service</Text>
         <View style={{ width: 40 }} />
       </View>
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.serviceInfo}>
-          <Image source={{ uri: service.image }} style={styles.serviceImage} />
-          <View style={styles.serviceDetails}>
-            <Text style={styles.serviceTitle}>{service.title}</Text>
-            <Text style={styles.serviceProvider}>{service.provider}</Text>
-            <Text style={styles.servicePrice}>${service.price}/hr</Text>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 80 }}
+      >
+        <View style={styles.card}>
+          <View style={styles.profileRow}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {service.provider_details?.name?.[0] || 'U'}
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+              >
+                <Text style={styles.providerName}>
+                  {service.provider_details?.name || service.provider}
+                </Text>
+                <BadgeCheck
+                  size={18}
+                  color={COLORS.surface}
+                  fill={COLORS.accent}
+                />
+              </View>
+              <Text style={styles.serviceTitleSub}>{service.title}</Text>
+            </View>
           </View>
-        </View>
-        
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Calendar size={20} color={COLORS.accent} />
-            <Text style={styles.sectionTitle}>Select Date</Text>
+
+          <View style={styles.pricingRow}>
+            <Text style={styles.pricingLabel}>Pricing Type</Text>
+            <Switch
+              value={isOncePrice}
+              onValueChange={setIsOncePrice}
+              thumbColor={isOncePrice ? COLORS.accent : '#f4f3f4'}
+              trackColor={{ false: '#E0E0E0', true: 'rgba(0, 207, 232, 0.4)' }}
+            />
           </View>
-          
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={styles.datesContainer}>
-            {dates.map((date, index) => {
-              const isAvailable = isDateAvailable(date);
-              const isSelected = selectedDate && 
-                selectedDate.getDate() === date.getDate() && 
-                selectedDate.getMonth() === date.getMonth();
-              
-              return (
-                <TouchableOpacity 
-                  key={index} 
-                  style={[
-                    styles.dateItem,
-                    !isAvailable && styles.unavailableDate,
-                    isSelected && styles.selectedDate
-                  ]}
-                  onPress={() => isAvailable && handleDateSelect(date)}
-                  disabled={!isAvailable}>
-                  <Text 
-                    style={[
-                      styles.dayName,
-                      !isAvailable && styles.unavailableText,
-                      isSelected && styles.selectedText
-                    ]}>
-                    {daysOfWeek[date.getDay()]}
-                  </Text>
-                  <Text 
-                    style={[
-                      styles.dayNumber,
-                      !isAvailable && styles.unavailableText,
-                      isSelected && styles.selectedText
-                    ]}>
-                    {date.getDate()}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-        
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Clock size={20} color={COLORS.accent} />
-            <Text style={styles.sectionTitle}>Select Time</Text>
-          </View>
-          
-          <View style={styles.timeGrid}>
-            {timeSlots.map((time, index) => {
-              const isAvailable = isTimeAvailable(time);
-              const isSelected = selectedTime === time;
-              
-              return (
-                <TouchableOpacity 
-                  key={index} 
-                  style={[
-                    styles.timeItem,
-                    !isAvailable && styles.unavailableTime,
-                    isSelected && styles.selectedTime
-                  ]}
-                  onPress={() => isAvailable && handleTimeSelect(time)}
-                  disabled={!isAvailable}>
-                  <Text 
-                    style={[
-                      styles.timeText,
-                      !isAvailable && styles.unavailableText,
-                      isSelected && styles.selectedText
-                    ]}>
-                    {time}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-        
-        <View style={styles.summarySection}>
-          <Text style={styles.summaryTitle}>Appointment Summary</Text>
-          
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Service</Text>
-            <Text style={styles.summaryValue}>{service.title}</Text>
-          </View>
-          
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Provider</Text>
-            <Text style={styles.summaryValue}>{service.provider}</Text>
-          </View>
-          
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Date</Text>
-            <Text style={styles.summaryValue}>
-              {selectedDate ? selectedDate.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-              }) : 'Not selected'}
+
+          <View style={styles.priceBox}>
+            <Text style={styles.priceBoxLabel}>
+              {isOncePrice ? 'One-time Price' : 'Hourly Price'}
+            </Text>
+            <Text style={styles.priceBoxValue}>
+              ₹
+              {isOncePrice
+                ? service.once_price || service.fixedPrice || 0
+                : service.hourly_price || service.price || 0}
             </Text>
           </View>
-          
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Time</Text>
-            <Text style={styles.summaryValue}>{selectedTime || 'Not selected'}</Text>
-          </View>
-          
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Price</Text>
-            <Text style={styles.summaryValue}>${service.price}/hr</Text>
-          </View>
         </View>
+
+        <Text style={styles.sectionLabel}>Select Date</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.datesContainer}
+        >
+          {dates.map((date, index) => {
+            const isAvailable = isDateAvailable(date);
+            const isSelected =
+              selectedDate &&
+              selectedDate.getDate() === date.getDate() &&
+              selectedDate.getMonth() === date.getMonth();
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.dateItem,
+                  isSelected && styles.selectedDate,
+                  !isAvailable && styles.unavailableDate,
+                ]}
+                onPress={() => isAvailable && handleDateSelect(date)}
+                disabled={!isAvailable}
+              >
+                <Text
+                  style={[
+                    styles.dayName,
+                    isSelected && styles.selectedText,
+                    !isAvailable && styles.unavailableText,
+                  ]}
+                >
+                  {daysOfWeek[date.getDay()]}
+                </Text>
+                <Text
+                  style={[
+                    styles.dayNumber,
+                    isSelected && styles.selectedText,
+                    !isAvailable && styles.unavailableText,
+                  ]}
+                >
+                  {date.getDate()}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        <Text style={styles.sectionLabel}>Select Time</Text>
+        <View style={styles.timeGrid}>
+          {timeSlots.map((time, index) => {
+            const isSelected = selectedTime === time;
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[styles.timeItem, isSelected && styles.selectedTime]}
+                onPress={() => handleTimeSelect(time)}
+              >
+                <Text
+                  style={[
+                    styles.timeText,
+                    isSelected && styles.selectedTimeText,
+                  ]}
+                >
+                  {time}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {/* Additional Notes Field */}
+        <Text style={styles.sectionLabel}>Additional Notes</Text>
+        <TextInput
+          style={styles.notesInput}
+          placeholder="Add any notes for the provider (e.g. I am allergic to aloe vera...)"
+          value={note}
+          onChangeText={setNote}
+          multiline
+          numberOfLines={3}
+          textAlignVertical="top"
+        />
       </ScrollView>
-      
+
       <View style={styles.footer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.confirmButton,
-            (!selectedDate || !selectedTime) && styles.disabledButton
+            (!selectedDate || !selectedTime) && styles.disabledButton,
           ]}
           onPress={handleConfirm}
-          disabled={!selectedDate || !selectedTime}>
+          disabled={!selectedDate || !selectedTime}
+        >
           <Text style={styles.confirmButtonText}>Confirm & Continue</Text>
         </TouchableOpacity>
       </View>
@@ -246,7 +322,218 @@ export default function ScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8FAFC',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    backgroundColor: '#F8FAFC',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOWS.card,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 18,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 18,
+    padding: 18,
+    ...SHADOWS.card,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+    gap: 14,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent + '22',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  avatarText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.accent,
+    fontFamily: 'Inter-Bold',
+  },
+  providerName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+  },
+  serviceTitleSub: {
+    fontSize: 14,
+    color: COLORS.accent,
+    fontFamily: 'Inter-Medium',
+    marginTop: 2,
+  },
+  pricingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  pricingLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-SemiBold',
+  },
+  priceBox: {
+    backgroundColor: '#F5F8FC',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  priceBoxLabel: {
+    fontSize: 15,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Medium',
+  },
+  priceBoxValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.accent,
+    fontFamily: 'Inter-Bold',
+  },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.heading,
+    marginLeft: 20,
+    marginBottom: 10,
+    fontFamily: 'Inter-SemiBold',
+  },
+  datesContainer: {
+    paddingLeft: 16,
+    paddingBottom: 10,
+    gap: 8,
+  },
+  dateItem: {
+    width: 60,
+    height: 70,
+    borderRadius: 12,
+    backgroundColor: '#F5F8FC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  unavailableDate: {
+    backgroundColor: '#F5F5F5',
+    opacity: 0.6,
+  },
+  selectedDate: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
+  dayName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.text.body,
+    marginBottom: 8,
+    fontFamily: 'Inter-Medium',
+  },
+  dayNumber: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+  },
+  unavailableText: {
+    color: '#9E9E9E',
+  },
+  selectedText: {
+    color: 'white',
+  },
+  timeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 16,
+    gap: 10,
+    marginBottom: 30,
+  },
+  timeItem: {
+    width: '29%',
+    minWidth: 90,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#F5F8FC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  selectedTime: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
+  timeText: {
+    fontSize: 15,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Medium',
+  },
+  selectedTimeText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#F8FAFC',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    ...SHADOWS.card,
+  },
+  confirmButton: {
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(0, 207, 232, 0.5)',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    fontFamily: 'Inter-SemiBold',
   },
   errorContainer: {
     flex: 1,
@@ -273,206 +560,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...SHADOWS.card,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    fontFamily: 'Inter-Bold',
-  },
-  serviceInfo: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    overflow: 'hidden',
-    margin: 20,
-    ...SHADOWS.card,
-  },
-  serviceImage: {
-    width: 100,
-    height: '100%',
-  },
-  serviceDetails: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'space-between',
-  },
-  serviceTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text.heading,
-    marginBottom: 4,
-    fontFamily: 'Inter-SemiBold',
-  },
-  serviceProvider: {
-    fontSize: 14,
-    color: COLORS.text.body,
-    marginBottom: 8,
-    fontFamily: 'Inter-Regular',
-  },
-  servicePrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.accent,
-    fontFamily: 'Inter-Bold',
-  },
-  section: {
-    marginBottom: 24,
-    paddingHorizontal: 10,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    marginLeft: 12,
-    fontFamily: 'Inter-Bold',
-  },
-  datesContainer: {
-    padding: 8,
-  },
-  dateItem: {
-    width: 64,
-    height: 80,
-    borderRadius: 12,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    ...SHADOWS.card,
-  },
-  unavailableDate: {
-    backgroundColor: '#F5F5F5',
-    opacity: 0.6,
-  },
-  selectedDate: {
-    backgroundColor: COLORS.accent,
-  },
-  dayName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text.body,
-    marginBottom: 8,
-    fontFamily: 'Inter-Medium',
-  },
-  dayNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    fontFamily: 'Inter-Bold',
-  },
-  unavailableText: {
-    color: '#9E9E9E',
-  },
-  selectedText: {
-    color: 'white',
-  },
-  timeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    padding: 8,
-  },
-  timeItem: {
-    width: '31%',
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-    ...SHADOWS.card,
-  },
-  unavailableTime: {
-    backgroundColor: '#F5F5F5',
-    opacity: 0.6,
-  },
-  selectedTime: {
-    backgroundColor: COLORS.accent,
-  },
-  timeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text.body,
-    fontFamily: 'Inter-Medium',
-  },
-  summarySection: {
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.card,
-    padding: 20,
-    margin: 20,
-    marginBottom: 100,
-    ...SHADOWS.card,
-  },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.text.heading,
-    marginBottom: 16,
-    fontFamily: 'Inter-Bold',
-  },
-  summaryItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  summaryLabel: {
-    fontSize: 16,
+  notesInput: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 10,
+    backgroundColor: '#F5F8FC',
+    padding: 14,
+    fontSize: 15,
     color: COLORS.text.body,
     fontFamily: 'Inter-Regular',
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.text.heading,
-    fontFamily: 'Inter-Medium',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: COLORS.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    ...SHADOWS.card,
-  },
-  confirmButton: {
-    backgroundColor: COLORS.accent,
-    borderRadius: 12,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: 'rgba(0, 207, 232, 0.5)',
-  },
-  confirmButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-    fontFamily: 'Inter-SemiBold',
+    marginHorizontal: 16,
+    marginBottom: 30,
+    minHeight: 60,
+    maxHeight: 120,
   },
 });

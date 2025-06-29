@@ -9,6 +9,7 @@ import {
   TextInput,
   FlatList,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -30,6 +31,8 @@ import ServiceCard from '@/components/ServiceCard';
 import { useSnackbar } from '@/context/SnackbarContext';
 import { useTabBar } from '@/context/TabBarContext';
 import { useScrollToHide } from '@/hooks/useScrollToHide';
+import { useCartStore } from '@/store/useCartStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -49,6 +52,8 @@ export default function HomeScreen() {
   const { handleScroll } = useTabBar();
   const { scrollProps } = useScrollToHide();
   const [searchQuery, setSearchQuery] = useState('');
+  const { items: cartItems } = useCartStore();
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
     const initData = async () => {
@@ -81,6 +86,14 @@ export default function HomeScreen() {
     initData();
   }, []);
 
+  useEffect(() => {
+    const checkDemoModal = async () => {
+      const seen = await AsyncStorage.getItem('demo_modal_seen');
+      if (!seen) setShowDemoModal(true);
+    };
+    checkDemoModal();
+  }, []);
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       router.push({
@@ -88,6 +101,11 @@ export default function HomeScreen() {
         params: { q: searchQuery.trim() },
       });
     }
+  };
+
+  const handleDemoModalClose = async () => {
+    setShowDemoModal(false);
+    await AsyncStorage.setItem('demo_modal_seen', '1');
   };
 
   const renderCategoryItem = useCallback(
@@ -187,7 +205,7 @@ export default function HomeScreen() {
               <TouchableOpacity onPress={() => router.push('/notifications')}>
                 <Bell size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
-                  <Text style={styles.badgeText}>3</Text>
+                  <Text style={styles.badgeText}>8</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -202,7 +220,12 @@ export default function HomeScreen() {
               <TouchableOpacity onPress={() => router.push('/cart')}>
                 <ShoppingCart size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
-                  <Text style={styles.badgeText}>2</Text>
+                  <Text style={styles.badgeText}>
+                    {cartItems.reduce(
+                      (sum, item) => sum + (item.quantity || 1),
+                      0
+                    )}
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -257,7 +280,11 @@ export default function HomeScreen() {
                 showsHorizontalScrollIndicator={false}
               >
                 {services.map((item) => (
-                  <View key={item.id}>{renderNearbyItem({ item })}</View>
+                  <View key={item.id}>
+                    {renderNearbyItem({
+                      item: { ...item, provider: item.provider ?? '' },
+                    })}
+                  </View>
                 ))}
               </ScrollView>
             ) : (
@@ -323,6 +350,40 @@ export default function HomeScreen() {
           <Text style={{ color: 'white', fontSize: 15 }}>AI Help</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={showDemoModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleDemoModalClose}
+      >
+        <View style={demoModalStyles.overlay}>
+          <View style={demoModalStyles.dialog}>
+            <View style={demoModalStyles.iconCircle}>
+              <Text style={demoModalStyles.iconText}>🧪</Text>
+            </View>
+            <Text style={demoModalStyles.title}>Welcome to Demo Version</Text>
+            <Text style={demoModalStyles.body}>
+              Please note that some features{'\n'}
+              may be limited or not working.{'\n'}
+              This version is for testing{'\n'}
+              purposes only.
+            </Text>
+            <Text style={demoModalStyles.info}>
+              <Text style={{ color: '#00CFE8' }}>
+                More advanced AI features are{'\n'}
+                coming soon, stay tuned!
+              </Text>
+            </Text>
+            <TouchableOpacity
+              style={demoModalStyles.button}
+              onPress={handleDemoModalClose}
+            >
+              <Text style={demoModalStyles.buttonText}>Got it!</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -633,5 +694,74 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     textAlign: 'center',
     marginVertical: 10,
+  },
+});
+
+const demoModalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(30,30,30,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dialog: {
+    width: 320,
+    borderRadius: 32,
+    backgroundColor: 'white',
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.13,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  iconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E6F8FB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  iconText: {
+    fontSize: 32,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    fontFamily: 'Inter-Bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  body: {
+    fontSize: 15,
+    color: COLORS.text.body,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 10,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  info: {
+    fontSize: 15,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 24,
+    textAlign: 'center',
+    color: '#00CFE8',
+    lineHeight: 20,
+  },
+  button: {
+    backgroundColor: '#00CFE8',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: 'bold',
+    fontFamily: 'Inter-SemiBold',
   },
 });

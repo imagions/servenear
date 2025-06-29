@@ -45,25 +45,6 @@ const INITIAL_NOTIFICATIONS = [
     color: '#F44336',
   },
   {
-    id: '3',
-    type: 'booking',
-    title: 'Booking Confirmed',
-    message:
-      'Your AC Service booking has been confirmed for tomorrow at 10:00 AM',
-    time: '2m ago',
-    icon: 'check-circle',
-    color: '#4CAF50', // Green
-  },
-  {
-    id: '4',
-    type: 'offer',
-    title: 'Special Discount',
-    message: 'Get 20% off on all Beauty services this weekend!',
-    time: '1h ago',
-    icon: 'tag',
-    color: '#F44336', // Red
-  },
-  {
     id: '5',
     type: 'chat',
     title: 'New Message',

@@ -314,23 +314,25 @@ export default function ExploreScreen() {
     // Set new timeout for search history
     searchTimeout.current = setTimeout(() => {
       saveToSearchHistory(text);
-    }, 1000); // 2 seconds delay
+    }, 1000);
 
+    // Use filterServices from store to search in database
     if (text.trim()) {
-      const filtered = mockServices.filter(
-        (service) =>
-          service.title.toLowerCase().includes(text.toLowerCase()) ||
-          service.provider_details?.name
-            .toLowerCase()
-            .includes(text.toLowerCase()) ||
-          service.category_details?.name
-            .toLowerCase()
-            .includes(text.toLowerCase())
-      );
+      const filtered = filterServices(text, selectedCategories);
       setFilteredServices(filtered);
-      setIsFocused(false); // Hide search history
+      setIsFocused(false);
     } else {
       setFilteredServices([]);
+    }
+  };
+
+  // Also search on submit
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim()) {
+      const filtered = filterServices(searchQuery, selectedCategories);
+      setFilteredServices(filtered);
+      setIsFocused(false);
+      saveToSearchHistory(searchQuery);
     }
   };
 
@@ -551,6 +553,7 @@ export default function ExploreScreen() {
             value={searchQuery}
             onChangeText={handleSearch}
             onFocus={() => setIsFocused(true)}
+            onSubmitEditing={handleSearchSubmit}
           />
           {searchQuery !== '' && (
             <TouchableOpacity onPress={() => handleClearSearch()}>
