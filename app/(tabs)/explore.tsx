@@ -28,6 +28,7 @@ import FilterModal from '@/components/FilterModal';
 import ServiceCard from '@/components/ServiceCard';
 import { mockServices } from '@/constants/mock';
 import { useScrollToHide } from '@/hooks/useScrollToHide';
+import { supabase } from '@/lib/supabase';
 
 // Dummy Data
 const TRENDING_SEARCHES = [
@@ -47,37 +48,6 @@ const TRENDING_SEARCHES = [
   { icon: 'car-repair', query: 'Car Service', count: '950', color: '#96CEB4' },
 ];
 
-const FEATURED_PROVIDERS = [
-  {
-    id: '1',
-    name: 'John Doe',
-    image: 'https://picsum.photos/200',
-    rating: 4.8,
-    verified: true,
-  },
-  {
-    id: '2',
-    name: 'Sarah Smith',
-    image: 'https://picsum.photos/201',
-    rating: 4.9,
-    verified: true,
-  },
-  {
-    id: '3',
-    name: 'Mike Johnson',
-    image: 'https://picsum.photos/202',
-    rating: 4.7,
-    verified: true,
-  },
-  {
-    id: '4',
-    name: 'Emily Brown',
-    image: 'https://picsum.photos/203',
-    rating: 4.6,
-    verified: false,
-  },
-];
-
 const SPECIAL_OFFERS = [
   {
     id: '1',
@@ -86,6 +56,7 @@ const SPECIAL_OFFERS = [
     validUntil: 'Valid until June 30',
     gradient: ['#FF6B6B', '#EE5D5D'],
     icon: 'ac-unit',
+    key: 'ac',
   },
   {
     id: '2',
@@ -94,6 +65,7 @@ const SPECIAL_OFFERS = [
     validUntil: 'Valid until July 15',
     gradient: ['#4ECDC4', '#45B7D1'],
     icon: 'cleaning-services',
+    key: 'cleaning',
   },
   {
     id: '3',
@@ -102,6 +74,7 @@ const SPECIAL_OFFERS = [
     validUntil: 'Valid until July 20',
     gradient: ['#A18CD1', '#FBC2EB'],
     icon: 'plumbing',
+    key: 'plumbing',
   },
 ];
 
@@ -127,50 +100,56 @@ const MapExploreButton = () => (
 );
 
 // Update RecommendedServices component
-const RecommendedServices = () => (
-  <View style={styles.section}>
-    <View style={styles.sectionHeader}>
-      <MaterialIcons name="recommend" size={24} color={COLORS.accent} />
-      <Text style={styles.sectionTitle}>Recommended for You</Text>
-    </View>
-    <View style={styles.recommendedList}>
-      {mockServices.slice(0, 3).map((service) => (
-        <TouchableOpacity
-          key={service.id}
-          style={styles.recommendedCard}
-          onPress={() => router.push(`/service/${service.id}`)}
-        >
-          <Image
-            source={{ uri: service.image }}
-            style={styles.recommendedImage}
-          />
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)']}
-            style={styles.recommendedGradient}
+const RecommendedServices = () => {
+  // Use the 'services' array from the store as a placeholder for nearby services
+  const { services } = useServiceStore();
+  return (
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <MaterialIcons name="recommend" size={24} color={COLORS.accent} />
+        <Text style={styles.sectionTitle}>Recommended for You</Text>
+      </View>
+      <View style={styles.recommendedList}>
+        {services.slice(0, 3).map((service) => (
+          <TouchableOpacity
+            key={service.id}
+            style={styles.recommendedCard}
+            onPress={() => router.push(`/service/${service.id}`)}
           >
-            <View style={styles.recommendedContent}>
-              <View style={styles.recommendedHeader}>
-                <Text style={styles.recommendedTitle}>{service.title}</Text>
-                <View style={styles.recommendedRating}>
-                  <Star size={12} color="#FFB800" fill="#FFB800" />
-                  <Text style={styles.recommendedRatingText}>
-                    {service.rating}
+            <Image
+              source={{ uri: service.image }}
+              style={styles.recommendedImage}
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              style={styles.recommendedGradient}
+            >
+              <View style={styles.recommendedContent}>
+                <View style={styles.recommendedHeader}>
+                  <Text style={styles.recommendedTitle}>{service.title}</Text>
+                  <View style={styles.recommendedRating}>
+                    <Star size={12} color="#FFB800" fill="#FFB800" />
+                    <Text style={styles.recommendedRatingText}>
+                      {service.rating}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.recommendedFooter}>
+                  <Text style={styles.recommendedProvider}>
+                    {service.provider_details?.name}
+                  </Text>
+                  <Text style={styles.recommendedPrice}>
+                    ₹{service.price}/hr
                   </Text>
                 </View>
               </View>
-              <View style={styles.recommendedFooter}>
-                <Text style={styles.recommendedProvider}>
-                  {service.provider}
-                </Text>
-                <Text style={styles.recommendedPrice}>₹{service.price}/hr</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-      ))}
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const SearchHistory = ({ history, onSelect, onClear }) => (
   <View style={styles.searchHistoryContainer}>
@@ -217,6 +196,7 @@ export default function ExploreScreen() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
   const searchInputRef = useRef<TextInput>(null);
   const { scrollProps } = useScrollToHide();
   const searchTimeout = useRef<NodeJS.Timeout | number | null>(null);
@@ -243,6 +223,36 @@ export default function ExploreScreen() {
     if (!services || services.length === 0) {
       fetchServices();
     }
+  }, []);
+
+  useEffect(() => {
+    // Fetch featured providers from Supabase where is_provider == true
+    const fetchFeaturedProviders = async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, profile_image, rating, verified, bio, skills, address, experience, total_serves')
+        .eq('is_provider', true)
+        .eq('active', true)
+        .limit(10);
+
+      if (!error && data) {
+        setFeaturedProviders(
+          data.map((user) => ({
+            id: user.id,
+            name: user.name,
+            image: user.profile_image,
+            rating: user.rating,
+            verified: user.verified,
+            bio: user.bio,
+            skills: user.skills,
+            address: user.address,
+            experience: user.experience,
+            total_serves: user.total_serves,
+          }))
+        );
+      }
+    };
+    fetchFeaturedProviders();
   }, []);
 
   const saveToSearchHistory = useCallback((text: string) => {
@@ -434,10 +444,10 @@ export default function ExploreScreen() {
         }}
       >
         {data.map((provider, index) => (
-          <TouchableOpacity key={index} style={styles.providerCard}>
+          <TouchableOpacity key={index} style={styles.providerCard} onPress={() => router.push(`/provider/${provider.id}`)}>
             <Image
               source={{ uri: provider.image }}
-              style={styles.providerImage}
+              style={[styles.providerImage]}
             />
             <View style={styles.providerInfo}>
               <View style={styles.providerNameRow}>
@@ -452,8 +462,31 @@ export default function ExploreScreen() {
               </View>
               <View style={styles.providerRating}>
                 <Star size={12} color="#FFB800" fill="#FFB800" />
-                <Text style={styles.providerRatingText}>{provider.rating}</Text>
+                <Text style={styles.providerRatingText}>
+                  {provider.rating ? provider.rating.toFixed(1) : '—'}
+                </Text>
               </View>
+              {/* Show bio, skills, experience, total_serves if available */}
+              {provider.bio ? (
+                <Text style={{ fontSize: 11, color: COLORS.text.body }} numberOfLines={2}>
+                  {provider.bio}
+                </Text>
+              ) : null}
+              {provider.skills && provider.skills.length > 0 ? (
+                <Text style={{ fontSize: 11, color: COLORS.accent }} numberOfLines={1}>
+                  {provider.skills.join(', ')}
+                </Text>
+              ) : null}
+              {typeof provider.experience === 'number' && provider.experience > 0 ? (
+                <Text style={{ fontSize: 11, color: COLORS.text.body }}>
+                  {provider.experience} yrs exp
+                </Text>
+              ) : null}
+              {typeof provider.total_serves === 'number' && provider.total_serves > 0 ? (
+                <Text style={{ fontSize: 11, color: COLORS.text.body }}>
+                  {provider.total_serves} jobs
+                </Text>
+              ) : null}
             </View>
           </TouchableOpacity>
         ))}
@@ -470,7 +503,13 @@ export default function ExploreScreen() {
         contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
       >
         {data.map((offer, index) => (
-          <TouchableOpacity key={index} style={styles.offerCard}>
+          <TouchableOpacity
+            key={index}
+            style={styles.offerCard}
+            onPress={() => {
+              handleSearch(offer.key);
+            }}
+          >
             <LinearGradient
               colors={offer.gradient}
               start={{ x: 0, y: 0 }}
@@ -564,6 +603,7 @@ export default function ExploreScreen() {
             ref={searchInputRef}
             style={styles.searchInput}
             placeholder="Search services nearby..."
+            placeholderTextColor="#9E9E9E"
             value={searchQuery}
             onChangeText={handleSearch}
             onFocus={() => setIsFocused(true)}
@@ -618,10 +658,10 @@ export default function ExploreScreen() {
           <>
             <TrendingSearches data={TRENDING_SEARCHES} />
             <MapExploreButton />
-            <FeaturedProviders data={FEATURED_PROVIDERS} />
+            <FeaturedProviders data={featuredProviders} />
             <SpecialOffers data={SPECIAL_OFFERS} />
             <RecommendedServices />
-            <View style={{ marginTop: 40 }} />
+            <View style={{ marginTop: 60 }} />
           </>
         </ScrollView>
       )}
@@ -955,7 +995,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   providerCard: {
-    width: 120,
+    width: 125,
     marginRight: 16,
     borderRadius: RADIUS.card,
     overflow: 'hidden',
@@ -964,7 +1004,7 @@ const styles = StyleSheet.create({
   },
   providerImage: {
     width: '100%',
-    height: 80,
+    height: 100,
   },
   providerInfo: {
     padding: 8,

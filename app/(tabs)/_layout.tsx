@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tabs } from 'expo-router';
 import {
   Chrome as Home,
@@ -14,6 +14,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Image,
+  Easing,
 } from 'react-native';
 import VoiceRecordModal from '@/components/VoiceRecordModal';
 import { useTabBar } from '@/context/TabBarContext';
@@ -21,10 +23,37 @@ import { supabase } from '@/lib/supabase';
 import * as FileSystem from 'expo-file-system';
 
 function BoltBadge() {
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 6000,
+        useNativeDriver: true,
+        easing: Easing.linear,
+      })
+    ).start();
+  }, [rotateAnim]);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
-    <View style={styles.boltBadgeContainer}>
-      <Text style={styles.boltBadgeText}>Built on Bolt</Text>
-    </View>
+    <Animated.View
+      style={[
+        styles.boltBadgeImageContainer,
+        { transform: [{ rotate: spin }] },
+      ]}
+    >
+      <Image
+        source={require('../../assets/images/bolt-badge.png')}
+        style={styles.boltBadgeImage}
+        resizeMode="contain"
+      />
+    </Animated.View>
   );
 }
 
@@ -180,21 +209,24 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  boltBadgeContainer: {
+  boltBadgeImageContainer: {
     position: 'absolute',
     bottom: 60,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    left: 16,
+    backgroundColor: 'transparent',
     zIndex: 1000,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Add a little shadow for visibility
+    shadowColor: '#000',
+    shadowOpacity: 0.13,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  boltBadgeText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
+  boltBadgeImage: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
   },
   floatingButton: {
     width: 56,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { supabase } from '@/lib/supabase';
 
 // Mock data for the provider
 const PROVIDER_DATA = {
@@ -136,7 +137,266 @@ const PROVIDER_DATA = {
 export default function ProviderProfileScreen() {
   const [selectedTab, setSelectedTab] = useState('about');
   const { id } = useLocalSearchParams();
-  const provider = PROVIDER_DATA; // In real app, fetch based on id
+  const [provider, setProvider] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProvider = async () => {
+      if (!id) return;
+      // Fetch provider from Supabase using your users table structure
+      const { data, error } = await supabase
+        .from('users')
+        .select(
+          `
+            id,
+            name,
+            bio,
+            profile_image,
+            address,
+            location,
+            is_provider,
+            skills,
+            rating,
+            total_serves,
+            certification_id,
+            gov_id,
+            wallet_balance,
+            active,
+            verified,
+            created_at,
+            experience
+          `
+        )
+        .eq('id', id)
+        .single();
+
+      // Fallbacks for missing keys
+      const fallback = {
+        id,
+        name: 'Unknown Provider',
+        bio: '',
+        profile_image:
+          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+        address: 'Unknown',
+        location: null,
+        is_provider: true,
+        skills: [],
+        rating: 4.5,
+        total_serves: 0,
+        certification_id: '',
+        gov_id: '',
+        wallet_balance: 0,
+        active: true,
+        verified: false,
+        created_at: new Date().toISOString(),
+        experience: 1,
+        // UI fields
+        about: 'No about info available.',
+        certifications: [],
+        languages: ['English'],
+        businessHours: { weekdays: '9:00 AM - 5:00 PM', weekends: 'Closed' },
+        serviceArea: 'Not specified',
+        services: [],
+        ratings: {
+          overall: 4.5,
+          categories: {
+            serviceQuality: 4.5,
+            punctuality: 4.5,
+            professionalism: 4.5,
+            valueForMoney: 4.5,
+            safetyAndTrust: 4.5,
+          },
+          total: 0,
+        },
+        reviews: [],
+      };
+
+      let providerData = { ...fallback, ...(data || {}) };
+
+      // Map DB fields to UI fields
+      providerData.image = providerData.profile_image;
+      providerData.completedJobs = providerData.total_serves;
+      providerData.experience = providerData.experience;
+      providerData.location = providerData.address || 'Unknown';
+
+      // About
+      providerData.about = providerData.bio || 'No about info available.';
+
+      // Skills
+      providerData.skills =
+        providerData.skills && providerData.skills.length
+          ? providerData.skills.map((skill: string) => ({
+              name: skill,
+              level: 90,
+            }))
+          : [{ name: 'General Service', level: 80 }];
+
+      // Certifications (mock if missing)
+      if (
+        !providerData.certifications ||
+        providerData.certifications.length === 0
+      ) {
+        providerData.certifications = [
+          {
+            name: 'Professional Certification',
+            issuer: 'Govt. Authority',
+            year: 2022,
+          },
+        ];
+      }
+
+      // Languages (mock if missing)
+      if (!providerData.languages || providerData.languages.length === 0) {
+        providerData.languages = ['English'];
+      }
+
+      // Business hours (mock if missing)
+      if (!providerData.businessHours) {
+        providerData.businessHours = {
+          weekdays: '9:00 AM - 5:00 PM',
+          weekends: 'Closed',
+        };
+      }
+
+      // Service area (mock if missing)
+      if (!providerData.serviceArea) {
+        providerData.serviceArea = 'Within city limits';
+      }
+
+      // Services (mock if missing)
+      if (!providerData.services || providerData.services.length === 0) {
+        providerData.services = [
+          {
+            category: 'General',
+            items: [
+              {
+                name: 'Consultation',
+                price: '50-100',
+                duration: '30-60 min',
+                sustainabilityScore: 4.5,
+              },
+            ],
+          },
+        ];
+      }
+
+      // Ratings (mock if missing)
+      if (!providerData.ratings) {
+        providerData.ratings = {
+          overall: providerData.rating || 4.5,
+          categories: {
+            serviceQuality: providerData.rating || 4.5,
+            punctuality: providerData.rating || 4.5,
+            professionalism: providerData.rating || 4.5,
+            valueForMoney: providerData.rating || 4.5,
+            safetyAndTrust: providerData.rating || 4.5,
+          },
+          total: providerData.total_serves || 0,
+        };
+      }
+
+      // Reviews (mock if missing)
+      if (!providerData.reviews || providerData.reviews.length === 0) {
+        providerData.reviews = [
+          {
+            id: '1',
+            user: {
+              id: 'demo-user',
+              name: 'Emma Johnson',
+              image:
+                'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+              verified: true,
+            },
+            rating: 5,
+            date: 'May 15, 2024',
+            service: 'Consultation',
+            comment:
+              'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
+            photos: [
+              'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+              'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+            ],
+            helpful: 12,
+            notHelpful: 1,
+          },
+        ];
+      } else {
+        providerData.reviews = providerData.reviews.map((review, idx) => ({
+          id: review.id || String(idx + 1),
+          user: review.user || {
+            id: 'demo-user',
+            name: 'Emma Johnson',
+            image:
+              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+            verified: true,
+          },
+          rating: review.rating ?? 5,
+          date: review.date || 'May 15, 2024',
+          service: review.service || 'Consultation',
+          comment:
+            review.comment ||
+            'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
+          photos:
+            review.photos && review.photos.length > 0
+              ? review.photos
+              : [
+                  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+                  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+                ],
+          helpful: review.helpful ?? 12,
+          notHelpful: review.notHelpful ?? 1,
+        }));
+      }
+
+      // Fetch services for this provider
+      let providerServices: any[] = [];
+      try {
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('services')
+          .select('*')
+          .eq('provider', id)
+          .eq('active', true)
+          .limit(40);
+
+        if (!servicesError && servicesData && servicesData.length > 0) {
+          // Group services by category for UI
+          const grouped = {};
+          servicesData.forEach((svc) => {
+            const cat = svc.category || 'General';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push({
+              name: svc.title,
+              price: svc.hourly_price || svc.once_price || 'N/A',
+              duration: svc.duration ? `${svc.duration} hours` : '5 hours',
+              sustainabilityScore: 4.5, // mock/fallback
+            });
+          });
+          providerServices = Object.entries(grouped).map(
+            ([category, items]) => ({
+              category,
+              items,
+            })
+          );
+        }
+      } catch (e) {
+        // fallback to mock if error
+      }
+
+      if (providerServices.length > 0) {
+        providerData.services = providerServices;
+      }
+
+      setProvider(providerData);
+    };
+    fetchProvider();
+  }, [id]);
+
+  if (!provider) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading provider...</Text>
+      </View>
+    );
+  }
 
   const renderSkillBar = ({ item }) => (
     <View style={styles.skillItem}>
@@ -154,7 +414,7 @@ export default function ProviderProfileScreen() {
     <View style={styles.serviceCard}>
       <View style={styles.serviceHeader}>
         <Text style={styles.serviceName}>{item.name}</Text>
-        <Text style={styles.servicePrice}>${item.price}</Text>
+        <Text style={styles.servicePrice}>₹{item.price}</Text>
       </View>
 
       <View style={styles.serviceDetails}>
@@ -290,7 +550,10 @@ export default function ProviderProfileScreen() {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.primaryButton]}
-            onPress={() => router.push(`/chat/${provider.id}` as any)}
+            onPress={() => router.push({
+              pathname: `/chat/${provider.id}` as any,
+              params: { name: provider.name, providerImage: provider.image}
+            })}
           >
             <MessageCircle size={20} color="white" />
             <Text style={styles.primaryButtonText}>Message</Text>
@@ -298,7 +561,10 @@ export default function ProviderProfileScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => router.push(`/call/${provider.id}` as any)}
+            onPress={() => router.push({
+              pathname: `/call/${provider.id}` as any,
+              params: { name: provider.name }
+            })}
           >
             <Phone size={20} color={COLORS.accent} />
             <Text style={styles.secondaryButtonText}>Call Now</Text>

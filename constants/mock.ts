@@ -309,6 +309,83 @@ export const mockBookings: BookingItem[] = [
     time: '3:00 PM',
     price: 95,
     status: 'completed'
+  },
+  {
+    id: 'booking-4',
+    serviceId: 'service-4',
+    serviceTitle: 'Carpet Cleaning',
+    serviceImage: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
+    providerName: 'Sophie Turner',
+    date: 'June 2, 2024',
+    time: '11:00 AM',
+    price: 60,
+    status: 'cancelled'
+  },
+  {
+    id: 'booking-5',
+    serviceId: 'service-5',
+    serviceTitle: 'Gardening',
+    serviceImage: 'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
+    providerName: 'Mike Green',
+    date: 'June 5, 2024',
+    time: '9:00 AM',
+    price: 90,
+    status: 'rejected'
+  },
+  {
+    id: 'booking-6',
+    serviceId: 'service-6',
+    serviceTitle: 'Electrician Visit',
+    serviceImage: 'https://images.pexels.com/photos/1435183/pexels-photo-1435183.jpeg',
+    providerName: 'Priya Patel',
+    date: 'June 10, 2024',
+    time: '1:00 PM',
+    price: 110,
+    status: 'pending'
+  },
+  {
+    id: 'booking-7',
+    serviceId: 'service-7',
+    serviceTitle: 'Tech Support',
+    serviceImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+    providerName: 'Alex Kim',
+    date: 'June 12, 2024',
+    time: '3:00 PM',
+    price: 150,
+    status: 'upcoming'
+  },
+  {
+    id: 'booking-8',
+    serviceId: 'service-8',
+    serviceTitle: 'Tutoring - Math',
+    serviceImage: 'https://images.pexels.com/photos/4145197/pexels-photo-4145197.jpeg',
+    providerName: 'Linda Lee',
+    date: 'June 15, 2024',
+    time: '5:00 PM',
+    price: 70,
+    status: 'completed'
+  },
+  {
+    id: 'booking-9',
+    serviceId: 'service-9',
+    serviceTitle: 'Beauty - Haircut',
+    serviceImage: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg',
+    providerName: 'Emily Clark',
+    date: 'June 18, 2024',
+    time: '2:00 PM',
+    price: 50,
+    status: 'cancelled'
+  },
+  {
+    id: 'booking-10',
+    serviceId: 'service-10',
+    serviceTitle: 'Moving Help',
+    serviceImage: 'https://images.pexels.com/photos/7464437/pexels-photo-7464437.jpeg',
+    providerName: 'David Miller',
+    date: 'June 20, 2024',
+    time: '8:00 AM',
+    price: 200,
+    status: 'pending'
   }
 ];
 

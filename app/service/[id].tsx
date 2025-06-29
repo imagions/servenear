@@ -42,6 +42,9 @@ export default function ServiceDetailsScreen() {
   const service = getServiceById(id as string);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  console.log('serviceserviceid', id);
+  console.log('serviceservice', service);
+
   if (!service) {
     return (
       <View style={styles.errorContainer}>
@@ -78,7 +81,7 @@ export default function ServiceDetailsScreen() {
   };
 
   const handleProviderPress = () => {
-    router.push(`/provider/${service.provider || service.id}`);
+    router.push(`/provider/${service.provider_details?.id || service.id}`);
   };
 
   const handleUserPress = (userId: string) => {
@@ -249,7 +252,7 @@ export default function ServiceDetailsScreen() {
                     Fixed rate for single service
                   </Text>
                 </View>
-                <Text style={styles.pricingValue}>${fixedPrice}</Text>
+                <Text style={styles.pricingValue}>₹{fixedPrice}</Text>
               </View>
 
               <View style={[styles.pricingRow, styles.pricingDivider]}>
@@ -304,11 +307,12 @@ export default function ServiceDetailsScreen() {
             </ScrollView>
 
             {/* Recent Reviews */}
-            {reviews
-              ?.slice(0, 2)
-              .map((review) =>
-                renderReviewItem({ item: review, service: service })
-              )}
+
+            {reviews?.slice(0, 2).map((review) => (
+              <View key={review.id}>
+                {renderReviewItem({ item: review, service: service })}
+              </View>
+            ))}
           </View>
         </View>
       </ScrollView>

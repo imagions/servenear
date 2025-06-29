@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-    addCertificateButton: {
+  addCertificateButton: {
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',

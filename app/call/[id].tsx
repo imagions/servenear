@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { COLORS } from '@/constants/theme';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Volume2, MicOff, PhoneOff, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
@@ -24,6 +24,9 @@ export default function CallScreen() {
   const rippleAnim3 = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0.4)).current;
 
+  const params = useLocalSearchParams();
+  const providerName = params.name || 'Unknown Provider';
+
   useEffect(() => {
     // Start ripple animations - don't stop them here
     const startRippleAnimation = (anim: Animated.Value, delay: number) => {
@@ -35,7 +38,8 @@ export default function CallScreen() {
             duration: 2000,
             useNativeDriver: true,
           }),
-          Animated.timing(anim, { // Add reset animation
+          Animated.timing(anim, {
+            // Add reset animation
             toValue: 0,
             duration: 0,
             useNativeDriver: true,
@@ -175,13 +179,20 @@ export default function CallScreen() {
 
             {/* Avatar */}
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>JS</Text>
+              <Text style={styles.avatarText}>
+                {providerName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </Text>
             </View>
           </View>
 
           {/* Call Info */}
           <View style={styles.callInfo}>
-            <Text style={styles.name}>John Smith</Text>
+            <Text style={styles.name}>{providerName}</Text>
             <Animated.Text
               style={[
                 styles.status,

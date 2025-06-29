@@ -405,7 +405,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   },
 
   getServiceById: (id) => {
-    return get().services.find(service => service.id === id);
+    return get().nearbyServices.find(service => service.id === id);
   },
 
   getCategoryById: (id) => {

@@ -1,5 +1,5 @@
 import 'react-native-reanimated';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -7,13 +7,81 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, Animated, Image, Text } from 'react-native';
 import { SnackbarProvider } from '@/context/SnackbarContext';
 import { TabBarProvider } from '@/context/TabBarContext';
 import Head from 'expo-router/head';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
+
+function AnimatedSplashScreen({ onFinish }: { onFinish: () => void }) {
+  const [fadeAnim] = useState(new Animated.Value(1));
+  const [logoScale] = useState(new Animated.Value(1));
+  const [textTranslateY] = useState(new Animated.Value(60));
+  const [textOpacity] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    SplashScreen.preventAutoHideAsync();
+
+    // Start logo zoom and text slide-in after short delay
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(logoScale, {
+          toValue: 1.18,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textTranslateY, {
+          toValue: 0,
+          duration: 700,
+          delay: 350,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textOpacity, {
+          toValue: 1,
+          duration: 700,
+          delay: 350,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 700,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      SplashScreen.hideAsync();
+      onFinish();
+    });
+  }, []);
+
+  return (
+    <Animated.View style={[styles.splashContainer, { opacity: fadeAnim }]}>
+      <View style={styles.splashInner}>
+        <Animated.Image
+          source={require('../assets/images/icon.png')}
+          style={[
+            styles.splashLogo,
+            { transform: [{ scale: logoScale }] },
+          ]}
+          resizeMode="contain"
+        />
+        <Animated.View
+          style={{
+            opacity: textOpacity,
+            transform: [{ translateY: textTranslateY }],
+            alignItems: 'center',
+          }}
+        >
+          <Text style={styles.splashTitle}>ServeNear</Text>
+          <Text style={styles.splashSubtitle}>Find trusted services nearby</Text>
+        </Animated.View>
+      </View>
+    </Animated.View>
+  );
+}
 
 export default function RootLayout() {
   const { isAuthenticated, loadAuthState } = useAuthStore();
@@ -26,6 +94,9 @@ export default function RootLayout() {
     'Inter-SemiBold': require('@expo-google-fonts/inter/Inter_600SemiBold.ttf'),
     'Inter-Bold': require('@expo-google-fonts/inter/Inter_700Bold.ttf'),
   });
+
+  // Move splashDone state and splash logic above any early returns
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     // Load authentication state
@@ -42,6 +113,11 @@ export default function RootLayout() {
   // Return null to keep splash screen visible while loading
   if (!fontsLoaded && !fontError) {
     return null;
+  }
+
+  // Splash animation must come after fonts are loaded
+  if (!splashDone) {
+    return <AnimatedSplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
   return (
@@ -89,5 +165,43 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  splashContainer: {
+    flex: 1,
+    backgroundColor: '#008BB9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  splashInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  splashLogo: {
+    width: 120,
+    height: 120,
+    marginBottom: 24,
+    borderRadius: 32,
+    backgroundColor: 'white',
+    padding: 12,
+  },
+  splashTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    fontFamily: 'Inter-Bold',
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  splashSubtitle: {
+    fontSize: 16,
+    color: 'white',
+    fontFamily: 'Inter-Regular',
+    opacity: 0.85,
+    marginTop: 4,
+    letterSpacing: 0.5,
   },
 });

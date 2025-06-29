@@ -46,6 +46,7 @@ export default function ServiceCard({
   scrollToCard = false,
   userLocation,
 }: ServiceCardProps) {
+  
   const handleViewLocation = () => {
     router.push({
       pathname: '/map',

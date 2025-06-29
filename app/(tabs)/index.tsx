@@ -54,7 +54,10 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const { items: cartItems } = useCartStore();
   const [showDemoModal, setShowDemoModal] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     const initData = async () => {
@@ -64,6 +67,10 @@ export default function HomeScreen() {
 
         await fetchCategories();
         await fetchTrendingServices();
+        await fetchNearbyServices({
+          latitude: 37.7749,
+          longitude: -122.4194,
+        });
 
         // Request location permissions and fetch nearby services
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -73,22 +80,14 @@ export default function HomeScreen() {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           });
-          await fetchNearbyServices({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
         } else {
           setUserLocation({
             latitude: 37.7749,
             longitude: -122.4194,
           });
-          await fetchNearbyServices({
-            latitude: 37.7749,
-            longitude: -122.4194,
-          });
         }
       } catch (error) {
-        console.error('Error initializing data:', error);
+        console.warn('Error initializing data:', error);
       }
     };
 
@@ -169,7 +168,9 @@ export default function HomeScreen() {
         onPress={() => router.push(`/service/${item.id}`)}
       >
         <Image
-          source={{ uri: item.image || 'https://placehold.co/150x200?text=No+Image' }}
+          source={{
+            uri: item.image || 'https://placehold.co/150x200?text=No+Image',
+          }}
           style={styles.nearbyImage}
         />
         <View style={styles.nearbyOverlay}>
@@ -195,7 +196,10 @@ export default function HomeScreen() {
 
   // Replace trending items section with ServiceCard
   const renderTrendingItem = ({ item }: { item: ServiceItem }) => (
-    <ServiceCard service={item} icon={item.subcategory_details?.icon || 'trending-up'} />
+    <ServiceCard
+      service={item}
+      icon={item.subcategory_details?.icon || 'trending-up'}
+    />
   );
 
   // Add console.log to debug categories data
@@ -305,7 +309,7 @@ export default function HomeScreen() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
               >
-                {nearbyServices.map((item) => (
+                {nearbyServices.slice(0, 8).map((item) => (
                   <View key={item.id}>
                     {renderNearbyItem({
                       item: { ...item },
@@ -331,7 +335,7 @@ export default function HomeScreen() {
               <ActivityIndicator color={COLORS.accent} />
             ) : trendingServices?.length > 0 ? (
               <View style={{ flexDirection: 'column' }}>
-                {trendingServices.map((item) => (
+                {trendingServices.slice(0, 8).map((item) => (
                   <View key={item.id}>{renderTrendingItem({ item })}</View>
                 ))}
               </View>
@@ -694,7 +698,7 @@ const styles = StyleSheet.create({
   voiceHelpButton: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 40,
+    bottom: 60,
     right: 20,
     borderRadius: 30,
     backgroundColor: COLORS.accent,

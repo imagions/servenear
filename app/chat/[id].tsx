@@ -42,6 +42,10 @@ const MOCK_MESSAGES = [
 
 export default function ChatScreen() {
   const params = useLocalSearchParams();
+  const providerName = params.name || 'Unknown Provider';
+  const providerImage =
+    params.providerImage ||
+    'https://picsum.photos/200';
   const [messages, setMessages] = useState(MOCK_MESSAGES);
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -137,11 +141,11 @@ export default function ChatScreen() {
 
         <View style={styles.headerTitle}>
           <Image
-            source={{ uri: 'https://picsum.photos/200' }}
+            source={{ uri: providerImage }}
             style={styles.providerImage}
           />
           <View>
-            <Text style={styles.providerName}>John Smith</Text>
+            <Text style={styles.providerName}>{providerName}</Text>
             <Text style={styles.onlineStatus}>Online</Text>
           </View>
         </View>

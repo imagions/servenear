@@ -704,6 +704,7 @@ export default function MapScreen() {
             <TextInput
               style={styles.searchInput}
               placeholder="Search services nearby..."
+              placeholderTextColor="#9E9E9E"
               value={searchText}
               onChangeText={handleSearch}
             />
