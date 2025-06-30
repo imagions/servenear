@@ -190,6 +190,15 @@ const ServiceMarker = memo(({ service, isSelected, onPress }: any) => {
 });
 
 export default function MapScreen() {
+  // Prevent rendering on web (native-only modules)
+  if (typeof window !== 'undefined' && window.document) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Map is not supported on web.</Text>
+      </View>
+    );
+  }
+
   const params = useLocalSearchParams();
   const { services, fetchServices } = useServiceStore();
   const [region, setRegion] = useState({
