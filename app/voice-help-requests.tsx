@@ -26,12 +26,13 @@ import {
 import VoiceRecordModal from '@/components/VoiceRecordModal';
 import { supabase } from '@/lib/supabase';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useSnackbar } from '@/context/SnackbarContext';
 
 const MOCK_REQUESTS = [
   {
     id: '1',
     userImage:
-      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400&auto=compress&cs=tinysrgb',
     userName: 'John Smith',
     isVerified: true,
     timeAgo: '2h ago',
@@ -45,7 +46,7 @@ const MOCK_REQUESTS = [
   {
     id: '2',
     userImage:
-      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
     userName: 'Emma Wilson',
     isVerified: true,
     timeAgo: '4h ago',
@@ -58,7 +59,7 @@ const MOCK_REQUESTS = [
   {
     id: '3',
     userImage:
-      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?w=400&auto=compress&cs=tinysrgb',
     userName: 'Michael Chen',
     isVerified: false,
     timeAgo: '6h ago',
@@ -71,7 +72,7 @@ const MOCK_REQUESTS = [
   {
     id: '4',
     userImage:
-      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=400&auto=compress&cs=tinysrgb',
     userName: 'Sarah Johnson',
     isVerified: true,
     timeAgo: '8h ago',
@@ -95,6 +96,8 @@ export default function VoiceHelpRequestsScreen() {
   const audioPlayer = useAudioPlayer();
   const status = useAudioPlayerStatus(audioPlayer);
 
+  const { showSnackbar } = useSnackbar();
+
   // Reset playingId when audio finishes
   useEffect(() => {
     if (status?.didJustFinish) {
@@ -105,7 +108,6 @@ export default function VoiceHelpRequestsScreen() {
   // Create a single audio player instance
 
   const playAudio = async (audio_url, id) => {
-    console.log('Playing audio:', audio_url);
 
     await audioPlayer.replace(audio_url);
     await audioPlayer.play();
@@ -164,7 +166,6 @@ export default function VoiceHelpRequestsScreen() {
   };
 
   const handleVoiceSubmit = async (audioUri) => {
-    console.log('audioUri', audioUri);
 
     const file_name = Date.now() + '.m4a';
     const fileType = 'audio/m4a';
@@ -211,8 +212,14 @@ export default function VoiceHelpRequestsScreen() {
       });
 
       fetchRequests();
+      
+      showSnackbar({
+        message: 'Will notify providers nearby shortly',
+        icon: 'check-circle',
+        iconColor: '#4CAF50',
+        duration: 2000,
+      });
 
-      console.log('Function response:', resp);
     } catch (err) {
       console.error('Unexpected error:', err);
     }
@@ -273,12 +280,11 @@ export default function VoiceHelpRequestsScreen() {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Clock size={13} color="#9E9E9E" />
-            <Text style={styles.timeAgo}>
-              {timeAgo(item.created_at)}
-            </Text>
+            <Text style={styles.timeAgo}>{timeAgo(item.created_at)}</Text>
           </View>
         </View>
-        <TouchableOpacity activeOpacity={0.7}
+        <TouchableOpacity
+          activeOpacity={0.7}
           style={styles.playButton}
           onPress={() => {
             setPlayingId(playingId === item.id ? null : item.id);
@@ -297,13 +303,14 @@ export default function VoiceHelpRequestsScreen() {
 
       <View style={styles.locationRow}>
         <MapPin size={15} color="#9E9E9E" />
-        <Text style={styles.locationText}>Unknown distance • Patna, Bihar</Text>
+        <Text style={styles.locationText}>Nearby • Patna, Bihar</Text>
         <TouchableOpacity activeOpacity={0.7} style={styles.editBtn}>
           <Edit2 size={16} color={COLORS.accent} />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={[
           styles.statusBtn,
           {
@@ -324,7 +331,8 @@ export default function VoiceHelpRequestsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <TouchableOpacity activeOpacity={0.7}
+        <TouchableOpacity
+          activeOpacity={0.7}
           onPress={() => router.back()}
           style={styles.headerBackBtn}
         >
@@ -352,7 +360,8 @@ export default function VoiceHelpRequestsScreen() {
         onRefresh={refreshRequests}
       />
 
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.fab}
         onPress={() => setShowRecordModal(true)}
       >
@@ -496,7 +505,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9E9E9E',
     fontFamily: 'Inter-Regular',
-    marginLeft: 4,
+    marginLeft: 0,
     flex: 1,
   },
   editBtn: {

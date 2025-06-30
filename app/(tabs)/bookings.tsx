@@ -21,12 +21,20 @@ export default function BookingsScreen() {
   const [localBookings, setLocalBookings] = useState(bookings);
   const { isProviderMode } = useAuthStore();
   const [activeTab, setActiveTab] = useState('upcoming');
+  // Add a new accepted tab for provider mode
   const { scrollProps } = useScrollToHide();
 
   // Accept booking handler (for providers)
   const handleAccept = (bookingId: string) => {
     setLocalBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: 'upcoming' } : b))
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'accepted' } : b))
+    );
+  };
+
+  // Complete booking handler (for providers)
+  const handleComplete = (bookingId: string) => {
+    setLocalBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'completed' } : b))
     );
   };
 
@@ -42,6 +50,8 @@ export default function BookingsScreen() {
     if (isProviderMode) {
       if (activeTab === 'upcoming') {
         return booking.status === 'pending';
+      } else if (activeTab === 'accepted') {
+        return booking.status === 'accepted';
       } else if (activeTab === 'completed') {
         return booking.status === 'completed';
       } else if (activeTab === 'rejected') {
@@ -68,7 +78,7 @@ export default function BookingsScreen() {
           serviceId: 's1',
           serviceTitle: 'Plumbing Repair',
           serviceImage:
-            'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'John Smith',
           date: '2025-07-20',
           time: '10:00 AM',
@@ -80,7 +90,7 @@ export default function BookingsScreen() {
           serviceId: 's2',
           serviceTitle: 'House Cleaning',
           serviceImage:
-            'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'Maria Garcia',
           date: '2025-07-22',
           time: '2:00 PM',
@@ -92,7 +102,7 @@ export default function BookingsScreen() {
           serviceId: 's3',
           serviceTitle: 'AC Maintenance',
           serviceImage:
-            'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'Alex Lee',
           date: '2025-07-18',
           time: '4:00 PM',
@@ -104,7 +114,7 @@ export default function BookingsScreen() {
           serviceId: 's4',
           serviceTitle: 'Carpet Cleaning',
           serviceImage:
-            'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'Sophie Turner',
           date: '2025-07-15',
           time: '11:00 AM',
@@ -116,7 +126,7 @@ export default function BookingsScreen() {
           serviceId: 's5',
           serviceTitle: 'Gardening',
           serviceImage:
-            'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'Mike Green',
           date: '2025-07-10',
           time: '9:00 AM',
@@ -128,7 +138,7 @@ export default function BookingsScreen() {
           serviceId: 's6',
           serviceTitle: 'Electrician Visit',
           serviceImage:
-            'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg?w=300&auto=compress&cs=tinysrgb',
+            'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg?w=400&auto=compress&cs=tinysrgb',
           providerName: 'Priya Patel',
           date: '2025-07-25',
           time: '1:00 PM',
@@ -141,13 +151,15 @@ export default function BookingsScreen() {
 
   const renderBookingItem = ({ item }: { item: BookingItem }) => {
     const isPending = item.status === 'pending';
+    const isAccepted = item.status === 'accepted';
     const isUpcoming = item.status === 'upcoming';
     const isCompleted = item.status === 'completed';
     const isCancelled = item.status === 'cancelled';
     const isRejected = item.status === 'rejected';
 
     return (
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.bookingItem}
         disabled={isProviderMode && isPending}
       >
@@ -205,7 +217,8 @@ export default function BookingsScreen() {
         {/* Provider mode: show Accept/Reject for pending requests */}
         {isProviderMode && isPending && (
           <View style={styles.actionRowBottom}>
-            <TouchableOpacity activeOpacity={0.7}
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={[styles.actionButtonOutlined, styles.acceptButtonOutlined]}
               onPress={() => handleAccept(item.id)}
             >
@@ -219,7 +232,8 @@ export default function BookingsScreen() {
                 Accept
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.7}
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={[styles.actionButtonOutlined, styles.rejectButtonOutlined]}
               onPress={() => handleReject(item.id)}
             >
@@ -227,7 +241,48 @@ export default function BookingsScreen() {
               <Text
                 style={[styles.actionButtonTextOutlined, { color: '#F44336' }]}
               >
-                Reject
+                Decline
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Provider mode: show Call/Complete for accepted requests */}
+        {isProviderMode && isAccepted && (
+          <View style={styles.actionRowBottom}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[styles.actionButtonOutlined, styles.acceptButtonOutlined]}
+              onPress={() =>
+                router.push({
+                  pathname: `/call/${'demo'}` as any,
+                  params: {
+                    name: item.providerName,
+                    providerImage: '',
+                  },
+                })
+              }
+            >
+              <Check size={18} color={COLORS.accent} />
+              <Text
+                style={[
+                  styles.actionButtonTextOutlined,
+                  { color: COLORS.accent },
+                ]}
+              >
+                Call
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[styles.actionButtonOutlined, styles.rejectButtonOutlined]}
+              onPress={() => handleComplete(item.id)}
+            >
+              <Check size={18} color="#4CAF50" />
+              <Text
+                style={[styles.actionButtonTextOutlined, { color: '#4CAF50' }]}
+              >
+                Complete
               </Text>
             </TouchableOpacity>
           </View>
@@ -243,70 +298,108 @@ export default function BookingsScreen() {
           {isProviderMode ? 'Help Requests' : 'My Bookings'}
         </Text>
       </View>
-
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity activeOpacity={0.7}
-          style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
-          onPress={() => setActiveTab('upcoming')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'upcoming' && styles.activeTabText,
-            ]}
-          >
-            {isProviderMode ? 'New Requests' : 'Upcoming'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity activeOpacity={0.7}
-          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-          onPress={() => setActiveTab('completed')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'completed' && styles.activeTabText,
-            ]}
-          >
-            {isProviderMode ? 'Completed Jobs' : 'Completed'}
-          </Text>
-        </TouchableOpacity>
-
-        {isProviderMode ? (
-          <TouchableOpacity activeOpacity={0.7}
-            style={[styles.tab, activeTab === 'rejected' && styles.activeTab]}
-            onPress={() => setActiveTab('rejected')}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'rejected' && styles.activeTabText,
-              ]}
+      <View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+              onPress={() => setActiveTab('upcoming')}
             >
-              Rejected
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity activeOpacity={0.7}
-            style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]}
-            onPress={() => setActiveTab('cancelled')}
-          >
-            <Text
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'upcoming' && styles.activeTabText,
+                ]}
+              >
+                {isProviderMode ? 'New Requests' : 'Upcoming'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Provider mode: Accepted tab */}
+            {isProviderMode && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.tab,
+                  activeTab === 'accepted' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('accepted')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'accepted' && styles.activeTabText,
+                  ]}
+                >
+                  Accepted
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={[
-                styles.tabText,
-                activeTab === 'cancelled' && styles.activeTabText,
+                styles.tab,
+                activeTab === 'completed' && styles.activeTab,
               ]}
+              onPress={() => setActiveTab('completed')}
             >
-              Cancelled
-            </Text>
-          </TouchableOpacity>
-        )}
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'completed' && styles.activeTabText,
+                ]}
+              >
+                {isProviderMode ? 'Completed Jobs' : 'Completed'}
+              </Text>
+            </TouchableOpacity>
+
+            {isProviderMode ? (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.tab,
+                  activeTab === 'rejected' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('rejected')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'rejected' && styles.activeTabText,
+                  ]}
+                >
+                  Rejected
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.tab,
+                  activeTab === 'cancelled' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('cancelled')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'cancelled' && styles.activeTabText,
+                  ]}
+                >
+                  Cancelled
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
       </View>
 
       <FlatList
         {...scrollProps}
         data={filteredBookings}
+        style={{ flex: 1 }}
         renderItem={renderBookingItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.bookingsList}
@@ -320,6 +413,8 @@ export default function BookingsScreen() {
               {isProviderMode
                 ? activeTab === 'upcoming'
                   ? 'No new help requests'
+                  : activeTab === 'accepted'
+                  ? 'No accepted requests'
                   : activeTab === 'completed'
                   ? 'No completed jobs yet'
                   : 'No rejected requests'
@@ -333,6 +428,8 @@ export default function BookingsScreen() {
               {isProviderMode
                 ? activeTab === 'upcoming'
                   ? 'You have no new help requests at the moment'
+                  : activeTab === 'accepted'
+                  ? 'You have not accepted any requests yet'
                   : activeTab === 'completed'
                   ? 'You have not completed any jobs yet'
                   : 'You have not rejected any requests'
@@ -343,7 +440,8 @@ export default function BookingsScreen() {
                 : 'Cancelled bookings will appear here.'}
             </Text>
             {!isProviderMode && activeTab === 'upcoming' && (
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 style={styles.exploreButton}
                 onPress={() => router.push('/explore')}
               >
@@ -359,7 +457,7 @@ export default function BookingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    height: '100%',
     backgroundColor: COLORS.background,
   },
   header: {

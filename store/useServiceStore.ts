@@ -128,7 +128,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   fetchCategories: async () => {
     try {
       set({ loading: true, error: null });
-      console.log('Fetching categories from Supabase...');
 
       // Fetch categories
       const { data: categoriesData, error: categoriesError } = await supabase
@@ -152,8 +151,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         throw subcategoriesError;
       }
 
-      console.log('Categories fetched:', categoriesData);
-      console.log('Subcategories fetched:', subcategoriesData);
 
       // Transform and group data
       const transformedSubcategories = (subcategoriesData || []).map(transformDatabaseSubcategory);
@@ -166,7 +163,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
       // If no data, use mock data as fallback
       if (!categoriesData || categoriesData.length === 0) {
-        console.log('No categories found, using mock data');
         set({
           categories: mockCategories,
           subcategories: mockSubcategories,
@@ -195,7 +191,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   fetchTrendingServices: async () => {
     try {
       set({ loading: true, error: null });
-      console.log('Fetching trending services...');
 
       const { data, error } = await supabase
         .from('services')
@@ -230,7 +225,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         throw error;
       }
 
-      console.log('Trending services fetched:', data);
 
       const transformedServices = data.map(transformDatabaseService);
 
@@ -244,7 +238,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   fetchServices: async () => {
     try {
       set({ loading: true, error: null });
-      console.log('Fetching services...');
 
       const { data, error } = await supabase
         .from('services')
@@ -278,7 +271,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         throw error;
       }
 
-      console.log('Services fetched:', data);
 
       const transformedServices = data.map(transformDatabaseService);
       set({ services: transformedServices, loading: false, error: null });
@@ -289,7 +281,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
   },
 
   fetchNearbyServices: async ({ latitude, longitude }) => {
-    console.log('Fetching nearby services for:', latitude, longitude);
 
     try {
       set({ loading: true, error: null });
@@ -321,7 +312,6 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
         .eq('active', true)
         .limit(40);
 
-      console.log('Supabase nearby services raw data:', data);
 
       if (error) throw error;
 

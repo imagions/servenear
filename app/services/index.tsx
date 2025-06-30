@@ -14,18 +14,15 @@ import { useServiceStore } from '@/store/useServiceStore';
 import ServiceCard from '@/components/ServiceCard';
 import * as Location from 'expo-location';
 import { useSnackbar } from '@/context/SnackbarContext';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function ServicesScreen() {
   const { type = 'nearby' } = useLocalSearchParams();
   const { showSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { 
-    services,
-    nearbyServices, 
-    trendingServices,
-    fetchNearbyServices
-  } = useServiceStore();
+
+  const { services, nearbyServices, trendingServices, fetchNearbyServices } =
+    useServiceStore();
 
   const title = type === 'trending' ? 'Trending Now' : 'Services Near You';
   const data = type === 'trending' ? trendingServices : nearbyServices;
@@ -34,7 +31,7 @@ export default function ServicesScreen() {
     setIsLoading(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status === 'granted') {
         showSnackbar({
           message: 'Getting your accurate location...',
@@ -78,19 +75,23 @@ export default function ServicesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity activeOpacity={0.7} 
+        <TouchableOpacity
+          activeOpacity={0.7}
           style={styles.backButton}
-          onPress={() => router.back()}>
+          onPress={() => router.back()}
+        >
           <ArrowLeft size={24} color={COLORS.text.heading} />
         </TouchableOpacity>
-        
+
         <Text style={styles.headerTitle}>{title}</Text>
-        
+
         {type === 'nearby' && (
-          <TouchableOpacity activeOpacity={0.7} 
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={styles.locationButton}
             onPress={getCurrentLocation}
-            disabled={isLoading}>
+            disabled={isLoading}
+          >
             {isLoading ? (
               <ActivityIndicator size="small" color={COLORS.accent} />
             ) : (
@@ -105,7 +106,7 @@ export default function ServicesScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
-            <ServiceCard 
+            <ServiceCard
               service={item as any}
               icon={item.image || 'location-on'}
               mode="normal"
@@ -152,11 +153,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 80,
   },
   listContent: {
     padding: 20,
   },
   cardContainer: {
     marginBottom: 16,
-  }
+  },
 });

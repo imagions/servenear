@@ -94,11 +94,13 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
         timer.current = null;
       }
       cancelAnimation(progress);
-      // Do NOT reset progress.value here, so the progress bar stays at the last position
-      await recorder.stop();
-      setHasRecording(true);
+      // Only stop if actually recording
+      if (recorder.isRecording) {
+        await recorder.stop();
+        setHasRecording(true);
+      }
     } catch (err) {
-      console.error('Failed to stop recording', err);
+      console.warn('Failed to stop recording', err);
     }
     setIsRecording(false);
   };
@@ -149,12 +151,12 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       onRequestClose={onClose}
     >
       <TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={1}
         onPress={onClose}
         style={styles.modalContainer}
       >
         <TouchableOpacity
-          activeOpacity={0.7}
+          activeOpacity={1}
           onPress={(e) => e.stopPropagation()}
           style={styles.modalContent}
         >

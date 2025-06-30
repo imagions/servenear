@@ -32,7 +32,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=300&auto=compress&cs=tinysrgb' }} 
+          source={{ uri: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=400&auto=compress&cs=tinysrgb' }} 
           style={styles.headerImage}
         />
         <View style={styles.logoContainer}>

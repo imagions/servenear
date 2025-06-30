@@ -153,9 +153,10 @@ export default function ScheduleScreen() {
     }
   };
 
+  // Only weekdays (Mon-Fri) are selectable, Sun/Sat are not
   const isDateAvailable = (date: Date) => {
     const day = daysOfWeek[date.getDay()];
-    return service.availability?.days?.includes(day);
+    return day !== 'Sun' && day !== 'Sat';
   };
 
   return (

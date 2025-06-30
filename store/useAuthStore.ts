@@ -8,6 +8,10 @@ interface User {
   email: string;
   phone: string;
   avatar: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 interface AuthStore {
@@ -18,6 +22,7 @@ interface AuthStore {
   login: () => void;
   logout: () => void;
   loadAuthState: () => void;
+  setUserLocation: (coords: { latitude: number; longitude: number }) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -53,12 +58,25 @@ export const useAuthStore = create<AuthStore>()(
         }),
 
       loadAuthState: () => {
-        // In a real app, we would load from storage
-        // For demo purposes, just set to not authenticated
         set({
           isAuthenticated: false,
           user: null,
         });
+      },
+
+      setUserLocation: async (coords) => {
+        set((state) => ({
+          user: state.user
+            ? { ...state.user, location: coords }
+            : state.user,
+        }));
+        // Persist location in AsyncStorage for user
+        const user = get().user;
+        if (user) {
+          const updatedUser = { ...user, location: coords };
+          await AsyncStorage.setItem('auth-user-location', JSON.stringify(coords));
+          set({ user: updatedUser });
+        }
       },
     }),
     {

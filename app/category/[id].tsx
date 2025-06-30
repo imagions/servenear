@@ -27,9 +27,6 @@ export default function CategoryScreen() {
   const services = getServicesByCategoryId(id as string);
 
 
-  console.log(`Category ID: ${category?.id}`);
-  console.log(`Servicesssssss: ${services}`);
-
   if (!category) {
     return (
       <View style={styles.errorContainer}>

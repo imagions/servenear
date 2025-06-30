@@ -28,10 +28,10 @@ import { ReviewItem } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const DUMMY_REVIEW_IMAGES = [
-  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
-  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
-  'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg?w=300&auto=compress&cs=tinysrgb',
-  'https://images.pexels.com/photos/1181674/pexels-photo-1181674.jpeg?w=300&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=400&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=400&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg?w=400&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181674/pexels-photo-1181674.jpeg?w=400&auto=compress&cs=tinysrgb',
 ];
 
 export default function ServiceDetailsScreen() {
@@ -42,8 +42,6 @@ export default function ServiceDetailsScreen() {
   const service = getServiceById(id as string);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  console.log('serviceserviceid', id);
-  console.log('serviceservice', service);
 
   if (!service) {
     return (
@@ -143,14 +141,14 @@ export default function ServiceDetailsScreen() {
   const providerName = service.provider_details?.name || 'Unknown Provider';
   const providerImage =
     service.provider_details?.profile_image ||
-    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb';
+    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400&auto=compress&cs=tinysrgb';
   const serviceRating = service.rating || 0;
   const reviewCount = service.reviewCount || 12;
   const hourlyPrice = service.hourly_price || service.price || 0;
   const fixedPrice = service.once_price || service.fixedPrice || 0;
   const serviceImage =
     service.image ||
-    'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb';
+    'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=400&auto=compress&cs=tinysrgb';
   const serviceDescription = service.description || 'No description available';
   const serviceAvailability = service.availability || {
     days: 'Mon-Fri',
@@ -211,7 +209,7 @@ export default function ServiceDetailsScreen() {
                 <MapPin size={16} color="#9E9E9E" />
                 <Text style={styles.locationText}>
                   {service.lat && service.long
-                    ? `${service.lat.toFixed(2)}, ${service.long.toFixed(2)}`
+                    ? `Patna, Bihar`
                     : 'Location not available'}
                 </Text>
               </View>

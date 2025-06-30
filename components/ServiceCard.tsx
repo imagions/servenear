@@ -6,6 +6,8 @@ import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
 import { ServiceItem } from '@/types';
 import * as Location from 'expo-location';
+import { useAuthStore } from '@/store/useAuthStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ServiceCardProps = {
   service: ServiceItem;
@@ -46,7 +48,42 @@ export default function ServiceCard({
   scrollToCard = false,
   userLocation,
 }: ServiceCardProps) {
-  
+  // Get the user's stored location from the auth store
+  const authLocation = useAuthStore((s) => s.user?.location);
+
+  // State to hold the effective user location
+  const [effectiveUserLocation, setEffectiveUserLocation] = React.useState(
+    authLocation && authLocation.latitude !== undefined
+      ? authLocation
+      : userLocation
+  );
+
+  // Effect to fetch user location from AsyncStorage if not in auth store
+  React.useEffect(() => {
+    const getStoredLocation = async () => {
+      if (!authLocation || authLocation.latitude === undefined) {
+        const stored = await AsyncStorage.getItem('auth-user-location');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (
+              parsed &&
+              typeof parsed.latitude === 'number' &&
+              typeof parsed.longitude === 'number'
+            ) {
+              setEffectiveUserLocation(parsed);
+              return;
+            }
+          } catch {}
+        }
+        setEffectiveUserLocation(userLocation);
+      } else {
+        setEffectiveUserLocation(authLocation);
+      }
+    };
+    getStoredLocation();
+  }, [authLocation, userLocation]);
+
   const handleViewLocation = () => {
     router.push({
       pathname: '/map',
@@ -85,23 +122,30 @@ export default function ServiceCard({
   const serviceRating = service.rating || 0;
   const servicePrice = service.price || service.hourly_price || 0;
 
-  console.log('locationlocationlocation ', service.lat, service.long);
-
   // Calculate distance if we have both coordinates
-  const distanceKm = service.lat && service.long
-      ? calculateDistance(41.597281, -122.342499, service.lat, service.long)
+  const distanceKm =
+    service.lat !== undefined &&
+    service.long !== undefined &&
+    effectiveUserLocation &&
+    effectiveUserLocation.latitude !== undefined &&
+    effectiveUserLocation.longitude !== undefined
+      ? calculateDistance(
+          effectiveUserLocation.latitude,
+          effectiveUserLocation.longitude,
+          service.lat,
+          service.long
+        )
       : null;
 
   // Use calculated distance or fallback to service distance
 
-  console.log('distanceKm', distanceKm);
-  
   const displayDistance = distanceKm
     ? `${distanceKm.toFixed(1)} km`
-    : 'Distance N/A';
+    : 'Fetching...';
 
   return (
-    <TouchableOpacity activeOpacity={0.7}
+    <TouchableOpacity
+      activeOpacity={0.7}
       style={styles.card}
       onPress={() => {
         router.push(`/service/${service.id}`);
@@ -153,7 +197,8 @@ export default function ServiceCard({
             <Text style={styles.distanceText}>{displayDistance}</Text>
           </View>
 
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={styles.viewButton}
             onPress={handleViewLocation}
           >

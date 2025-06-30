@@ -67,7 +67,11 @@ const ServiceListItem = memo(
             isSelected && styles.selectedCardContainer,
           ]}
         >
-          <TouchableOpacity activeOpacity={0.7} style={styles.serviceCard} onPress={onPress}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.serviceCard}
+            onPress={onPress}
+          >
             {/* Main Row */}
             <View style={styles.bottomSheetHandle} />
             <View style={styles.mainRow}>
@@ -118,7 +122,8 @@ const ServiceListItem = memo(
                 )}
               </View>
 
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 style={styles.viewButton}
                 onPress={() => router.push(`/service/${item.id}`)}
               >
@@ -258,7 +263,6 @@ export default function MapScreen() {
             });
           }
         } catch (error) {
-          console.log('Error getting location:', error);
         }
       }
     };
@@ -388,7 +392,6 @@ export default function MapScreen() {
         });
       }
     } catch (error) {
-      console.log('Error getting location:', error);
     }
   };
 
@@ -576,7 +579,6 @@ export default function MapScreen() {
         }
       }
     } catch (error) {
-      console.log('Error:', error);
     }
   };
 
@@ -690,7 +692,8 @@ export default function MapScreen() {
           </View>
         )}
 
-        <TouchableOpacity activeOpacity={0.7}
+        <TouchableOpacity
+          activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -708,7 +711,8 @@ export default function MapScreen() {
               value={searchText}
               onChangeText={handleSearch}
             />
-            <TouchableOpacity activeOpacity={0.7}
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={styles.filterButton}
               onPress={() => setIsFilterVisible(true)}
             >
@@ -747,14 +751,16 @@ export default function MapScreen() {
 
         {/* Map controls */}
         <View style={styles.mapControls}>
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={styles.controlButton}
             onPress={showNearbyServices}
-            id='demo-mode'
+            id="demo-mode"
           >
             <MaterialIcons name="place" size={24} color={COLORS.accent} />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={styles.controlButton}
             onPress={handleLocatePress}
           >
@@ -764,7 +770,8 @@ export default function MapScreen() {
               color={COLORS.text.heading}
             />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={styles.mapButton}
             onPress={handleToggleMapType}
           >

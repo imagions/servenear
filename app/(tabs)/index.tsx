@@ -47,17 +47,68 @@ export default function HomeScreen() {
     loading,
     error,
   } = useServiceStore();
-  const { user } = useAuthStore();
+  const { user, setUserLocation, isAuthenticated } = useAuthStore();
   const { showSnackbar } = useSnackbar();
   const { handleScroll } = useTabBar();
   const { scrollProps } = useScrollToHide();
   const [searchQuery, setSearchQuery] = useState('');
   const { items: cartItems } = useCartStore();
   const [showDemoModal, setShowDemoModal] = useState(false);
-  const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  // Use selector to subscribe to location changes
+  const userLocation = useAuthStore((s) => s.user?.location);
+
+
+  // Add getCurrentLocation with snackbar
+  const getCurrentLocation = async () => {
+    setIsLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status === 'granted') {
+        showSnackbar({
+          message: 'Getting your accurate location...',
+          icon: 'my-location',
+          iconColor: COLORS.accent,
+          duration: 2000,
+        });
+
+        const location = await Location.getCurrentPositionAsync({});
+        const coords = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+        setUserLocation(coords);
+        await AsyncStorage.setItem(
+          'auth-user-location',
+          JSON.stringify(coords)
+        );
+
+        showSnackbar({
+          message: 'Location updated successfully',
+          icon: 'check-circle',
+          iconColor: '#4CAF50',
+          duration: 2000,
+        });
+      } else {
+        showSnackbar({
+          message: 'Location permission denied',
+          icon: 'error',
+          iconColor: '#F44336',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      showSnackbar({
+        message: 'Error getting location',
+        icon: 'error',
+        iconColor: '#F44336',
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Only fetch data if not already loaded
   useEffect(() => {
@@ -78,19 +129,7 @@ export default function HomeScreen() {
 
         // Request location permissions and fetch nearby services
         if (!userLocation) {
-          const { status } = await Location.requestForegroundPermissionsAsync();
-          if (status === 'granted') {
-            const location = await Location.getCurrentPositionAsync({});
-            setUserLocation({
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            });
-          } else {
-            setUserLocation({
-              latitude: 37.7749,
-              longitude: -122.4194,
-            });
-          }
+          await getCurrentLocation();
         }
       } catch (error) {
         console.warn('Error initializing data:', error);
@@ -126,10 +165,10 @@ export default function HomeScreen() {
 
   const renderCategoryItem = useCallback(
     ({ item }: { item: ServiceCategory }) => (
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.categoryItem}
         onPress={() => {
-          console.log('Category pressed:', item);
           router.push(`/category/${item.id}`);
         }}
       >
@@ -146,8 +185,6 @@ export default function HomeScreen() {
     []
   );
 
-  // Debug log for nearbyServices
-  console.log('nearbyServices:', nearbyServices);
 
   const renderNearbyItem = ({ item }: { item: ServiceItem }) => {
     // Use user's actual location for distance calculation
@@ -157,21 +194,26 @@ export default function HomeScreen() {
       typeof item.lat === 'number' &&
       typeof item.long === 'number'
     ) {
-      distance = calculateDistance(
+      const calculated = calculateDistance(
         userLocation.latitude,
         userLocation.longitude,
         item.lat,
         item.long
       );
+      distance =
+        typeof calculated === 'number' && !isNaN(calculated)
+          ? calculated
+          : undefined;
     }
 
     const displayDistance =
       typeof distance === 'number' && !isNaN(distance)
         ? `${distance.toFixed(1)} km`
-        : 'Distance N/A';
+        : 'Fetching...';
 
     return (
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.nearbyItem}
         onPress={() => router.push(`/service/${item.id}`)}
       >
@@ -210,8 +252,6 @@ export default function HomeScreen() {
     />
   );
 
-  // Add console.log to debug categories data
-  console.log('Current categories:', categories);
 
   if (error) {
     return (
@@ -240,13 +280,17 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.headerActions}>
-              <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/notifications')}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => router.push('/notifications')}
+              >
                 <Bell size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>8</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => router.push('/voice-help-requests')}
               >
                 <MaterialIcons
@@ -255,7 +299,10 @@ export default function HomeScreen() {
                   color="black"
                 />
               </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/cart')}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => router.push('/cart')}
+              >
                 <ShoppingCart size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>
@@ -303,7 +350,8 @@ export default function HomeScreen() {
           <View style={styles.nearbySection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Near You</Text>
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => router.push('/services?type=nearby')}
               >
                 <Text style={styles.seeAllText}>See All</Text>
@@ -317,7 +365,7 @@ export default function HomeScreen() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
               >
-                {nearbyServices.slice(0, 8).map((item) => (
+                {nearbyServices.slice(8, 16).map((item) => (
                   <View key={item.id}>
                     {renderNearbyItem({
                       item: { ...item },
@@ -333,7 +381,8 @@ export default function HomeScreen() {
           <View style={styles.trendingSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Trending Now</Text>
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => router.push('/services?type=trending')}
               >
                 <Text style={styles.seeAllText}>See All</Text>
@@ -361,7 +410,8 @@ export default function HomeScreen() {
                 <Text style={styles.bannerText}>
                   Share your skills and earn extra income
                 </Text>
-                <TouchableOpacity activeOpacity={0.7}
+                <TouchableOpacity
+                  activeOpacity={0.7}
                   style={styles.bannerButton}
                   onPress={() => router.push('/add-service')}
                 >
@@ -370,7 +420,7 @@ export default function HomeScreen() {
               </View>
               <Image
                 source={{
-                  uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?w=300&auto=compress&cs=tinysrgb',
+                  uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?w=400&auto=compress&cs=tinysrgb',
                 }}
                 style={styles.bannerImage}
               />
@@ -378,7 +428,8 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        <TouchableOpacity activeOpacity={0.7}
+        <TouchableOpacity
+          activeOpacity={0.7}
           style={styles.voiceHelpButton}
           onPress={() => router.push('/ai-assistance')}
         >
@@ -412,7 +463,8 @@ export default function HomeScreen() {
                 coming soon, stay tuned!
               </Text>
             </Text>
-            <TouchableOpacity activeOpacity={0.7}
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={demoModalStyles.button}
               onPress={handleDemoModalClose}
             >

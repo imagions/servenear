@@ -58,7 +58,7 @@ export default function AddServiceScreen() {
 
   const [hours, setHours] = useState('9:00 AM - 5:00 PM');
   const [imageUri, setImageUri] = useState(
-    'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=300&auto=compress&cs=tinysrgb'
+    'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=400&auto=compress&cs=tinysrgb'
   );
 
   // For time picker

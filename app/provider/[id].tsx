@@ -34,7 +34,8 @@ import { supabase } from '@/lib/supabase';
 const PROVIDER_DATA = {
   id: '1',
   name: 'John Smith',
-  image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
+  image:
+    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400&auto=compress&cs=tinysrgb',
   verified: true,
   rating: 4.8,
   completedJobs: 156,
@@ -115,7 +116,7 @@ const PROVIDER_DATA = {
       user: {
         name: 'Emma Johnson',
         image:
-          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
         verified: true,
       },
       rating: 5,
@@ -124,8 +125,8 @@ const PROVIDER_DATA = {
       comment:
         'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
       photos: [
-        'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
-        'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
+        'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=400&auto=compress&cs=tinysrgb',
+        'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=400&auto=compress&cs=tinysrgb',
       ],
       helpful: 12,
       notHelpful: 1,
@@ -175,7 +176,7 @@ export default function ProviderProfileScreen() {
         name: 'Unknown Provider',
         bio: '',
         profile_image:
-          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
+          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400&auto=compress&cs=tinysrgb',
         address: 'Unknown',
         location: null,
         is_provider: true,
@@ -303,7 +304,7 @@ export default function ProviderProfileScreen() {
               id: 'demo-user',
               name: 'Emma Johnson',
               image:
-                'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+                'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
               verified: true,
             },
             rating: 5,
@@ -313,8 +314,8 @@ export default function ProviderProfileScreen() {
 
             comment: `${providerData.name} is very professional service provider. ${providerData.name} provides first class service. Highly recommend him!`,
             photos: [
-              'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
-              'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
+              'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=400&auto=compress&cs=tinysrgb',
+              'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=400&auto=compress&cs=tinysrgb',
             ],
             helpful: 12,
             notHelpful: 1,
@@ -327,7 +328,7 @@ export default function ProviderProfileScreen() {
             id: 'demo-user',
             name: 'Emma Johnson',
             image:
-              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
             verified: true,
           },
           rating: review.rating ?? 5,
@@ -340,8 +341,8 @@ export default function ProviderProfileScreen() {
             review.photos && review.photos.length > 0
               ? review.photos
               : [
-                  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
-                  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
+                  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=400&auto=compress&cs=tinysrgb',
+                  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=400&auto=compress&cs=tinysrgb',
                 ],
           helpful: review.helpful ?? 12,
           notHelpful: review.notHelpful ?? 1,
@@ -436,7 +437,8 @@ export default function ProviderProfileScreen() {
 
   const renderReview = ({ item }) => (
     <View style={styles.reviewCard}>
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.reviewHeader}
         onPress={() => router.push(`/user/${item.user.id}`)}
       >
@@ -447,7 +449,11 @@ export default function ProviderProfileScreen() {
               {item.user.name}
             </Text>
             {item.user.verified && (
-              <BadgeCheck size={16} color={COLORS.accent} />
+              <BadgeCheck
+                size={16}
+                color={COLORS.surface}
+                fill={COLORS.accent}
+              />
             )}
           </View>
           <Text style={styles.reviewDate}>{item.date}</Text>
@@ -505,7 +511,11 @@ export default function ProviderProfileScreen() {
               <View style={styles.nameContainer}>
                 <Text style={styles.name}>{provider.name}</Text>
                 {provider.verified && (
-                  <BadgeCheck size={20} color={COLORS.accent} />
+                  <BadgeCheck
+                    size={20}
+                    color={COLORS.surface}
+                    fill={COLORS.accent}
+                  />
                 )}
               </View>
 
@@ -549,7 +559,8 @@ export default function ProviderProfileScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={[styles.actionButton, styles.primaryButton]}
             onPress={() =>
               router.push({
@@ -562,7 +573,8 @@ export default function ProviderProfileScreen() {
             <Text style={styles.primaryButtonText}>Message</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={[styles.actionButton, styles.secondaryButton]}
             onPress={() =>
               router.push({
@@ -578,7 +590,8 @@ export default function ProviderProfileScreen() {
 
         {/* Content Tabs */}
         <View style={styles.tabs}>
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'about' && styles.activeTab]}
             onPress={() => setSelectedTab('about')}
           >
@@ -592,7 +605,8 @@ export default function ProviderProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'services' && styles.activeTab]}
             onPress={() => setSelectedTab('services')}
           >
@@ -606,7 +620,8 @@ export default function ProviderProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.7}
+          <TouchableOpacity
+            activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'reviews' && styles.activeTab]}
             onPress={() => setSelectedTab('reviews')}
           >
@@ -624,6 +639,67 @@ export default function ProviderProfileScreen() {
         {/* Tab Content */}
         {selectedTab === 'about' && (
           <View style={styles.tabContent}>
+            {/* Impact Card for ServeNear */}
+            {(provider?.name === 'ServeNear' ||
+              provider?.name === 'Vikash Singh' ||
+              provider?.name === 'Amit Kumar') && (
+              <View style={styles.impactCardContainer}>
+                <LinearGradient
+                  colors={['rgba(232, 245, 233, 1)', 'rgba(200, 230, 201, 1)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.impactCard}
+                >
+                  <View style={styles.impactHeader}>
+                    <View style={styles.impactHeaderLeft}>
+                      <MaterialIcons
+                        name="eco"
+                        size={24}
+                        color="rgba(56, 142, 60, 1)"
+                      />
+                      <Text style={styles.impactTitle}>
+                        Environmental Impact
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.impactStats}>
+                    <View style={styles.impactStatCard}>
+                      <View
+                        style={[
+                          styles.impactIconContainer,
+                          { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                        ]}
+                      >
+                        <MaterialIcons
+                          name="recycling"
+                          size={24}
+                          color="#4CAF50"
+                        />
+                      </View>
+                      <View style={styles.impactStatText}>
+                        <Text style={styles.impactValue}>12.5 kg</Text>
+                        <Text style={styles.impactLabel}>e-waste avoided</Text>
+                      </View>
+                    </View>
+                    <View style={styles.impactStatCard}>
+                      <View
+                        style={[
+                          styles.impactIconContainer,
+                          { backgroundColor: 'rgba(33, 150, 243, 0.1)' },
+                        ]}
+                      >
+                        <MaterialIcons name="cloud" size={24} color="#2196F3" />
+                      </View>
+                      <View style={styles.impactStatText}>
+                        <Text style={styles.impactValue}>8.3 kg</Text>
+                        <Text style={styles.impactLabel}>CO₂ saved</Text>
+                      </View>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </View>
+            )}
+
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>About</Text>
               <Text style={styles.aboutText}>{provider.about}</Text>
@@ -770,7 +846,8 @@ export default function ProviderProfileScreen() {
       </ScrollView>
 
       {/* Chat Button */}
-      <TouchableOpacity activeOpacity={0.7}
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={styles.chatButton}
         onPress={() => {
           router.push({
@@ -1268,5 +1345,62 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.card,
+  },
+  impactCardContainer: {
+    marginHorizontal: 0,
+    marginVertical: 16,
+    borderRadius: RADIUS.card,
+    borderWidth: 1,
+    borderColor: 'rgba(165, 214, 167, 1)',
+    overflow: 'hidden',
+  },
+  impactCard: {
+    padding: 16,
+  },
+  impactHeader: {},
+  impactHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  impactTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(56, 142, 60, 1)',
+    fontFamily: 'Inter-SemiBold',
+  },
+  impactStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  impactStatCard: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+  },
+  impactIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  impactStatText: {
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  impactValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'rgba(56, 142, 60, 1)',
+    marginBottom: 4,
+    fontFamily: 'Inter-Bold',
+  },
+  impactLabel: {
+    fontSize: 12,
+    color: 'rgba(56, 142, 60, 1)',
+    fontFamily: 'Inter-Regular',
   },
 });

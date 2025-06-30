@@ -60,11 +60,11 @@ export default function ProfileScreen() {
       {isProviderMode && (
         <View style={styles.providerModeStats}>
           <View style={styles.providerModeStat}>
-            <Text style={styles.providerModeStatValue}>0</Text>
+            <Text style={styles.providerModeStatValue}>4</Text>
             <Text style={styles.providerModeStatLabel}>Active Services</Text>
           </View>
           <View style={styles.providerModeStat}>
-            <Text style={styles.providerModeStatValue}>0</Text>
+            <Text style={styles.providerModeStatValue}>3</Text>
             <Text style={styles.providerModeStatLabel}>Help Requests</Text>
           </View>
         </View>
@@ -261,7 +261,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+                      uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />
@@ -322,7 +322,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=300&auto=compress&cs=tinysrgb',
+                      uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=400&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />
@@ -384,7 +384,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
+                      uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=400&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />

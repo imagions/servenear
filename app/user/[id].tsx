@@ -26,7 +26,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const USER_DATA = {
   id: '1',
   name: 'Emma Johnson',
-  image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
+  image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=400&auto=compress&cs=tinysrgb',
   verified: true,
   memberSince: 'March 2023',
   location: 'Patna, India',
@@ -54,7 +54,7 @@ const USER_DATA = {
       id: '1',
       providerName: 'John Smith',
       providerImage:
-        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
+        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400&auto=compress&cs=tinysrgb',
       serviceType: 'Plumbing Service',
       rating: 5,
       date: 'May 15, 2025',
@@ -65,7 +65,7 @@ const USER_DATA = {
       id: '2',
       providerName: 'Sarah Wilson',
       providerImage:
-        'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
+        'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=400&auto=compress&cs=tinysrgb',
       serviceType: 'House Cleaning',
       rating: 4.8,
       date: 'May 10, 2025',

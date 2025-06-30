@@ -59,6 +59,8 @@ function AnimatedSplashScreen({ onFinish }: { onFinish: () => void }) {
 
   return (
     <Animated.View style={[styles.splashContainer, { opacity: fadeAnim }]}>
+      {/* Make splash totally fullscreen and set StatusBar color */}
+      <StatusBar backgroundColor="#008BB9" style="light" translucent={false} />
       <View style={styles.splashInner}>
         <Animated.Image
           source={require('../assets/images/icon.png')}

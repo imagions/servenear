@@ -6,6 +6,7 @@ import {
   Mic,
   Calendar,
   User,
+  Plus, // add Plus icon
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
 import {
@@ -22,28 +23,60 @@ import { useTabBar } from '@/context/TabBarContext';
 import { supabase } from '@/lib/supabase';
 import * as FileSystem from 'expo-file-system';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { useAuthStore } from '@/store/useAuthStore';
 
-function BoltBadge() {
+function BoltBadge({ visible, onPress }) {
+  if (!visible) return null;
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const spinCount = useRef(0);
 
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(rotateAnim, {
+    let isMounted = true;
+    let animation;
+
+    const startSpin = () => {
+      animation = Animated.timing(rotateAnim, {
         toValue: 1,
         duration: 6000,
         useNativeDriver: true,
         easing: Easing.linear,
-      })
-    ).start();
+      });
+
+      animation.start(({ finished }) => {
+        if (!isMounted) return;
+        spinCount.current += 1;
+        if (spinCount.current % 2 === 0) {
+          setTimeout(() => {
+            if (!isMounted) return;
+            rotateAnim.setValue(0);
+            startSpin();
+          }, 1000);
+        } else {
+          rotateAnim.setValue(0);
+          startSpin();
+        }
+      });
+    };
+
+    startSpin();
+
+    return () => {
+      isMounted = false;
+      rotateAnim.stopAnimation();
+    };
   }, [rotateAnim]);
 
+  // Spin anti-clockwise
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
 
   return (
-    <Animated.View
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
       style={[
         styles.boltBadgeImageContainer,
         { transform: [{ rotate: spin }] },
@@ -54,7 +87,7 @@ function BoltBadge() {
         style={styles.boltBadgeImage}
         resizeMode="contain"
       />
-    </Animated.View>
+    </TouchableOpacity>
   );
 }
 
@@ -63,8 +96,11 @@ export default function TabLayout() {
   const { tabBarHeight, handleScroll } = useTabBar(); // get handleScroll
   const insets = useSafeAreaInsets();
 
+  const { showSnackbar } = useSnackbar();
+  const isProviderMode = useAuthStore((s) => s.isProviderMode);
+  const [showBoltBadge, setShowBoltBadge] = useState(true);
+
   const handleVoiceSubmit = async (audioUri) => {
-    console.log('audioUri', audioUri);
 
     const file_name = Date.now() + '.m4a';
     const fileType = 'audio/m4a';
@@ -109,8 +145,13 @@ export default function TabLayout() {
       const resp = await supabase.functions.invoke('operations', {
         body: JSON.stringify({ audio_url, doc_id: insertData.id }),
       });
+      showSnackbar({
+        message: 'Will notify providers nearby shortly',
+        icon: 'check-circle',
+        iconColor: '#4CAF50',
+        duration: 2000,
+      });
 
-      console.log('Function response:', resp);
     } catch (err) {
       console.error('Unexpected error:', err);
     }
@@ -172,11 +213,24 @@ export default function TabLayout() {
           options={{
             title: '',
             tabBarIcon: ({ focused }) => (
-              <TouchableOpacity activeOpacity={0.7}
+              <TouchableOpacity
+                activeOpacity={0.7}
                 style={styles.floatingButton}
-                onPress={() => setShowVoiceModal(true)}
+                onPress={() => {
+                  if (isProviderMode) {
+                    // Navigate to add-service screen for providers
+                    // Use router from expo-router
+                    require('expo-router').router.push('/add-service');
+                  } else {
+                    setShowVoiceModal(true);
+                  }
+                }}
               >
-                <Mic size={24} color="white" />
+                {isProviderMode ? (
+                  <Plus size={28} color="white" />
+                ) : (
+                  <Mic size={24} color="white" />
+                )}
               </TouchableOpacity>
             ),
             tabBarIconStyle: {
@@ -186,14 +240,18 @@ export default function TabLayout() {
           listeners={{
             tabPress: (e) => {
               e.preventDefault();
-              setShowVoiceModal(true);
+              if (isProviderMode) {
+                require('expo-router').router.push('/add-service');
+              } else {
+                setShowVoiceModal(true);
+              }
             },
           }}
         />
         <Tabs.Screen
           name="bookings"
           options={{
-            title: 'Bookings',
+            title: isProviderMode ? 'Requests' : 'Bookings',
             tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
           }}
         />
@@ -205,7 +263,10 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <BoltBadge />
+      <BoltBadge
+        visible={showBoltBadge}
+        onPress={() => setShowBoltBadge(false)}
+      />
 
       <VoiceRecordModal
         visible={showVoiceModal}
@@ -219,8 +280,8 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   boltBadgeImageContainer: {
     position: 'absolute',
-    bottom: 75,
-    left: 16,
+    top: 50,
+    right: 16,
     backgroundColor: 'transparent',
     zIndex: 1000,
     alignItems: 'center',
@@ -232,8 +293,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   boltBadgeImage: {
-    width: 54,
-    height: 54,
+    width: 80,
+    height: 80,
     borderRadius: 27,
   },
   floatingButton: {
