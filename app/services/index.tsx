@@ -78,7 +78,7 @@ export default function ServicesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity activeOpacity={0.7} 
           style={styles.backButton}
           onPress={() => router.back()}>
           <ArrowLeft size={24} color={COLORS.text.heading} />
@@ -87,7 +87,7 @@ export default function ServicesScreen() {
         <Text style={styles.headerTitle}>{title}</Text>
         
         {type === 'nearby' && (
-          <TouchableOpacity 
+          <TouchableOpacity activeOpacity={0.7} 
             style={styles.locationButton}
             onPress={getCurrentLocation}
             disabled={isLoading}>

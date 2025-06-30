@@ -85,7 +85,7 @@ export default function VerifyScreen() {
           ))}
         </View>
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={[
             styles.verifyButton,
             otp.every((digit) => digit !== '') ? {} : styles.disabledButton,
@@ -101,13 +101,13 @@ export default function VerifyScreen() {
           {countdown > 0 ? (
             <Text style={styles.countdownText}>Resend in {countdown}s</Text>
           ) : (
-            <TouchableOpacity onPress={handleResend}>
+            <TouchableOpacity activeOpacity={0.7} onPress={handleResend}>
               <Text style={styles.resendButton}>Resend</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >

@@ -28,10 +28,10 @@ import { ReviewItem } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const DUMMY_REVIEW_IMAGES = [
-  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
-  'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg',
-  'https://images.pexels.com/photos/1181674/pexels-photo-1181674.jpeg',
+  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg?w=300&auto=compress&cs=tinysrgb',
+  'https://images.pexels.com/photos/1181674/pexels-photo-1181674.jpeg?w=300&auto=compress&cs=tinysrgb',
 ];
 
 export default function ServiceDetailsScreen() {
@@ -49,7 +49,7 @@ export default function ServiceDetailsScreen() {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Service not found</Text>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButtonLarge}
           onPress={() => router.back()}
         >
@@ -112,7 +112,7 @@ export default function ServiceDetailsScreen() {
 
   const renderReviewItem = ({ item }: { item: ReviewItem; service: any }) => (
     <View style={styles.reviewItem}>
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.reviewHeader}
         onPress={() => handleUserPress(item.userId)}
       >
@@ -143,14 +143,14 @@ export default function ServiceDetailsScreen() {
   const providerName = service.provider_details?.name || 'Unknown Provider';
   const providerImage =
     service.provider_details?.profile_image ||
-    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg';
+    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb';
   const serviceRating = service.rating || 0;
   const reviewCount = service.reviewCount || 12;
   const hourlyPrice = service.hourly_price || service.price || 0;
   const fixedPrice = service.once_price || service.fixedPrice || 0;
   const serviceImage =
     service.image ||
-    'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg';
+    'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb';
   const serviceDescription = service.description || 'No description available';
   const serviceAvailability = service.availability || {
     days: 'Mon-Fri',
@@ -167,14 +167,14 @@ export default function ServiceDetailsScreen() {
           <Image source={{ uri: serviceImage }} style={styles.serviceImage} />
 
           <View style={styles.headerActions}>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.actionButton}
               onPress={() => router.back()}
             >
               <ArrowLeft size={24} color="white" />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.actionButton}
               onPress={handleFavoriteToggle}
             >
@@ -197,7 +197,7 @@ export default function ServiceDetailsScreen() {
             </View>
           </View>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.providerContainer}
             onPress={handleProviderPress}
           >
@@ -289,14 +289,14 @@ export default function ServiceDetailsScreen() {
               style={styles.reviewPhotosContainer}
             >
               {DUMMY_REVIEW_IMAGES.slice(0, 4).map((photo, index) => (
-                <TouchableOpacity key={index} style={styles.photoPreview}>
+                <TouchableOpacity activeOpacity={0.7} key={index} style={styles.photoPreview}>
                   <Image
                     source={{ uri: photo }}
                     style={styles.photoThumbnail}
                   />
                 </TouchableOpacity>
               ))}
-              <TouchableOpacity style={styles.viewAllPhotos} onPress={() => {}}>
+              <TouchableOpacity activeOpacity={0.7} style={styles.viewAllPhotos} onPress={() => {}}>
                 <MaterialIcons
                   name="photo-library"
                   size={24}
@@ -327,14 +327,14 @@ export default function ServiceDetailsScreen() {
 
         <View style={styles.footerButtons}>
           {isInCart ? (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.cartButton}
               onPress={() => removeFromCart(service.id)}
             >
               <Trash2 size={24} color={COLORS.accent} />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.cartButton}
               onPress={handleAddToCart}
             >
@@ -342,7 +342,7 @@ export default function ServiceDetailsScreen() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.bookButton} onPress={handleBookNow}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.bookButton} onPress={handleBookNow}>
             <Text style={styles.bookButtonText}>Book Now</Text>
           </TouchableOpacity>
         </View>

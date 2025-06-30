@@ -149,12 +149,12 @@ export default function VoiceRecordModal({ visible, onClose, onSubmit }) {
       onRequestClose={onClose}
     >
       <TouchableOpacity
-        activeOpacity={1}
+        activeOpacity={0.7}
         onPress={onClose}
         style={styles.modalContainer}
       >
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.7}
           onPress={(e) => e.stopPropagation()}
           style={styles.modalContent}
         >

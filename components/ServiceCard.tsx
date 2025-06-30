@@ -101,7 +101,7 @@ export default function ServiceCard({
     : 'Distance N/A';
 
   return (
-    <TouchableOpacity
+    <TouchableOpacity activeOpacity={0.7}
       style={styles.card}
       onPress={() => {
         router.push(`/service/${service.id}`);
@@ -153,7 +153,7 @@ export default function ServiceCard({
             <Text style={styles.distanceText}>{displayDistance}</Text>
           </View>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.viewButton}
             onPress={handleViewLocation}
           >

@@ -160,7 +160,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           onPress={() => router.back()}
           style={styles.backButton}
         >
@@ -168,7 +168,7 @@ export default function NotificationsScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         {notifications.length > 0 && (
-          <TouchableOpacity onPress={clearAllNotifications}>
+          <TouchableOpacity activeOpacity={0.7} onPress={clearAllNotifications}>
             <Text style={styles.clearButton}>Clear All</Text>
           </TouchableOpacity>
         )}

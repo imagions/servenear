@@ -58,7 +58,7 @@ export default function AddServiceScreen() {
 
   const [hours, setHours] = useState('9:00 AM - 5:00 PM');
   const [imageUri, setImageUri] = useState(
-    'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg'
+    'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=300&auto=compress&cs=tinysrgb'
   );
 
   // For time picker
@@ -276,7 +276,7 @@ export default function AddServiceScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -297,7 +297,7 @@ export default function AddServiceScreen() {
               <Image source={{ uri: imageUri }} style={styles.serviceImage} />
             </>
           ) : (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.addImageButton}
               onPress={handlePickImage}
             >
@@ -307,7 +307,7 @@ export default function AddServiceScreen() {
           )}
           {/* Add overlay button for changing image */}
           {imageUri ? (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[
                 styles.addImageButton,
                 {
@@ -319,7 +319,6 @@ export default function AddServiceScreen() {
                 },
               ]}
               onPress={handlePickImage}
-              activeOpacity={0.7}
             >
               <Text
                 style={{
@@ -394,7 +393,7 @@ export default function AddServiceScreen() {
                     keyboardShouldPersistTaps="handled"
                   >
                     {categories.map((cat) => (
-                      <TouchableOpacity
+                      <TouchableOpacity activeOpacity={0.7}
                         key={cat.id}
                         style={styles.dropdownItem}
                         onPress={() => {
@@ -466,7 +465,7 @@ export default function AddServiceScreen() {
                           return cat && sub.category_id === cat.id;
                         })
                         .map((sub) => (
-                          <TouchableOpacity
+                          <TouchableOpacity activeOpacity={0.7}
                             key={sub.id}
                             style={styles.dropdownItem}
                             onPress={() => {
@@ -509,7 +508,7 @@ export default function AddServiceScreen() {
               {tagList.map((tag) => (
                 <View key={tag} style={styles.tagChip}>
                   <Text style={styles.tagChipText}>{tag}</Text>
-                  <TouchableOpacity onPress={() => removeTag(tag)}>
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => removeTag(tag)}>
                     <MaterialIcons
                       name="close"
                       size={16}
@@ -594,7 +593,7 @@ export default function AddServiceScreen() {
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Location</Text>
 
-          <TouchableOpacity style={styles.locationContainer}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.locationContainer}>
             <View style={styles.locationInfo}>
               <MapPin size={20} color={COLORS.accent} />
               <Text style={styles.locationText}>{location.address}</Text>
@@ -627,7 +626,7 @@ export default function AddServiceScreen() {
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Available Hours</Text>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[
                 styles.input,
                 {
@@ -640,7 +639,6 @@ export default function AddServiceScreen() {
                 setTimePickerMode('start');
                 setShowTimePicker(true);
               }}
-              activeOpacity={0.7}
             >
               <Text
                 style={{
@@ -682,7 +680,7 @@ export default function AddServiceScreen() {
         {/* Certificate Document */}
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Certificate of Expertise</Text>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[
               styles.addCertificateButton,
               {
@@ -724,7 +722,7 @@ export default function AddServiceScreen() {
         </View>
 
         {/* Submit Button */}
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Publish Service</Text>
         </TouchableOpacity>
       </ScrollView>

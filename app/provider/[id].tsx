@@ -34,7 +34,7 @@ import { supabase } from '@/lib/supabase';
 const PROVIDER_DATA = {
   id: '1',
   name: 'John Smith',
-  image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+  image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
   verified: true,
   rating: 4.8,
   completedJobs: 156,
@@ -115,7 +115,7 @@ const PROVIDER_DATA = {
       user: {
         name: 'Emma Johnson',
         image:
-          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
         verified: true,
       },
       rating: 5,
@@ -124,8 +124,8 @@ const PROVIDER_DATA = {
       comment:
         'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
       photos: [
-        'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-        'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+        'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
+        'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
       ],
       helpful: 12,
       notHelpful: 1,
@@ -175,7 +175,7 @@ export default function ProviderProfileScreen() {
         name: 'Unknown Provider',
         bio: '',
         profile_image:
-          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
         address: 'Unknown',
         location: null,
         is_provider: true,
@@ -303,7 +303,7 @@ export default function ProviderProfileScreen() {
               id: 'demo-user',
               name: 'Emma Johnson',
               image:
-                'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+                'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
               verified: true,
             },
             rating: 5,
@@ -313,8 +313,8 @@ export default function ProviderProfileScreen() {
 
             comment: `${providerData.name} is very professional service provider. ${providerData.name} provides first class service. Highly recommend him!`,
             photos: [
-              'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-              'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+              'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
+              'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
             ],
             helpful: 12,
             notHelpful: 1,
@@ -327,7 +327,7 @@ export default function ProviderProfileScreen() {
             id: 'demo-user',
             name: 'Emma Johnson',
             image:
-              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
             verified: true,
           },
           rating: review.rating ?? 5,
@@ -340,8 +340,8 @@ export default function ProviderProfileScreen() {
             review.photos && review.photos.length > 0
               ? review.photos
               : [
-                  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-                  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
+                  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
+                  'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg?w=300&auto=compress&cs=tinysrgb',
                 ],
           helpful: review.helpful ?? 12,
           notHelpful: review.notHelpful ?? 1,
@@ -436,7 +436,7 @@ export default function ProviderProfileScreen() {
 
   const renderReview = ({ item }) => (
     <View style={styles.reviewCard}>
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.reviewHeader}
         onPress={() => router.push(`/user/${item.user.id}`)}
       >
@@ -478,12 +478,12 @@ export default function ProviderProfileScreen() {
       )}
 
       <View style={styles.reviewActions}>
-        <TouchableOpacity style={styles.helpfulButton}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.helpfulButton}>
           <ThumbsUp size={16} color={COLORS.text.body} />
           <Text style={styles.helpfulCount}>{item.helpful}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.helpfulButton}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.helpfulButton}>
           <ThumbsDown size={16} color={COLORS.text.body} />
           <Text style={styles.helpfulCount}>{item.notHelpful}</Text>
         </TouchableOpacity>
@@ -549,7 +549,7 @@ export default function ProviderProfileScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.actionButton, styles.primaryButton]}
             onPress={() =>
               router.push({
@@ -562,7 +562,7 @@ export default function ProviderProfileScreen() {
             <Text style={styles.primaryButtonText}>Message</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.actionButton, styles.secondaryButton]}
             onPress={() =>
               router.push({
@@ -578,7 +578,7 @@ export default function ProviderProfileScreen() {
 
         {/* Content Tabs */}
         <View style={styles.tabs}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'about' && styles.activeTab]}
             onPress={() => setSelectedTab('about')}
           >
@@ -592,7 +592,7 @@ export default function ProviderProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'services' && styles.activeTab]}
             onPress={() => setSelectedTab('services')}
           >
@@ -606,7 +606,7 @@ export default function ProviderProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, selectedTab === 'reviews' && styles.activeTab]}
             onPress={() => setSelectedTab('reviews')}
           >
@@ -770,7 +770,7 @@ export default function ProviderProfileScreen() {
       </ScrollView>
 
       {/* Chat Button */}
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.chatButton}
         onPress={() => {
           router.push({

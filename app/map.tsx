@@ -67,7 +67,7 @@ const ServiceListItem = memo(
             isSelected && styles.selectedCardContainer,
           ]}
         >
-          <TouchableOpacity style={styles.serviceCard} onPress={onPress}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.serviceCard} onPress={onPress}>
             {/* Main Row */}
             <View style={styles.bottomSheetHandle} />
             <View style={styles.mainRow}>
@@ -118,7 +118,7 @@ const ServiceListItem = memo(
                 )}
               </View>
 
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 style={styles.viewButton}
                 onPress={() => router.push(`/service/${item.id}`)}
               >
@@ -690,7 +690,7 @@ export default function MapScreen() {
           </View>
         )}
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -708,7 +708,7 @@ export default function MapScreen() {
               value={searchText}
               onChangeText={handleSearch}
             />
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.filterButton}
               onPress={() => setIsFilterVisible(true)}
             >
@@ -747,14 +747,14 @@ export default function MapScreen() {
 
         {/* Map controls */}
         <View style={styles.mapControls}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.controlButton}
             onPress={showNearbyServices}
             id='demo-mode'
           >
             <MaterialIcons name="place" size={24} color={COLORS.accent} />
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.controlButton}
             onPress={handleLocatePress}
           >
@@ -764,7 +764,7 @@ export default function MapScreen() {
               color={COLORS.text.heading}
             />
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.mapButton}
             onPress={handleToggleMapType}
           >

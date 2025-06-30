@@ -31,7 +31,7 @@ const MOCK_REQUESTS = [
   {
     id: '1',
     userImage:
-      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
     userName: 'John Smith',
     isVerified: true,
     timeAgo: '2h ago',
@@ -45,7 +45,7 @@ const MOCK_REQUESTS = [
   {
     id: '2',
     userImage:
-      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
     userName: 'Emma Wilson',
     isVerified: true,
     timeAgo: '4h ago',
@@ -58,7 +58,7 @@ const MOCK_REQUESTS = [
   {
     id: '3',
     userImage:
-      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
+      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?w=300&auto=compress&cs=tinysrgb',
     userName: 'Michael Chen',
     isVerified: false,
     timeAgo: '6h ago',
@@ -71,7 +71,7 @@ const MOCK_REQUESTS = [
   {
     id: '4',
     userImage:
-      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=300&auto=compress&cs=tinysrgb',
     userName: 'Sarah Johnson',
     isVerified: true,
     timeAgo: '8h ago',
@@ -278,7 +278,7 @@ export default function VoiceHelpRequestsScreen() {
             </Text>
           </View>
         </View>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.playButton}
           onPress={() => {
             setPlayingId(playingId === item.id ? null : item.id);
@@ -298,12 +298,12 @@ export default function VoiceHelpRequestsScreen() {
       <View style={styles.locationRow}>
         <MapPin size={15} color="#9E9E9E" />
         <Text style={styles.locationText}>Unknown distance • Patna, Bihar</Text>
-        <TouchableOpacity style={styles.editBtn}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.editBtn}>
           <Edit2 size={16} color={COLORS.accent} />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={[
           styles.statusBtn,
           {
@@ -311,7 +311,6 @@ export default function VoiceHelpRequestsScreen() {
             backgroundColor: getStatusColor(item.status) + '10',
           },
         ]}
-        activeOpacity={1}
       >
         <Text
           style={[styles.statusBtnText, { color: getStatusColor(item.status) }]}
@@ -325,7 +324,7 @@ export default function VoiceHelpRequestsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           onPress={() => router.back()}
           style={styles.headerBackBtn}
         >
@@ -353,10 +352,9 @@ export default function VoiceHelpRequestsScreen() {
         onRefresh={refreshRequests}
       />
 
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.fab}
         onPress={() => setShowRecordModal(true)}
-        activeOpacity={0.8}
       >
         <Mic size={20} color="white" />
         <Text style={styles.fabText}>Ask for Help</Text>

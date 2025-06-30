@@ -75,7 +75,7 @@ export default function ProfileScreen() {
   const renderProviderMenuItems = () =>
     isProviderMode ? (
       <>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.menuItem}
           onPress={() => router.push('/add-service')}
         >
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
           <ChevronRight size={20} color="#9E9E9E" />
         </TouchableOpacity>
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.menuItem}
           onPress={() => router.push('/provider/services')}
         >
@@ -117,7 +117,7 @@ export default function ProfileScreen() {
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Profile</Text>
 
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.settingsButton}>
               <Settings size={24} color={COLORS.text.heading} />
             </TouchableOpacity>
           </View>
@@ -138,7 +138,7 @@ export default function ProfileScreen() {
               {user?.email || 'support@servenear.ai'}
             </Text>
 
-            <TouchableOpacity style={styles.editProfileButton}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.editProfileButton}>
               <Text style={styles.editProfileText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.tabsContainer}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, activeTab === 'provider' && styles.activeTab]}
             onPress={() => setActiveTab('provider')}
           >
@@ -237,7 +237,7 @@ export default function ProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, activeTab === 'client' && styles.activeTab]}
             onPress={() => setActiveTab('client')}
           >
@@ -261,7 +261,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+                      uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />
@@ -322,7 +322,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
+                      uri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=300&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />
@@ -384,7 +384,7 @@ export default function ProfileScreen() {
                 <View style={styles.ratingHeader}>
                   <Image
                     source={{
-                      uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+                      uri: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
                     }}
                     style={styles.raterImage}
                   />
@@ -434,7 +434,7 @@ export default function ProfileScreen() {
             </>
           )}
 
-          <TouchableOpacity style={styles.viewAllButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.viewAllButton}>
             <Text style={styles.viewAllText}>View All Ratings</Text>
           </TouchableOpacity>
         </View>
@@ -442,7 +442,7 @@ export default function ProfileScreen() {
         <View style={styles.menuSection}>
           {renderProviderMenuItems()}
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View
                 style={[
@@ -457,7 +457,7 @@ export default function ProfileScreen() {
             <ChevronRight size={20} color="#9E9E9E" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.menuItem} onPress={handleLogout}>
             <View style={styles.menuItemLeft}>
               <View
                 style={[

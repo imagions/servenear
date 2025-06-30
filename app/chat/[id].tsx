@@ -159,7 +159,7 @@ export default function ChatScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()}>
             <ArrowLeft size={24} color={COLORS.text.heading} />
           </TouchableOpacity>
 
@@ -175,10 +175,10 @@ export default function ChatScreen() {
           </View>
 
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerButton}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.headerButton}>
               <Video size={20} color={COLORS.text.heading} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerButton} onPress={() => {
+            <TouchableOpacity activeOpacity={0.7} style={styles.headerButton} onPress={() => {
               router.push({
                 pathname: `/call/${params.id}` as any,
                 params: { name: providerName, providerImage: providerImage },
@@ -203,7 +203,7 @@ export default function ChatScreen() {
 
         {/* Input Bar */}
         <View style={styles.inputContainer}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.attachButton}
             onPress={() => setGalleryModalVisible(true)}
           >
@@ -220,11 +220,11 @@ export default function ChatScreen() {
           />
 
           {inputText ? (
-            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.sendButton} onPress={handleSend}>
               <Send size={24} color={COLORS.accent} />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.micButton}
               onLongPress={startRecording}
               onPressOut={stopRecording}
@@ -250,7 +250,7 @@ export default function ChatScreen() {
           >
             <View style={styles.attachmentsContainerModal}>
               <View style={styles.attachmentOptions}>
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.7}
                   style={styles.attachmentOption}
                   onPress={() => {
                     setGalleryModalVisible(false);
@@ -261,7 +261,7 @@ export default function ChatScreen() {
                   <Text style={styles.attachmentLabel}>Camera</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.7}
                   style={styles.attachmentOption}
                   onPress={() => {
                     setGalleryModalVisible(false);
@@ -272,7 +272,7 @@ export default function ChatScreen() {
                   <Text style={styles.attachmentLabel}>Gallery</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.7}
                   style={styles.attachmentOption}
                   onPress={handleLocationShare}
                 >

@@ -213,7 +213,7 @@ export default function CallScreen() {
         {/* Action Buttons */}
         <View style={styles.actions}>
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[styles.actionButton, isSpeakerOn && styles.activeButton]}
               onPress={() =>
                 handleButtonPress(() => setIsSpeakerOn(!isSpeakerOn))
@@ -224,7 +224,7 @@ export default function CallScreen() {
             <Text style={styles.actionText}>Speaker</Text>
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[styles.actionButton, isMuted && styles.activeButton]}
               onPress={() => handleButtonPress(() => setIsMuted(!isMuted))}
             >
@@ -232,7 +232,7 @@ export default function CallScreen() {
             </TouchableOpacity>
             <Text style={styles.actionText}>Mute</Text>
           </View>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.endCallButton}
             onPress={handleEndCall}
           >

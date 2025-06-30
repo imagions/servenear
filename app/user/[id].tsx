@@ -26,7 +26,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const USER_DATA = {
   id: '1',
   name: 'Emma Johnson',
-  image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+  image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
   verified: true,
   memberSince: 'March 2023',
   location: 'Patna, India',
@@ -54,7 +54,7 @@ const USER_DATA = {
       id: '1',
       providerName: 'John Smith',
       providerImage:
-        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
       serviceType: 'Plumbing Service',
       rating: 5,
       date: 'May 15, 2025',
@@ -65,7 +65,7 @@ const USER_DATA = {
       id: '2',
       providerName: 'Sarah Wilson',
       providerImage:
-        'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+        'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
       serviceType: 'House Cleaning',
       rating: 4.8,
       date: 'May 10, 2025',
@@ -80,7 +80,7 @@ export default function UserProfileScreen() {
   const user = USER_DATA; // In real app, fetch based on id
 
   const renderReview = ({ item }) => (
-    <TouchableOpacity
+    <TouchableOpacity activeOpacity={0.7}
       style={styles.reviewCard}
       onPress={() => router.push(`/provider/${item.providerId}`)}
     >
@@ -247,7 +247,7 @@ export default function UserProfileScreen() {
       </ScrollView>
 
       {/* Message Button */}
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.messageButton}
         onPress={() => router.push(`/chat/${user.id}` as any)}
       >

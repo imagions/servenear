@@ -68,7 +68,7 @@ export default function BookingsScreen() {
           serviceId: 's1',
           serviceTitle: 'Plumbing Repair',
           serviceImage:
-            'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg',
+            'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'John Smith',
           date: '2025-07-20',
           time: '10:00 AM',
@@ -80,7 +80,7 @@ export default function BookingsScreen() {
           serviceId: 's2',
           serviceTitle: 'House Cleaning',
           serviceImage:
-            'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg',
+            'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'Maria Garcia',
           date: '2025-07-22',
           time: '2:00 PM',
@@ -92,7 +92,7 @@ export default function BookingsScreen() {
           serviceId: 's3',
           serviceTitle: 'AC Maintenance',
           serviceImage:
-            'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg',
+            'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'Alex Lee',
           date: '2025-07-18',
           time: '4:00 PM',
@@ -104,7 +104,7 @@ export default function BookingsScreen() {
           serviceId: 's4',
           serviceTitle: 'Carpet Cleaning',
           serviceImage:
-            'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg',
+            'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'Sophie Turner',
           date: '2025-07-15',
           time: '11:00 AM',
@@ -116,7 +116,7 @@ export default function BookingsScreen() {
           serviceId: 's5',
           serviceTitle: 'Gardening',
           serviceImage:
-            'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
+            'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'Mike Green',
           date: '2025-07-10',
           time: '9:00 AM',
@@ -128,7 +128,7 @@ export default function BookingsScreen() {
           serviceId: 's6',
           serviceTitle: 'Electrician Visit',
           serviceImage:
-            'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
+            'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg?w=300&auto=compress&cs=tinysrgb',
           providerName: 'Priya Patel',
           date: '2025-07-25',
           time: '1:00 PM',
@@ -147,10 +147,9 @@ export default function BookingsScreen() {
     const isRejected = item.status === 'rejected';
 
     return (
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.bookingItem}
         disabled={isProviderMode && isPending}
-        activeOpacity={0.85}
       >
         <View style={styles.bookingRow}>
           <Image
@@ -206,7 +205,7 @@ export default function BookingsScreen() {
         {/* Provider mode: show Accept/Reject for pending requests */}
         {isProviderMode && isPending && (
           <View style={styles.actionRowBottom}>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[styles.actionButtonOutlined, styles.acceptButtonOutlined]}
               onPress={() => handleAccept(item.id)}
             >
@@ -220,7 +219,7 @@ export default function BookingsScreen() {
                 Accept
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={[styles.actionButtonOutlined, styles.rejectButtonOutlined]}
               onPress={() => handleReject(item.id)}
             >
@@ -246,7 +245,7 @@ export default function BookingsScreen() {
       </View>
 
       <View style={styles.tabsContainer}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
           onPress={() => setActiveTab('upcoming')}
         >
@@ -260,7 +259,7 @@ export default function BookingsScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
           onPress={() => setActiveTab('completed')}
         >
@@ -275,7 +274,7 @@ export default function BookingsScreen() {
         </TouchableOpacity>
 
         {isProviderMode ? (
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, activeTab === 'rejected' && styles.activeTab]}
             onPress={() => setActiveTab('rejected')}
           >
@@ -289,7 +288,7 @@ export default function BookingsScreen() {
             </Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]}
             onPress={() => setActiveTab('cancelled')}
           >
@@ -344,7 +343,7 @@ export default function BookingsScreen() {
                 : 'Cancelled bookings will appear here.'}
             </Text>
             {!isProviderMode && activeTab === 'upcoming' && (
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 style={styles.exploreButton}
                 onPress={() => router.push('/explore')}
               >

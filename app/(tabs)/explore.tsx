@@ -80,7 +80,7 @@ const SPECIAL_OFFERS = [
 
 // Update MapExploreButton component
 const MapExploreButton = () => (
-  <TouchableOpacity
+  <TouchableOpacity activeOpacity={0.7}
     style={styles.mapExploreButton}
     onPress={() => router.push('/map')}
   >
@@ -111,7 +111,7 @@ const RecommendedServices = () => {
       </View>
       <View style={styles.recommendedList}>
         {services.slice(0, 3).map((service) => (
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             key={service.id}
             style={styles.recommendedCard}
             onPress={() => router.push(`/service/${service.id}`)}
@@ -156,13 +156,13 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
     <View style={styles.searchHistoryHeader}>
       <Text style={styles.searchHistoryTitle}>Recent Searches</Text>
 
-      <TouchableOpacity onPress={() => onClear(history)}>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => onClear(history)}>
         <Text style={styles.clearAllText}>Clear All</Text>
       </TouchableOpacity>
     </View>
     <View style={styles.searchHistoryList}>
       {history.map((query, index) => (
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           key={index}
           style={styles.searchHistoryItem}
           onPress={() => onSelect(query)}
@@ -173,7 +173,7 @@ const SearchHistory = ({ history, onSelect, onClear }) => (
               {query}
             </Text>
           </View>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             onPress={() => onClear(query)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -326,7 +326,7 @@ export default function ExploreScreen() {
   }, []);
 
   const renderServiceGridItem = ({ item }: { item: ServiceItem }) => (
-    <TouchableOpacity
+    <TouchableOpacity activeOpacity={0.7}
       style={styles.gridItem}
       onPress={() => router.push(`/service/${item.id}`)}
     >
@@ -353,7 +353,7 @@ export default function ExploreScreen() {
   );
 
   const renderServiceListItem = ({ item }: { item: ServiceItem }) => (
-    <TouchableOpacity
+    <TouchableOpacity activeOpacity={0.7}
       style={styles.listItem}
       onPress={() => router.push(`/service/${item.id}`)}
     >
@@ -400,7 +400,7 @@ export default function ExploreScreen() {
         }}
       >
         {data.map((item, index) => (
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             key={index}
             style={styles.trendingItem}
             onPress={() => handleSearch(item.query)}
@@ -438,7 +438,7 @@ export default function ExploreScreen() {
         }}
       >
         {data.map((provider, index) => (
-          <TouchableOpacity key={index} style={styles.providerCard}
+          <TouchableOpacity activeOpacity={0.7} key={index} style={styles.providerCard}
           onPress={() => {
             router.push(`/provider/${provider.id}`);
           }}
@@ -478,7 +478,7 @@ export default function ExploreScreen() {
         contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
       >
         {data.map((offer, index) => (
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             key={index}
             style={styles.offerCard}
             onPress={() => {
@@ -585,12 +585,12 @@ export default function ExploreScreen() {
             onSubmitEditing={handleSearchSubmit}
           />
           {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => handleClearSearch()}>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => handleClearSearch()}>
               <X size={20} color={COLORS.text.body} />
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity onPress={() => setIsFilterModalVisible(true)}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => setIsFilterModalVisible(true)}>
             <MaterialIcons
               name="filter-list"
               size={20}

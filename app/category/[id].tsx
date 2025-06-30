@@ -34,7 +34,7 @@ export default function CategoryScreen() {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Category not found</Text>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButtonLarge}
           onPress={() => router.back()}
         >
@@ -45,7 +45,7 @@ export default function CategoryScreen() {
   }
 
   const renderServiceItem = ({ item }: { item: ServiceItem }) => (
-    <TouchableOpacity
+    <TouchableOpacity activeOpacity={0.7}
       style={styles.serviceCard}
       onPress={() => router.push(`/service/${item.id}`)}
     >
@@ -74,7 +74,7 @@ export default function CategoryScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >

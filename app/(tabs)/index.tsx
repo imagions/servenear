@@ -126,7 +126,7 @@ export default function HomeScreen() {
 
   const renderCategoryItem = useCallback(
     ({ item }: { item: ServiceCategory }) => (
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.categoryItem}
         onPress={() => {
           console.log('Category pressed:', item);
@@ -171,7 +171,7 @@ export default function HomeScreen() {
         : 'Distance N/A';
 
     return (
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.nearbyItem}
         onPress={() => router.push(`/service/${item.id}`)}
       >
@@ -240,13 +240,13 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.headerActions}>
-              <TouchableOpacity onPress={() => router.push('/notifications')}>
+              <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/notifications')}>
                 <Bell size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>8</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 onPress={() => router.push('/voice-help-requests')}
               >
                 <MaterialIcons
@@ -255,7 +255,7 @@ export default function HomeScreen() {
                   color="black"
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/cart')}>
+              <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/cart')}>
                 <ShoppingCart size={24} color={COLORS.text.heading} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>
@@ -303,7 +303,7 @@ export default function HomeScreen() {
           <View style={styles.nearbySection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Near You</Text>
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 onPress={() => router.push('/services?type=nearby')}
               >
                 <Text style={styles.seeAllText}>See All</Text>
@@ -333,7 +333,7 @@ export default function HomeScreen() {
           <View style={styles.trendingSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Trending Now</Text>
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 onPress={() => router.push('/services?type=trending')}
               >
                 <Text style={styles.seeAllText}>See All</Text>
@@ -361,7 +361,7 @@ export default function HomeScreen() {
                 <Text style={styles.bannerText}>
                   Share your skills and earn extra income
                 </Text>
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.7}
                   style={styles.bannerButton}
                   onPress={() => router.push('/add-service')}
                 >
@@ -370,7 +370,7 @@ export default function HomeScreen() {
               </View>
               <Image
                 source={{
-                  uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg',
+                  uri: 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?w=300&auto=compress&cs=tinysrgb',
                 }}
                 style={styles.bannerImage}
               />
@@ -378,8 +378,7 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        <TouchableOpacity
-          activeOpacity={0.9}
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.voiceHelpButton}
           onPress={() => router.push('/ai-assistance')}
         >
@@ -413,7 +412,7 @@ export default function HomeScreen() {
                 coming soon, stay tuned!
               </Text>
             </Text>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={demoModalStyles.button}
               onPress={handleDemoModalClose}
             >

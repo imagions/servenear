@@ -32,7 +32,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg' }} 
+          source={{ uri: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=300&auto=compress&cs=tinysrgb' }} 
           style={styles.headerImage}
         />
         <View style={styles.logoContainer}>
@@ -60,7 +60,7 @@ export default function LoginScreen() {
           </View>
         </View>
         
-        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.continueButton} onPress={handleContinue}>
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
         
@@ -71,29 +71,29 @@ export default function LoginScreen() {
         </View>
         
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={styles.socialButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.socialButton}>
             <MaterialIcons name="email" size={24} color="#4285F4" />
             <Text style={styles.socialButtonText}>Email</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.socialButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.socialButton}>
             <MaterialIcons name="facebook" size={24} color="#4267B2" />
             <Text style={styles.socialButtonText}>Facebook</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.socialButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.socialButton}>
             <MaterialIcons name="login" size={24} color="#000000" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
         </View>
         
-        <TouchableOpacity style={styles.demoButton} onPress={handleDemoLogin}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.demoButton} onPress={handleDemoLogin}>
           <Text style={styles.demoButtonText}>Use Demo Account (1234567890)</Text>
         </TouchableOpacity>
         
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/signup')}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/signup')}>
             <Text style={styles.signupLink}>Sign Up</Text>
           </TouchableOpacity>
         </View>

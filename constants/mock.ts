@@ -16,7 +16,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-1', 
     name: 'Pipe Repair', 
     category_id: 'cat-1',
-    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 50,
     servicesCount: 12
   },
@@ -24,7 +24,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-2', 
     name: 'Drain Cleaning', 
     category_id: 'cat-1',
-    image: 'https://images.pexels.com/photos/5728297/pexels-photo-5728297.jpeg',
+    image: 'https://images.pexels.com/photos/5728297/pexels-photo-5728297.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 60,
     servicesCount: 8
   },
@@ -32,7 +32,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-3', 
     name: 'Fixture Installation', 
     category_id: 'cat-1',
-    image: 'https://images.pexels.com/photos/5570224/pexels-photo-5570224.jpeg',
+    image: 'https://images.pexels.com/photos/5570224/pexels-photo-5570224.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 70,
     servicesCount: 10
   },
@@ -40,7 +40,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-4', 
     name: 'Wiring', 
     category_id: 'cat-2',
-    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 80,
     servicesCount: 15
   },
@@ -48,7 +48,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-5', 
     name: 'Lighting', 
     category_id: 'cat-2',
-    image: 'https://images.pexels.com/photos/5738351/pexels-photo-5738351.jpeg',
+    image: 'https://images.pexels.com/photos/5738351/pexels-photo-5738351.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 55,
     servicesCount: 9
   },
@@ -56,7 +56,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-6', 
     name: 'House Cleaning', 
     category_id: 'cat-3',
-    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 45,
     servicesCount: 14
   },
@@ -64,7 +64,7 @@ export const mockSubcategories: SubCategory[] = [
     id: 'subcat-7', 
     name: 'Carpet Cleaning', 
     category_id: 'cat-3',
-    image: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
+    image: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg?w=300&auto=compress&cs=tinysrgb',
     startingPrice: 65,
     servicesCount: 7
   }
@@ -81,7 +81,7 @@ export const mockServices: ServiceItem[] = [
     lat: 37.7749,
     long: -122.4194,
     rating: 4.8,
-    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb',
     tags: ['emergency', 'plumbing', '24/7'],
     subcategory: 'subcat-1',
     provider: 'provider-1',
@@ -92,7 +92,7 @@ export const mockServices: ServiceItem[] = [
     provider_details: {
       id: 'provider-1',
       name: 'John Smith',
-      profile_image: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+      profile_image: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
       bio: 'Professional plumber with 10+ years experience',
       is_provider: true,
       verified: true,
@@ -113,7 +113,7 @@ export const mockServices: ServiceItem[] = [
     distance: 2.4,
     price: 85,
     fixedPrice: 150,
-    providerImage: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
+    providerImage: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?w=300&auto=compress&cs=tinysrgb',
     availability: {
       days: 'Mon, Tue, Wed, Thu, Fri, Sat, Sun',
       hours: '24/7'
@@ -135,7 +135,7 @@ export const mockServices: ServiceItem[] = [
     lat: 37.7833,
     long: -122.4167,
     rating: 4.9,
-    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg?w=300&auto=compress&cs=tinysrgb',
     tags: ['electrical', 'licensed', 'residential'],
     subcategory: 'subcat-4',
     provider: 'provider-2',
@@ -146,7 +146,7 @@ export const mockServices: ServiceItem[] = [
     provider_details: {
       id: 'provider-2',
       name: 'Sarah Johnson',
-      profile_image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+      profile_image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
       bio: 'Licensed electrician with expertise in residential work',
       is_provider: true,
       verified: true,
@@ -167,7 +167,7 @@ export const mockServices: ServiceItem[] = [
     distance: 3.1,
     price: 95,
     fixedPrice: 200,
-    providerImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+    providerImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
     availability: {
       days: 'Mon, Tue, Wed, Thu, Fri',
       hours: '8:00 AM - 6:00 PM'
@@ -189,7 +189,7 @@ export const mockServices: ServiceItem[] = [
     lat: 37.7883,
     long: -122.4267,
     rating: 4.7,
-    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg?w=300&auto=compress&cs=tinysrgb',
     tags: ['cleaning', 'eco-friendly', 'deep-clean'],
     subcategory: 'subcat-6',
     provider: 'provider-3',
@@ -200,7 +200,7 @@ export const mockServices: ServiceItem[] = [
     provider_details: {
       id: 'provider-3',
       name: 'Maria Garcia',
-      profile_image: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+      profile_image: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=300&auto=compress&cs=tinysrgb',
       bio: 'Professional cleaner specializing in eco-friendly methods',
       is_provider: true,
       verified: true,
@@ -226,7 +226,7 @@ export const mockServices: ServiceItem[] = [
     distance: 1.8,
     price: 40,
     fixedPrice: 120,
-    providerImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+    providerImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=300&auto=compress&cs=tinysrgb',
     availability: {
       days: 'Mon, Wed, Fri',
       hours: '9:00 AM - 5:00 PM'
@@ -249,7 +249,7 @@ export const mockTrendingServices: TrendingService[] = [
     rating: 4.8,
     hourly_price: 85,
     once_price: 150,
-    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb',
     distance: 2.4
   },
   {
@@ -260,7 +260,7 @@ export const mockTrendingServices: TrendingService[] = [
     rating: 4.9,
     hourly_price: 95,
     once_price: 200,
-    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    image: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg?w=300&auto=compress&cs=tinysrgb',
     distance: 3.1
   },
   {
@@ -271,7 +271,7 @@ export const mockTrendingServices: TrendingService[] = [
     rating: 4.7,
     hourly_price: 40,
     once_price: 120,
-    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    image: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg?w=300&auto=compress&cs=tinysrgb',
     distance: 1.8
   }
 ];
@@ -281,7 +281,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-1',
     serviceId: 'service-1',
     serviceTitle: 'Emergency Plumbing Service',
-    serviceImage: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'John Smith',
     date: 'July 25, 2025',
     time: '10:00 AM',
@@ -292,7 +292,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-2',
     serviceId: 'service-3',
     serviceTitle: 'Deep House Cleaning',
-    serviceImage: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Maria Garcia',
     date: 'July 30, 2025',
     time: '1:00 PM',
@@ -303,7 +303,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-3',
     serviceId: 'service-2',
     serviceTitle: 'Residential Electrical Repair',
-    serviceImage: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Sarah Johnson',
     date: 'July 15, 2025',
     time: '3:00 PM',
@@ -314,7 +314,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-4',
     serviceId: 'service-4',
     serviceTitle: 'Carpet Cleaning',
-    serviceImage: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Sophie Turner',
     date: 'July 2, 2025',
     time: '11:00 AM',
@@ -325,7 +325,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-5',
     serviceId: 'service-5',
     serviceTitle: 'Gardening',
-    serviceImage: 'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Mike Green',
     date: 'July 5, 2025',
     time: '9:00 AM',
@@ -336,7 +336,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-6',
     serviceId: 'service-6',
     serviceTitle: 'Electrician Visit',
-    serviceImage: 'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Priya Patel',
     date: 'July 10, 2025',
     time: '1:00 PM',
@@ -347,7 +347,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-7',
     serviceId: 'service-7',
     serviceTitle: 'Tech Support',
-    serviceImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Alex Kim',
     date: 'July 12, 2025',
     time: '3:00 PM',
@@ -358,7 +358,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-8',
     serviceId: 'service-8',
     serviceTitle: 'Tutoring - Math',
-    serviceImage: 'https://images.pexels.com/photos/4145197/pexels-photo-4145197.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/4145197/pexels-photo-4145197.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Linda Lee',
     date: 'July 15, 2025',
     time: '5:00 PM',
@@ -369,7 +369,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-9',
     serviceId: 'service-9',
     serviceTitle: 'Beauty - Haircut',
-    serviceImage: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'Emily Clark',
     date: 'July 18, 2025',
     time: '2:00 PM',
@@ -380,7 +380,7 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-10',
     serviceId: 'service-10',
     serviceTitle: 'Moving Help',
-    serviceImage: 'https://images.pexels.com/photos/7464437/pexels-photo-7464437.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/7464437/pexels-photo-7464437.jpeg?w=300&auto=compress&cs=tinysrgb',
     providerName: 'David Miller',
     date: 'July 20, 2025',
     time: '8:00 AM',
@@ -395,14 +395,14 @@ export const mockReviews: ReviewItem[] = [
     serviceId: 'service-1',
     userId: 'user-1',
     userName: 'Emma Johnson',
-    userImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+    userImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=300&auto=compress&cs=tinysrgb',
     rating: 4.9,
     comment: 'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
     date: 'July 15, 2025',
     photos: [
-      'https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg',
-      'https://images.pexels.com/photos/4239147/pexels-photo-4239147.jpeg',
-      'https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg'
+      'https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/4239147/pexels-photo-4239147.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?w=300&auto=compress&cs=tinysrgb'
     ]
   },
   {
@@ -410,13 +410,13 @@ export const mockReviews: ReviewItem[] = [
     serviceId: 'service-1',
     userId: 'user-2',
     userName: 'Michael Chen',
-    userImage: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
+    userImage: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=300&auto=compress&cs=tinysrgb',
     rating: 4.7,
     comment: 'Great service repairing our dishwasher. Explained everything clearly and did a thorough job.',
     date: 'July 10, 2025',
     photos: [
-      'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
-      'https://images.pexels.com/photos/4239150/pexels-photo-4239150.jpeg'
+      'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg?w=300&auto=compress&cs=tinysrgb',
+      'https://images.pexels.com/photos/4239150/pexels-photo-4239150.jpeg?w=300&auto=compress&cs=tinysrgb'
     ]
   },
   {
@@ -424,7 +424,7 @@ export const mockReviews: ReviewItem[] = [
     serviceId: 'service-2',
     userId: 'user-3',
     userName: 'Lisa Anderson',
-    userImage: 'https://images.pexels.com/photos/1024311/pexels-photo-1024311.jpeg',
+    userImage: 'https://images.pexels.com/photos/1024311/pexels-photo-1024311.jpeg?w=300&auto=compress&cs=tinysrgb',
     rating: 5.0,
     comment: 'Sarah was amazing! She fixed our electrical issue quickly and efficiently. Very knowledgeable and professional.',
     date: 'July 18, 2025',
@@ -435,7 +435,7 @@ export const mockReviews: ReviewItem[] = [
     serviceId: 'service-3',
     userId: 'user-4',
     userName: 'Robert Taylor',
-    userImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+    userImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=300&auto=compress&cs=tinysrgb',
     rating: 4.8,
     comment: 'Maria and her team did an excellent job cleaning our home. They were thorough and paid attention to every detail. Our house has never looked better!',
     date: 'July 12, 2025',

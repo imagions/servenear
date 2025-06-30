@@ -18,7 +18,7 @@ export default function SignupScreen() {
       contentContainerStyle={styles.contentContainer}
     >
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -62,7 +62,7 @@ export default function SignupScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.continueButton}
           onPress={() => router.push('/verify')}
         >
@@ -76,12 +76,12 @@ export default function SignupScreen() {
         </View>
 
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={styles.socialButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.socialButton}>
             <MaterialIcons name="facebook" size={24} color="#4267B2" />
             <Text style={styles.socialButtonText}>Facebook</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.socialButton}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.socialButton}>
             <MaterialIcons name="login" size={24} color="#000000" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
@@ -97,7 +97,7 @@ export default function SignupScreen() {
 
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/login')}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/login')}>
             <Text style={styles.loginLink}>Login</Text>
           </TouchableOpacity>
         </View>

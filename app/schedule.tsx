@@ -95,7 +95,7 @@ export default function ScheduleScreen() {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Service not found</Text>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButtonLarge}
           onPress={() => router.back()}
         >
@@ -161,7 +161,7 @@ export default function ScheduleScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -235,7 +235,7 @@ export default function ScheduleScreen() {
               selectedDate.getDate() === date.getDate() &&
               selectedDate.getMonth() === date.getMonth();
             return (
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 key={index}
                 style={[
                   styles.dateItem,
@@ -273,7 +273,7 @@ export default function ScheduleScreen() {
           {timeSlots.map((time, index) => {
             const isSelected = selectedTime === time;
             return (
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 key={index}
                 style={[styles.timeItem, isSelected && styles.selectedTime]}
                 onPress={() => handleTimeSelect(time)}
@@ -305,7 +305,7 @@ export default function ScheduleScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={[
             styles.confirmButton,
             (!selectedDate || !selectedTime) && styles.disabledButton,

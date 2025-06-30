@@ -50,7 +50,7 @@ export default function PaymentScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFC' }}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -68,7 +68,7 @@ export default function PaymentScreen() {
         </View>
 
         <View style={styles.section}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.optionRow}
             onPress={() => setSelected('upi')}
           >
@@ -85,7 +85,7 @@ export default function PaymentScreen() {
             <Text style={styles.optionText}>UPI / Cards / Wallets</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.optionRow}
             onPress={() => setSelected('netbanking')}
           >
@@ -102,7 +102,7 @@ export default function PaymentScreen() {
             <Text style={styles.optionText}>Netbanking</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={[styles.optionRow, { marginBottom: 0 }]}
             onPress={() => setSelected('paylater')}
           >
@@ -115,7 +115,7 @@ export default function PaymentScreen() {
             <Text style={styles.optionText}>Pay Later</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={{
             backgroundColor: COLORS.accent,
             borderRadius: 16,
@@ -146,7 +146,7 @@ export default function PaymentScreen() {
             <Text style={modalStyles.subtitle}>
               Your booking has been confirmed!
             </Text>
-            <TouchableOpacity style={modalStyles.doneBtn} onPress={handleDone}>
+            <TouchableOpacity activeOpacity={0.7} style={modalStyles.doneBtn} onPress={handleDone}>
               <Text style={modalStyles.doneText}>Done</Text>
             </TouchableOpacity>
           </View>

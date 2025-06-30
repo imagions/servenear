@@ -133,7 +133,7 @@ export function ThemedSnackbar({
       </Text>
 
       {actionLabel && onActionPress && (
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.actionButton}
           onPress={() => {
             onActionPress();

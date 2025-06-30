@@ -23,6 +23,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
+import Markdown from '@ronradtke/react-native-markdown-display';
 
 type Message = {
   id: string;
@@ -195,14 +196,22 @@ export default function AIAssistanceScreen() {
               resizeMode="cover"
             />
           ) : (
-            <Text
-              style={[
-                styles.messageText,
-                isUser ? styles.userMessageText : styles.botMessageText,
-              ]}
+            <Markdown
+              style={
+                isUser
+                  ? {
+                      body: {
+                        ...styles.messageText,
+                        ...styles.userMessageText,
+                      },
+                    }
+                  : {
+                      body: { ...styles.messageText, ...styles.botMessageText },
+                    }
+              }
             >
               {message.content}
-            </Text>
+            </Markdown>
           )}
         </View>
       </View>
@@ -212,7 +221,7 @@ export default function AIAssistanceScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -260,7 +269,7 @@ export default function AIAssistanceScreen() {
               onChangeText={setMessage}
               multiline
             />
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.sendButton}
               onPress={handleSend}
               disabled={!message.trim()}
@@ -272,13 +281,13 @@ export default function AIAssistanceScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton} onPress={pickImage}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.actionButton} onPress={pickImage}>
               <ImageIcon size={20} color={COLORS.accent} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={takePhoto}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.actionButton} onPress={takePhoto}>
               <Camera size={20} color={COLORS.accent} />
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.actionButton}
               onPress={() => router.push('/voice-help-requests')}
             >

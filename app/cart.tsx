@@ -38,7 +38,7 @@ export default function CartScreen() {
     if (item.date && item.time && item.priceType) {
       return (
         <View style={styles.scheduledSlotRow}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             onPress={() => router.push(`/schedule?serviceId=${item.id}`)}
           >
             <View style={styles.scheduledSlotBox}>
@@ -53,7 +53,7 @@ export default function CartScreen() {
       );
     }
     return (
-      <TouchableOpacity
+      <TouchableOpacity activeOpacity={0.7}
         style={styles.selectSlotButton}
         onPress={() => router.push(`/schedule?serviceId=${item.id}`)}
       >
@@ -122,7 +122,7 @@ export default function CartScreen() {
               ₹{displayPrice}
               <Text style={styles.priceUnit}>{priceUnit}</Text>
             </Text>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.removeButton}
               onPress={() => handleRemoveItem(item.id)}
             >
@@ -145,7 +145,7 @@ export default function CartScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity activeOpacity={0.7}
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -172,7 +172,7 @@ export default function CartScreen() {
                 ₹{calculateTotal().toFixed(1)}
               </Text>
             </View>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.7}
               style={styles.footerCheckoutBtn}
               onPress={handleCheckout}
             >
@@ -189,7 +189,7 @@ export default function CartScreen() {
           <Text style={styles.emptyMessage}>
             Looks like you haven't added any services to your cart yet.
           </Text>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.7}
             style={styles.browseButton}
             onPress={() => router.push('/explore')}
           >

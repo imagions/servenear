@@ -172,7 +172,7 @@ export default function TabLayout() {
           options={{
             title: '',
             tabBarIcon: ({ focused }) => (
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.7}
                 style={styles.floatingButton}
                 onPress={() => setShowVoiceModal(true)}
               >
