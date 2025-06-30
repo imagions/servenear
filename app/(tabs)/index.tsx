@@ -59,32 +59,38 @@ export default function HomeScreen() {
     longitude: number;
   } | null>(null);
 
+  // Only fetch data if not already loaded
   useEffect(() => {
     const initData = async () => {
       try {
-        // Add console.log for debugging
-        console.log('Initializing data...');
-
-        await fetchCategories();
-        await fetchTrendingServices();
-        await fetchNearbyServices({
-          latitude: 37.7749,
-          longitude: -122.4194,
-        });
-
-        // Request location permissions and fetch nearby services
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const location = await Location.getCurrentPositionAsync({});
-          setUserLocation({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
-        } else {
-          setUserLocation({
+        if (!categories || categories.length === 0) {
+          await fetchCategories();
+        }
+        if (!trendingServices || trendingServices.length === 0) {
+          await fetchTrendingServices();
+        }
+        if (!nearbyServices || nearbyServices.length === 0) {
+          await fetchNearbyServices({
             latitude: 37.7749,
             longitude: -122.4194,
           });
+        }
+
+        // Request location permissions and fetch nearby services
+        if (!userLocation) {
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status === 'granted') {
+            const location = await Location.getCurrentPositionAsync({});
+            setUserLocation({
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            });
+          } else {
+            setUserLocation({
+              latitude: 37.7749,
+              longitude: -122.4194,
+            });
+          }
         }
       } catch (error) {
         console.warn('Error initializing data:', error);
@@ -92,6 +98,8 @@ export default function HomeScreen() {
     };
 
     initData();
+    // Only run on mount, not on every navigation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -227,7 +235,7 @@ export default function HomeScreen() {
               <Text style={styles.greeting}>Hi {user?.name || 'there'}!</Text>
               <View style={styles.locationRow}>
                 <MapPin size={16} color={COLORS.accent} />
-                <Text style={styles.locationText}>San Francisco, CA</Text>
+                <Text style={styles.locationText}>Patna, India</Text>
               </View>
             </View>
 
@@ -649,7 +657,7 @@ const styles = StyleSheet.create({
   },
   bannerSection: {
     paddingHorizontal: 20,
-    marginBottom: 100,
+    marginBottom: 150,
     marginTop: 20,
   },
   banner: {
@@ -698,7 +706,7 @@ const styles = StyleSheet.create({
   voiceHelpButton: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 60,
+    bottom: 80,
     right: 20,
     borderRadius: 30,
     backgroundColor: COLORS.accent,

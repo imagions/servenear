@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -38,7 +45,7 @@ export default function VerifyScreen() {
 
   const handleVerify = () => {
     const otpValue = otp.join('');
-    
+
     // For demo purposes
     if (otpValue === '2244') {
       login();
@@ -70,6 +77,7 @@ export default function VerifyScreen() {
               value={digit}
               onChangeText={(text) => handleOtpChange(text, index)}
               onKeyPress={(e) => handleKeyPress(e, index)}
+              placeholderTextColor="#9E9E9E"
               keyboardType="number-pad"
               maxLength={1}
               autoFocus={index === 0}
@@ -77,13 +85,14 @@ export default function VerifyScreen() {
           ))}
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.verifyButton, 
-            otp.every(digit => digit !== '') ? {} : styles.disabledButton
-          ]} 
+            styles.verifyButton,
+            otp.every((digit) => digit !== '') ? {} : styles.disabledButton,
+          ]}
           onPress={handleVerify}
-          disabled={otp.some(digit => digit === '')}>
+          disabled={otp.some((digit) => digit === '')}
+        >
           <Text style={styles.verifyButtonText}>Verify</Text>
         </TouchableOpacity>
 
@@ -98,10 +107,13 @@ export default function VerifyScreen() {
           )}
         </View>
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>Back to Login</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.demoContainer}>
           <Text style={styles.demoText}>Demo OTP: 2244</Text>
         </View>

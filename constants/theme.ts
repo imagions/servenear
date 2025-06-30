@@ -1,7 +1,7 @@
 export const COLORS = {
   background: '#F0FCFF',
   surface: '#FFFFFF',
-  accent: '#00CFE8',
+  accent: '#0FC7D4',
   text: {
     heading: '#000000',
     body: '#4A4A4A'

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
-import { Calendar, Clock, Check, X } from 'lucide-react-native';
+import { Calendar, Clock, Check, X, Inbox } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
 import { BookingItem } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -26,18 +26,14 @@ export default function BookingsScreen() {
   // Accept booking handler (for providers)
   const handleAccept = (bookingId: string) => {
     setLocalBookings((prev) =>
-      prev.map((b) =>
-        b.id === bookingId ? { ...b, status: 'upcoming' } : b
-      )
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'upcoming' } : b))
     );
   };
 
   // Reject booking handler (for providers)
   const handleReject = (bookingId: string) => {
     setLocalBookings((prev) =>
-      prev.map((b) =>
-        b.id === bookingId ? { ...b, status: 'rejected' } : b
-      )
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'rejected' } : b))
     );
   };
 
@@ -71,9 +67,10 @@ export default function BookingsScreen() {
           id: 'b1',
           serviceId: 's1',
           serviceTitle: 'Plumbing Repair',
-          serviceImage: 'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/191574/pexels-photo-191574.jpeg',
           providerName: 'John Smith',
-          date: '2024-06-20',
+          date: '2025-07-20',
           time: '10:00 AM',
           price: 120,
           status: 'pending',
@@ -82,9 +79,10 @@ export default function BookingsScreen() {
           id: 'b2',
           serviceId: 's2',
           serviceTitle: 'House Cleaning',
-          serviceImage: 'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg',
           providerName: 'Maria Garcia',
-          date: '2024-06-22',
+          date: '2025-07-22',
           time: '2:00 PM',
           price: 80,
           status: 'upcoming',
@@ -93,9 +91,10 @@ export default function BookingsScreen() {
           id: 'b3',
           serviceId: 's3',
           serviceTitle: 'AC Maintenance',
-          serviceImage: 'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg',
           providerName: 'Alex Lee',
-          date: '2024-06-18',
+          date: '2025-07-18',
           time: '4:00 PM',
           price: 150,
           status: 'completed',
@@ -104,9 +103,10 @@ export default function BookingsScreen() {
           id: 'b4',
           serviceId: 's4',
           serviceTitle: 'Carpet Cleaning',
-          serviceImage: 'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg',
           providerName: 'Sophie Turner',
-          date: '2024-06-15',
+          date: '2025-07-15',
           time: '11:00 AM',
           price: 60,
           status: 'cancelled',
@@ -115,9 +115,10 @@ export default function BookingsScreen() {
           id: 'b5',
           serviceId: 's5',
           serviceTitle: 'Gardening',
-          serviceImage: 'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
           providerName: 'Mike Green',
-          date: '2024-06-10',
+          date: '2025-07-10',
           time: '9:00 AM',
           price: 90,
           status: 'rejected',
@@ -126,9 +127,10 @@ export default function BookingsScreen() {
           id: 'b6',
           serviceId: 's6',
           serviceTitle: 'Electrician Visit',
-          serviceImage: 'https://images.pexels.com/photos/1435183/pexels-photo-1435183.jpeg',
+          serviceImage:
+            'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
           providerName: 'Priya Patel',
-          date: '2024-06-25',
+          date: '2025-07-25',
           time: '1:00 PM',
           price: 110,
           status: 'pending',
@@ -147,82 +149,90 @@ export default function BookingsScreen() {
     return (
       <TouchableOpacity
         style={styles.bookingItem}
-        onPress={() => router.push(`/service/${item.serviceId}`)}
         disabled={isProviderMode && isPending}
+        activeOpacity={0.85}
       >
-        <Image
-          source={{ uri: item.serviceImage }}
-          style={styles.bookingImage}
-        />
+        <View style={styles.bookingRow}>
+          <Image
+            source={{ uri: item.serviceImage }}
+            style={styles.bookingImageSmall}
+          />
 
-        <View style={styles.bookingContent}>
-          <View>
+          <View style={styles.bookingContent}>
             <Text style={styles.bookingTitle}>{item.serviceTitle}</Text>
             <Text style={styles.bookingProvider}>{item.providerName}</Text>
-
             <View style={styles.bookingSchedule}>
               <View style={styles.scheduleItem}>
                 <Calendar size={14} color="#9E9E9E" />
                 <Text style={styles.scheduleText}>{item.date}</Text>
               </View>
-
               <View style={styles.scheduleItem}>
                 <Clock size={14} color="#9E9E9E" />
                 <Text style={styles.scheduleText}>{item.time}</Text>
               </View>
             </View>
-          </View>
-
-          <View style={styles.bookingFooter}>
-            <Text style={styles.bookingPrice}>${item.price}</Text>
-
-            <View
-              style={[
-                styles.bookingStatus,
-                isPending && styles.pendingStatus,
-                isUpcoming && styles.upcomingStatus,
-                isCompleted && styles.completedStatus,
-                isCancelled && styles.cancelledStatus,
-                isRejected && styles.rejectedStatus,
-              ]}
-            >
-              <Text
+            <View style={styles.bookingFooter}>
+              <Text style={styles.bookingPrice}>₹{item.price}</Text>
+              <View
                 style={[
-                  styles.bookingStatusText,
-                  isPending && styles.pendingStatusText,
-                  isUpcoming && styles.upcomingStatusText,
-                  isCompleted && styles.completedStatusText,
-                  isCancelled && styles.cancelledStatusText,
-                  isRejected && styles.rejectedStatusText,
+                  styles.bookingStatus,
+                  isPending && styles.pendingStatus,
+                  isUpcoming && styles.upcomingStatus,
+                  isCompleted && styles.completedStatus,
+                  isCancelled && styles.cancelledStatus,
+                  isRejected && styles.rejectedStatus,
                 ]}
               >
-                {isRejected
-                  ? 'Rejected'
-                  : item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-              </Text>
+                <Text
+                  style={[
+                    styles.bookingStatusText,
+                    isPending && styles.pendingStatusText,
+                    isUpcoming && styles.upcomingStatusText,
+                    isCompleted && styles.completedStatusText,
+                    isCancelled && styles.cancelledStatusText,
+                    isRejected && styles.rejectedStatusText,
+                  ]}
+                >
+                  {isRejected
+                    ? 'Rejected'
+                    : item.status.charAt(0).toUpperCase() +
+                      item.status.slice(1)}
+                </Text>
+              </View>
             </View>
           </View>
-
-          {/* Provider mode: show Accept/Reject for pending requests */}
-          {isProviderMode && isPending && (
-            <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.acceptButton]}
-                onPress={() => handleAccept(item.id)}
-              >
-                <Check size={18} color="white" />
-                <Text style={styles.actionButtonText}>Accept</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.rejectButton]}
-                onPress={() => handleReject(item.id)}
-              >
-                <X size={18} color="white" />
-                <Text style={styles.actionButtonText}>Reject</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
+
+        {/* Provider mode: show Accept/Reject for pending requests */}
+        {isProviderMode && isPending && (
+          <View style={styles.actionRowBottom}>
+            <TouchableOpacity
+              style={[styles.actionButtonOutlined, styles.acceptButtonOutlined]}
+              onPress={() => handleAccept(item.id)}
+            >
+              <Check size={18} color={COLORS.accent} />
+              <Text
+                style={[
+                  styles.actionButtonTextOutlined,
+                  { color: COLORS.accent },
+                ]}
+              >
+                Accept
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButtonOutlined, styles.rejectButtonOutlined]}
+              onPress={() => handleReject(item.id)}
+            >
+              <X size={18} color="#F44336" />
+              <Text
+                style={[styles.actionButtonTextOutlined, { color: '#F44336' }]}
+              >
+                Reject
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </TouchableOpacity>
     );
   };
@@ -304,12 +314,9 @@ export default function BookingsScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Image
-              source={{
-                uri: 'https://images.pexels.com/photos/7173043/pexels-photo-7173043.jpeg',
-              }}
-              style={styles.emptyImage}
-            />
+            <View style={styles.emptyIconCircle}>
+              <Inbox size={40} color={COLORS.accent} />
+            </View>
             <Text style={styles.emptyText}>
               {isProviderMode
                 ? activeTab === 'upcoming'
@@ -331,12 +338,11 @@ export default function BookingsScreen() {
                   ? 'You have not completed any jobs yet'
                   : 'You have not rejected any requests'
                 : activeTab === 'upcoming'
-                ? 'You have no upcoming bookings at the moment'
+                ? 'Book a service to see it here!'
                 : activeTab === 'completed'
-                ? 'You have not completed any bookings yet'
-                : 'You have not cancelled any bookings'}
+                ? 'Complete a booking to see it here!'
+                : 'Cancelled bookings will appear here.'}
             </Text>
-
             {!isProviderMode && activeTab === 'upcoming' && (
               <TouchableOpacity
                 style={styles.exploreButton}
@@ -348,15 +354,6 @@ export default function BookingsScreen() {
           </View>
         }
       />
-
-      {isProviderMode && activeTab === 'upcoming' && (
-        <TouchableOpacity
-          style={styles.toggleAvailabilityButton}
-          onPress={() => router.push('/provider/availability')}
-        >
-          <Text style={styles.toggleAvailabilityText}>Manage Availability</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
@@ -409,20 +406,26 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   bookingItem: {
-    flexDirection: 'row',
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.card,
     marginBottom: 16,
     overflow: 'hidden',
     ...SHADOWS.card,
+    padding: 14,
   },
-  bookingImage: {
-    width: 100,
-    height: '100%',
+  bookingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  bookingImageSmall: {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    marginRight: 14,
+    backgroundColor: '#f2f2f2',
   },
   bookingContent: {
     flex: 1,
-    padding: 12,
     justifyContent: 'space-between',
   },
   bookingTitle: {
@@ -510,12 +513,18 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
+    paddingVertical: 60,
+    paddingHorizontal: 30,
+    backgroundColor: 'transparent',
   },
-  emptyImage: {
-    width: 200,
-    height: '100%',
+  emptyIconCircle: {
+    width: 100,
+    height: 100,
     borderRadius: 100,
+    backgroundColor: `${COLORS.accent}10`,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 18,
   },
   emptyText: {
     fontSize: 18,
@@ -523,14 +532,15 @@ const styles = StyleSheet.create({
     color: COLORS.text.heading,
     marginBottom: 8,
     fontFamily: 'Inter-Bold',
+    textAlign: 'center',
   },
   emptySubText: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.text.body,
     textAlign: 'center',
-    paddingHorizontal: 40,
     marginBottom: 24,
     fontFamily: 'Inter-Regular',
+    opacity: 0.8,
   },
   exploreButton: {
     backgroundColor: COLORS.accent,
@@ -545,10 +555,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
   },
   toggleAvailabilityButton: {
-    position: 'absolute',
-    bottom: 90,
-    left: 20,
-    right: 20,
     backgroundColor: COLORS.accent,
     padding: 16,
     borderRadius: RADIUS.card,
@@ -586,5 +592,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
     fontSize: 15,
+  },
+  actionRowBottom: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 18,
+    justifyContent: 'space-between',
+  },
+  actionButtonOutlined: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 50,
+    paddingVertical: 8,
+    justifyContent: 'center',
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+    marginHorizontal: 2,
+  },
+  acceptButtonOutlined: {
+    borderColor: COLORS.accent,
+  },
+  rejectButtonOutlined: {
+    borderColor: '#F44336',
+  },
+  actionButtonTextOutlined: {
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 15,
+    marginLeft: 8,
   },
 });

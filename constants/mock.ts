@@ -283,7 +283,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Emergency Plumbing Service',
     serviceImage: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg',
     providerName: 'John Smith',
-    date: 'May 25, 2024',
+    date: 'July 25, 2025',
     time: '10:00 AM',
     price: 85,
     status: 'upcoming'
@@ -294,7 +294,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Deep House Cleaning',
     serviceImage: 'https://images.pexels.com/photos/4107108/pexels-photo-4107108.jpeg',
     providerName: 'Maria Garcia',
-    date: 'May 30, 2024',
+    date: 'July 30, 2025',
     time: '1:00 PM',
     price: 120,
     status: 'pending'
@@ -305,7 +305,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Residential Electrical Repair',
     serviceImage: 'https://images.pexels.com/photos/6422293/pexels-photo-6422293.jpeg',
     providerName: 'Sarah Johnson',
-    date: 'May 15, 2024',
+    date: 'July 15, 2025',
     time: '3:00 PM',
     price: 95,
     status: 'completed'
@@ -316,7 +316,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Carpet Cleaning',
     serviceImage: 'https://images.pexels.com/photos/6195306/pexels-photo-6195306.jpeg',
     providerName: 'Sophie Turner',
-    date: 'June 2, 2024',
+    date: 'July 2, 2025',
     time: '11:00 AM',
     price: 60,
     status: 'cancelled'
@@ -327,7 +327,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Gardening',
     serviceImage: 'https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg',
     providerName: 'Mike Green',
-    date: 'June 5, 2024',
+    date: 'July 5, 2025',
     time: '9:00 AM',
     price: 90,
     status: 'rejected'
@@ -336,9 +336,9 @@ export const mockBookings: BookingItem[] = [
     id: 'booking-6',
     serviceId: 'service-6',
     serviceTitle: 'Electrician Visit',
-    serviceImage: 'https://images.pexels.com/photos/1435183/pexels-photo-1435183.jpeg',
+    serviceImage: 'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
     providerName: 'Priya Patel',
-    date: 'June 10, 2024',
+    date: 'July 10, 2025',
     time: '1:00 PM',
     price: 110,
     status: 'pending'
@@ -349,7 +349,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Tech Support',
     serviceImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
     providerName: 'Alex Kim',
-    date: 'June 12, 2024',
+    date: 'July 12, 2025',
     time: '3:00 PM',
     price: 150,
     status: 'upcoming'
@@ -360,7 +360,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Tutoring - Math',
     serviceImage: 'https://images.pexels.com/photos/4145197/pexels-photo-4145197.jpeg',
     providerName: 'Linda Lee',
-    date: 'June 15, 2024',
+    date: 'July 15, 2025',
     time: '5:00 PM',
     price: 70,
     status: 'completed'
@@ -371,7 +371,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Beauty - Haircut',
     serviceImage: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg',
     providerName: 'Emily Clark',
-    date: 'June 18, 2024',
+    date: 'July 18, 2025',
     time: '2:00 PM',
     price: 50,
     status: 'cancelled'
@@ -382,7 +382,7 @@ export const mockBookings: BookingItem[] = [
     serviceTitle: 'Moving Help',
     serviceImage: 'https://images.pexels.com/photos/7464437/pexels-photo-7464437.jpeg',
     providerName: 'David Miller',
-    date: 'June 20, 2024',
+    date: 'July 20, 2025',
     time: '8:00 AM',
     price: 200,
     status: 'pending'
@@ -398,7 +398,7 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
     rating: 4.9,
     comment: 'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
-    date: 'May 15, 2024',
+    date: 'July 15, 2025',
     photos: [
       'https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg',
       'https://images.pexels.com/photos/4239147/pexels-photo-4239147.jpeg',
@@ -413,7 +413,7 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
     rating: 4.7,
     comment: 'Great service repairing our dishwasher. Explained everything clearly and did a thorough job.',
-    date: 'May 10, 2024',
+    date: 'July 10, 2025',
     photos: [
       'https://images.pexels.com/photos/4239149/pexels-photo-4239149.jpeg',
       'https://images.pexels.com/photos/4239150/pexels-photo-4239150.jpeg'
@@ -427,7 +427,7 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/1024311/pexels-photo-1024311.jpeg',
     rating: 5.0,
     comment: 'Sarah was amazing! She fixed our electrical issue quickly and efficiently. Very knowledgeable and professional.',
-    date: 'May 18, 2024',
+    date: 'July 18, 2025',
     photos: []
   },
   {
@@ -438,7 +438,7 @@ export const mockReviews: ReviewItem[] = [
     userImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
     rating: 4.8,
     comment: 'Maria and her team did an excellent job cleaning our home. They were thorough and paid attention to every detail. Our house has never looked better!',
-    date: 'May 12, 2024',
+    date: 'July 12, 2025',
     photos: []
   }
 ];

@@ -154,7 +154,7 @@ export default function RootLayout() {
               <Stack.Screen name="cart" />
               <Stack.Screen name="schedule" />
             </Stack>
-            <StatusBar style="auto" />
+            <StatusBar style="dark" />
           </GestureHandlerRootView>
         </TabBarProvider>
       </SnackbarProvider>

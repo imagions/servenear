@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -127,7 +126,6 @@ export default function FilterModal({
 
   return (
     <>
-      <StatusBar style="light" />
       {visible && (
         <BottomSheet
           ref={bottomSheetRef}

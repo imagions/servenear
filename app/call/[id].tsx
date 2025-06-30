@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Vibration,
   Platform,
+  Image,
 } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -26,6 +27,7 @@ export default function CallScreen() {
 
   const params = useLocalSearchParams();
   const providerName = params.name || 'Unknown Provider';
+  const providerImage = params.providerImage || '';
 
   useEffect(() => {
     // Start ripple animations - don't stop them here
@@ -178,16 +180,20 @@ export default function CallScreen() {
             ))}
 
             {/* Avatar */}
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {providerName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase()
-                  .slice(0, 2)}
-              </Text>
-            </View>
+            {providerImage ? (
+              <Image source={{ uri: providerImage }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {providerName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Call Info */}

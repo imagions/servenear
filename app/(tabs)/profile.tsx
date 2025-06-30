@@ -128,14 +128,14 @@ export default function ProfileScreen() {
             source={{
               uri:
                 user?.avatar ||
-                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+                'https://npibtopuvjbftkstecht.supabase.co/storage/v1/object/public/service-images//logo.jpg',
             }}
             style={styles.profileImage}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user?.name || 'John Doe'}</Text>
+            <Text style={styles.profileName}>{user?.name || 'ServeNear'}</Text>
             <Text style={styles.profileEmail}>
-              {user?.email || 'john.doe@example.com'}
+              {user?.email || 'support@servenear.ai'}
             </Text>
 
             <TouchableOpacity style={styles.editProfileButton}>
@@ -267,7 +267,7 @@ export default function ProfileScreen() {
                   />
                   <View>
                     <Text style={styles.raterName}>Emma Johnson</Text>
-                    <Text style={styles.ratingDate}>May 15, 2024</Text>
+                    <Text style={styles.ratingDate}>May 15, 2025</Text>
                   </View>
                   <View style={styles.ratingBadge}>
                     <Star size={12} color="#FFB800" fill="#FFB800" />
@@ -312,8 +312,8 @@ export default function ProfileScreen() {
                 </View>
 
                 <Text style={styles.ratingComment}>
-                  John was extremely professional and fixed our kitchen sink
-                  perfectly. He was on time and very respectful. Would
+                  ServeNear was extremely professional and fixed our kitchen sink
+                  perfectly. They were on time and very respectful. Would
                   definitely hire again!
                 </Text>
               </View>
@@ -328,7 +328,7 @@ export default function ProfileScreen() {
                   />
                   <View>
                     <Text style={styles.raterName}>Michael Chen</Text>
-                    <Text style={styles.ratingDate}>May 10, 2024</Text>
+                    <Text style={styles.ratingDate}>May 10, 2025</Text>
                   </View>
                   <View style={styles.ratingBadge}>
                     <Star size={12} color="#FFB800" fill="#FFB800" />
@@ -390,7 +390,7 @@ export default function ProfileScreen() {
                   />
                   <View>
                     <Text style={styles.raterName}>Sarah Wilson</Text>
-                    <Text style={styles.ratingDate}>May 20, 2024</Text>
+                    <Text style={styles.ratingDate}>May 20, 2025</Text>
                   </View>
                   <View style={styles.ratingBadge}>
                     <UserCheck size={12} color="#4CAF50" />

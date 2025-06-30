@@ -21,6 +21,7 @@ import VoiceRecordModal from '@/components/VoiceRecordModal';
 import { useTabBar } from '@/context/TabBarContext';
 import { supabase } from '@/lib/supabase';
 import * as FileSystem from 'expo-file-system';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function BoltBadge() {
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -59,7 +60,8 @@ function BoltBadge() {
 
 export default function TabLayout() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
-  const { tabBarHeight } = useTabBar();
+  const { tabBarHeight, handleScroll } = useTabBar(); // get handleScroll
+  const insets = useSafeAreaInsets();
 
   const handleVoiceSubmit = async (audioUri) => {
     console.log('audioUri', audioUri);
@@ -122,27 +124,33 @@ export default function TabLayout() {
           tabBarInactiveTintColor: '#A0A0A0',
           tabBarStyle: {
             position: 'absolute',
-            bottom: 0,
             left: 0,
             right: 0,
             borderTopWidth: 0,
             elevation: 0,
-            height: tabBarHeight,
             backgroundColor: 'white',
+            // Hide/show tab bar using translateY
             transform: [
               {
                 translateY: tabBarHeight.interpolate({
-                  inputRange: [0, 49],
-                  outputRange: [49, 0],
+                  inputRange: [0, 50],
+                  outputRange: [90 + insets.bottom, 0],
                 }),
               },
             ],
+            height: 55 + insets.bottom,
+            paddingBottom: insets.bottom,
           },
           tabBarShowLabel: true,
           tabBarLabelStyle: {
             fontSize: 12,
           },
           headerShown: false,
+        }}
+        // Pass handleScroll to all screens as a prop
+        sceneContainerStyle={{
+          // This is not required for scroll, but can be used for background
+          backgroundColor: 'transparent',
         }}
       >
         <Tabs.Screen
@@ -172,7 +180,7 @@ export default function TabLayout() {
               </TouchableOpacity>
             ),
             tabBarIconStyle: {
-              marginTop: -20,
+              marginTop: -16,
             },
           }}
           listeners={{
@@ -211,7 +219,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   boltBadgeImageContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 75,
     left: 16,
     backgroundColor: 'transparent',
     zIndex: 1000,

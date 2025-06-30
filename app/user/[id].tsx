@@ -29,7 +29,7 @@ const USER_DATA = {
   image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
   verified: true,
   memberSince: 'March 2023',
-  location: 'San Francisco, CA',
+  location: 'Patna, India',
   about:
     'Passionate about finding quality service providers and maintaining a sustainable lifestyle. Always looking for eco-friendly solutions for home maintenance.',
   stats: {
@@ -57,7 +57,7 @@ const USER_DATA = {
         'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
       serviceType: 'Plumbing Service',
       rating: 5,
-      date: 'May 15, 2024',
+      date: 'May 15, 2025',
       comment:
         'Excellent service! Fixed our kitchen sink perfectly. Very professional and punctual.',
     },
@@ -68,7 +68,7 @@ const USER_DATA = {
         'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg',
       serviceType: 'House Cleaning',
       rating: 4.8,
-      date: 'May 10, 2024',
+      date: 'May 10, 2025',
       comment:
         'Great attention to detail and very thorough with the cleaning. Would recommend!',
     },

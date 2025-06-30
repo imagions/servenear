@@ -1,15 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+} from 'react-native';
 import { router } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function SignupScreen() {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={24} color={COLORS.text.heading} />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <MaterialIcons
+            name="arrow-back"
+            size={24}
+            color={COLORS.text.heading}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Account</Text>
         <View style={{ width: 24 }} />
@@ -18,10 +35,7 @@ export default function SignupScreen() {
       <View style={styles.formContainer}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your full name"
-          />
+          <TextInput style={styles.input} placeholder="Enter your full name" placeholderTextColor="#9E9E9E" />
         </View>
 
         <View style={styles.inputContainer}>
@@ -29,6 +43,7 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
+            placeholderTextColor="#9E9E9E"
             keyboardType="email-address"
           />
         </View>
@@ -42,11 +57,15 @@ export default function SignupScreen() {
               placeholder="Enter your phone number"
               keyboardType="phone-pad"
               maxLength={10}
+              placeholderTextColor="#9E9E9E"
             />
           </View>
         </View>
 
-        <TouchableOpacity style={styles.continueButton} onPress={() => router.push('/verify')}>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => router.push('/verify')}
+        >
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
 
@@ -61,7 +80,7 @@ export default function SignupScreen() {
             <MaterialIcons name="facebook" size={24} color="#4267B2" />
             <Text style={styles.socialButtonText}>Facebook</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.socialButton}>
             <MaterialIcons name="login" size={24} color="#000000" />
             <Text style={styles.socialButtonText}>Google</Text>

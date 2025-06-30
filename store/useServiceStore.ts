@@ -214,6 +214,7 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
             id,
             name,
             icon,
+            category_id,
             category_details:categories (
               id,
               name,
@@ -414,21 +415,29 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
 
   getSubcategoriesByCategoryId: (categoryId) => {
     const category = get().categories.find(c => c.id === categoryId);
+    // Only return subcategories, not services!
     return category?.subcategories || [];
   },
 
-  getServicesByCategoryId: (categoryId) => {
-    const category = get().getCategoryById(categoryId);
-    if (!category) return [];
+  getServicesByCategoryId: (categoryId: string) => {
+    // Combine all loaded services arrays for offline filtering
+    const allServices = [
+      ...get().services,
+      ...get().trendingServices,
+      ...get().nearbyServices,
+    ];
 
-    return get().services.filter(service =>
-      service.category_details?.name === category.name ||
-      service.subcategory_details?.category_id === categoryId
+    // Defensive: ensure IDs are compared as strings and subcategory_details exists
+    return allServices.filter(
+      (service) =>
+        service.subcategory_details &&
+        String(service.subcategory_details.category_id) === String(categoryId)
     );
   },
 
   addService: async (params: ServiceCreateParams) => {
     try {
+      // Insert the new service and fetch full details in one query
       const { data, error } = await supabase
         .from('services')
         .insert({
@@ -447,14 +456,20 @@ export const useServiceStore = create<ServiceStore>((set, get) => ({
           provider: '55b68d62-d947-44f9-bcf1-78345d0e6f3e',
           active: true
         })
-        .select()
+        .select(
+          '*, provider_details:users(*), subcategory_details:subcategories(*, category_details:categories(*))'
+        )
         .single();
 
       if (error) throw error;
 
-      const transformedService = transformDatabaseService(data);
+      // Use the raw data as the new service (already includes joins)
+      const newService = data;
+
       set(state => ({
-        services: [transformedService, ...state.services]
+        services: [newService, ...state.services],
+        nearbyServices: [newService, ...state.nearbyServices],
+        trendingServices: [newService, ...state.trendingServices],
       }));
 
     } catch (error: any) {

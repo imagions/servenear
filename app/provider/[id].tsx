@@ -39,7 +39,7 @@ const PROVIDER_DATA = {
   rating: 4.8,
   completedJobs: 156,
   experience: 5,
-  location: 'San Francisco, CA',
+  location: 'Patna, India',
   about:
     'Professional plumber with over 5 years of experience specializing in residential and commercial plumbing services. Licensed and insured.',
   skills: [
@@ -61,7 +61,7 @@ const PROVIDER_DATA = {
     weekdays: '8:00 AM - 6:00 PM',
     weekends: '9:00 AM - 4:00 PM',
   },
-  serviceArea: '25 mile radius from San Francisco',
+  serviceArea: '2 mile radius from Patna, India',
   services: [
     {
       category: 'Plumbing',
@@ -119,7 +119,7 @@ const PROVIDER_DATA = {
         verified: true,
       },
       rating: 5,
-      date: 'May 15, 2024',
+      date: 'May 15, 2025',
       service: 'Pipe Repair',
       comment:
         'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
@@ -307,10 +307,11 @@ export default function ProviderProfileScreen() {
               verified: true,
             },
             rating: 5,
-            date: 'May 15, 2024',
+            date: 'May 15, 2025',
             service: 'Consultation',
-            comment:
-              'John was extremely professional and fixed our kitchen sink perfectly. He was on time and very respectful. Would definitely hire again!',
+            //dynamic comment
+
+            comment: `${providerData.name} is very professional service provider. ${providerData.name} provides first class service. Highly recommend him!`,
             photos: [
               'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
               'https://images.pexels.com/photos/1181672/pexels-photo-1181672.jpeg',
@@ -330,7 +331,7 @@ export default function ProviderProfileScreen() {
             verified: true,
           },
           rating: review.rating ?? 5,
-          date: review.date || 'May 15, 2024',
+          date: review.date || 'May 15, 2025',
           service: review.service || 'Consultation',
           comment:
             review.comment ||
@@ -541,7 +542,7 @@ export default function ProviderProfileScreen() {
           <View style={styles.statDivider} />
 
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{provider.ratings.total}</Text>
+            <Text style={styles.statValue}>{provider.experience + 2}</Text>
             <Text style={styles.statLabel}>Reviews</Text>
           </View>
         </View>
@@ -550,10 +551,12 @@ export default function ProviderProfileScreen() {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.primaryButton]}
-            onPress={() => router.push({
-              pathname: `/chat/${provider.id}` as any,
-              params: { name: provider.name, providerImage: provider.image}
-            })}
+            onPress={() =>
+              router.push({
+                pathname: `/chat/${provider.id}` as any,
+                params: { name: provider.name, providerImage: provider.image },
+              })
+            }
           >
             <MessageCircle size={20} color="white" />
             <Text style={styles.primaryButtonText}>Message</Text>
@@ -561,10 +564,12 @@ export default function ProviderProfileScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => router.push({
-              pathname: `/call/${provider.id}` as any,
-              params: { name: provider.name }
-            })}
+            onPress={() =>
+              router.push({
+                pathname: `/call/${provider.id}` as any,
+                params: { name: provider.name, providerImage: provider.image },
+              })
+            }
           >
             <Phone size={20} color={COLORS.accent} />
             <Text style={styles.secondaryButtonText}>Call Now</Text>
@@ -684,7 +689,7 @@ export default function ProviderProfileScreen() {
               <View style={styles.serviceArea}>
                 <MapPin size={20} color={COLORS.text.body} />
                 <Text style={styles.serviceAreaText}>
-                  {provider.serviceArea}
+                  {5 + ' miles radius from ' + provider.location}
                 </Text>
               </View>
             </View>
@@ -767,7 +772,12 @@ export default function ProviderProfileScreen() {
       {/* Chat Button */}
       <TouchableOpacity
         style={styles.chatButton}
-        onPress={() => router.push(`/chat/${provider.id}` as any)}
+        onPress={() => {
+          router.push({
+            pathname: `/chat/${provider.id}` as any,
+            params: { name: provider.name, providerImage: provider.image },
+          });
+        }}
       >
         <MessageCircle size={24} color="white" />
       </TouchableOpacity>

@@ -47,12 +47,13 @@ export default function LoginScreen() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Phone Number</Text>
           <View style={styles.phoneInput}>
-            <Text style={styles.countryCode}>+1</Text>
+            <Text style={styles.countryCode}>+91</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your phone number"
               keyboardType="phone-pad"
               value={phone}
+              placeholderTextColor="#9E9E9E"
               onChangeText={setPhone}
               maxLength={10}
             />

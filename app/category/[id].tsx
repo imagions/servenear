@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,29 +6,29 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-  Pressable,
+  ScrollView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
 import { ArrowLeft, Star, MapPin } from 'lucide-react-native';
 import { useServiceStore } from '@/store/useServiceStore';
-import { SubCategory, ServiceItem } from '@/types';
+import { ServiceItem } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 
 export default function CategoryScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const {
     getCategoryById,
-    getSubcategoriesByCategoryId,
     getServicesByCategoryId,
   } = useServiceStore();
 
   const category = getCategoryById(id as string);
-  const subcategories = getSubcategoriesByCategoryId(id as string);
   const services = getServicesByCategoryId(id as string);
-  const [isGridView, setIsGridView] = useState(true);
+
+
+  console.log(`Category ID: ${category?.id}`);
+  console.log(`Servicesssssss: ${services}`);
 
   if (!category) {
     return (
@@ -44,30 +44,29 @@ export default function CategoryScreen() {
     );
   }
 
-  const renderSubcategoryItem = ({ item }: { item: SubCategory }) => (
+  const renderServiceItem = ({ item }: { item: ServiceItem }) => (
     <TouchableOpacity
-      style={styles.subcategoryCard}
-      onPress={() => {
-        router.push({
-        pathname: '/explore',
-        params: { q: item.name.trim() },
-      });
-      }}
+      style={styles.serviceCard}
+      onPress={() => router.push(`/service/${item.id}`)}
     >
-      <Image source={{ uri: item.image }} style={styles.subcategoryImage} />
-      <View style={styles.subcategoryContent}>
-        <Text style={styles.subcategoryTitle} numberOfLines={2}>
-          {item.name}
+      <Image source={{ uri: item.image }} style={styles.serviceImage} />
+      <View style={styles.serviceContent}>
+        <Text style={styles.serviceTitle} numberOfLines={1}>
+          {item.title}
         </Text>
-        <View style={styles.subcategoryMeta}>
-          <Text style={styles.subcategoryStartingFrom}>Starting from</Text>
-          <Text style={styles.subcategoryPrice}>${item.startingPrice}</Text>
+        <View style={styles.serviceMeta}>
+          <View style={styles.serviceRating}>
+            <Star size={14} color="#FFB800" fill="#FFB800" />
+            <Text style={styles.serviceRatingText}>{item.rating}</Text>
+          </View>
+          <View style={styles.serviceLocation}>
+            <MapPin size={12} color="#9E9E9E" />
+            <Text style={styles.serviceLocationText}>
+              {item.location?.address || 'Patna, Bihar'}
+            </Text>
+          </View>
         </View>
-        <View style={styles.servicesCount}>
-          <Text style={styles.servicesCountText}>
-            {item.servicesCount} services
-          </Text>
-        </View>
+        <Text style={styles.servicePrice}>₹{item.price}/hr</Text>
       </View>
     </TouchableOpacity>
   );
@@ -84,13 +83,16 @@ export default function CategoryScreen() {
         <Text style={styles.headerTitle}>{category.name}</Text>
         <View style={{ width: 40 }} />
       </View>
-
+      <Text style={styles.sectionTitle}>Services</Text>
       <FlatList
-        data={subcategories}
-        renderItem={renderSubcategoryItem}
+        data={services}
+        renderItem={renderServiceItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.subcategoriesList}
+        contentContainerStyle={styles.servicesList}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No services found for this category.</Text>
+        }
       />
     </View>
   );
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
@@ -149,10 +151,20 @@ const styles = StyleSheet.create({
     color: COLORS.text.heading,
     fontFamily: 'Inter-Bold',
   },
-  subcategoriesList: {
-    padding: 16,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text.heading,
+    marginLeft: 20,
+    marginTop: 6,
+    marginBottom: 10,
+    fontFamily: 'Inter-Bold',
   },
-  subcategoryCard: {
+  servicesList: {
+    paddingHorizontal: 16,
+    paddingBottom: 30,
+  },
+  serviceCard: {
     flexDirection: 'row',
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.card,
@@ -160,47 +172,63 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...SHADOWS.card,
   },
-  subcategoryImage: {
-    flex: 0.6,
-    width: 10,
+  serviceImage: {
+    width: 90,
+    height: '100%',
+    borderTopLeftRadius: RADIUS.card,
+    borderBottomLeftRadius: RADIUS.card,
+    backgroundColor: '#f2f2f2',
   },
-  subcategoryContent: {
+  serviceContent: {
     flex: 1,
     padding: 16,
     justifyContent: 'space-between',
   },
-  subcategoryTitle: {
+  serviceTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text.heading,
     marginBottom: 8,
     fontFamily: 'Inter-SemiBold',
   },
-  subcategoryMeta: {
+  serviceMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
+    gap: 12,
   },
-  subcategoryStartingFrom: {
+  serviceRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  serviceRatingText: {
     fontSize: 12,
     color: COLORS.text.body,
-    marginBottom: 2,
+    marginLeft: 4,
     fontFamily: 'Inter-Regular',
   },
-  subcategoryPrice: {
-    fontSize: 18,
+  serviceLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  serviceLocationText: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginLeft: 4,
+    fontFamily: 'Inter-Regular',
+  },
+  servicePrice: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.accent,
     fontFamily: 'Inter-Bold',
   },
-  servicesCount: {
-    backgroundColor: `${COLORS.accent}10`,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  servicesCountText: {
-    fontSize: 12,
-    color: COLORS.accent,
-    fontFamily: 'Inter-Medium',
+  emptyText: {
+    fontSize: 16,
+    color: COLORS.text.body,
+    textAlign: 'center',
+    marginVertical: 20,
+    fontFamily: 'Inter-Regular',
   },
 });

@@ -38,7 +38,7 @@ const MOCK_REQUESTS = [
     transcription:
       'Need an emergency plumber for a leaking pipe in the kitchen.',
     distance: '2.5 km',
-    location: 'San Francisco',
+    location: 'Patna, India',
     status: 'Accepted by 3 providers',
     statusColor: '#4CAF50',
   },
@@ -51,7 +51,7 @@ const MOCK_REQUESTS = [
     timeAgo: '4h ago',
     transcription: 'Looking for an electrician to fix power outlet issues.',
     distance: '1.2 km',
-    location: 'San Francisco',
+    location: 'Patna, India',
     status: 'Successfully completed',
     statusColor: '#2196F3',
   },
@@ -64,7 +64,7 @@ const MOCK_REQUESTS = [
     timeAgo: '6h ago',
     transcription: 'AC not working, need urgent repair service.',
     distance: '3.8 km',
-    location: 'San Francisco',
+    location: 'Patna, India',
     status: 'Everything fixed',
     statusColor: '#4CAF50',
   },
@@ -77,7 +77,7 @@ const MOCK_REQUESTS = [
     timeAgo: '8h ago',
     transcription: 'Need help with moving furniture to new apartment.',
     distance: '4.1 km',
-    location: 'San Francisco',
+    location: 'Patna, India',
     status: 'Processing request',
     statusColor: '#FF9800',
   },
@@ -218,6 +218,20 @@ export default function VoiceHelpRequestsScreen() {
     }
   };
 
+  // Helper to format time ago
+  function timeAgo(dateString: string) {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
+    return date.toLocaleDateString();
+  }
+
   // UI: Card status color logic
   const getStatusColor = (status: string) => {
     if (status?.toLowerCase().includes('processed')) return COLORS.accent;
@@ -259,7 +273,9 @@ export default function VoiceHelpRequestsScreen() {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Clock size={13} color="#9E9E9E" />
-            <Text style={styles.timeAgo}>{item.timeAgo || 'Just now'}</Text>
+            <Text style={styles.timeAgo}>
+              {timeAgo(item.created_at)}
+            </Text>
           </View>
         </View>
         <TouchableOpacity
@@ -490,7 +506,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   statusBtn: {
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 8,
     paddingHorizontal: 0,

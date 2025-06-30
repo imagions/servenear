@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,9 +24,17 @@ import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 
+type Message = {
+  id: string;
+  type: 'user' | 'bot';
+  content: any;
+  timestamp: Date;
+  messageType?: 'image';
+};
+
 export default function AIAssistanceScreen() {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
@@ -35,12 +43,50 @@ export default function AIAssistanceScreen() {
       timestamp: new Date(),
     },
   ]);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) return;
+
+      const chatMsgs: Message[] = [];
+      data.forEach((row) => {
+        if (row.message) {
+          chatMsgs.push({
+            id: `user-${row.id}`,
+            type: 'user',
+            content: row.message,
+            timestamp: new Date(row.created_at),
+          });
+        }
+        if (row.reply) {
+          chatMsgs.push({
+            id: `bot-${row.id}`,
+            type: 'bot',
+            content: row.reply,
+            timestamp: new Date(row.created_at),
+          });
+        }
+      });
+
+      setMessages((prev) => {
+        const welcome = prev[0];
+        return [welcome, ...chatMsgs];
+      });
+    };
+
+    fetchMessages();
+  }, []);
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    // Add user message
     const userMessage = {
       id: Date.now().toString(),
       type: 'user',
@@ -51,21 +97,38 @@ export default function AIAssistanceScreen() {
     setMessages((prev) => [...prev, userMessage]);
     setMessage('');
 
-    const resp = await supabase.functions.invoke('message', {
-      body: JSON.stringify({ message: message, user_id: 'user_id' }),
-    });
+    setIsBotTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      const resp = await supabase.functions.invoke('message', {
+        body: JSON.stringify({ message: message, user_id: 'user_id' }),
+      });
+
+      const botReply =
+        resp?.data?.message ||
+        resp?.data ||
+        "Sorry, I couldn't understand your request.";
+
       const botMessage = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content:
-          "I'll help you find the best service providers based on your requirements. Could you please specify what type of service you're looking for?",
+        content: botReply,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 2).toString(),
+          type: 'bot',
+          content: 'Sorry, there was a problem getting a response.',
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setIsBotTyping(false);
+    }
   };
 
   const pickImage = async () => {
@@ -75,7 +138,6 @@ export default function AIAssistanceScreen() {
     });
 
     if (!result.canceled) {
-      // Handle the selected image
       const imageMessage = {
         id: Date.now().toString(),
         type: 'user',
@@ -93,7 +155,6 @@ export default function AIAssistanceScreen() {
     });
 
     if (!result.canceled) {
-      // Handle the captured photo
       const imageMessage = {
         id: Date.now().toString(),
         type: 'user',
@@ -177,6 +238,16 @@ export default function AIAssistanceScreen() {
           {messages.map((msg) => (
             <View key={msg.id}>{renderMessage(msg)}</View>
           ))}
+          {isBotTyping && (
+            <View style={[styles.messageContainer, styles.botMessage]}>
+              <View style={styles.botAvatar}>
+                <Bot size={20} color={COLORS.accent} />
+              </View>
+              <View style={[styles.messageBubble, styles.botBubble]}>
+                <Text style={styles.botMessageText}>Typing...</Text>
+              </View>
+            </View>
+          )}
         </ScrollView>
 
         <View style={styles.inputContainer}>
@@ -184,6 +255,7 @@ export default function AIAssistanceScreen() {
             <TextInput
               style={styles.input}
               placeholder="Type your message..."
+              placeholderTextColor="#B0B0B0"
               value={message}
               onChangeText={setMessage}
               multiline
@@ -229,7 +301,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   backButton: {
     width: 40,
@@ -332,12 +404,12 @@ const styles = StyleSheet.create({
   sendButton: {
     position: 'absolute',
     right: 8,
-    bottom: 8,
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   actionButtons: {
     flexDirection: 'row',

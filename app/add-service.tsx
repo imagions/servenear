@@ -20,6 +20,7 @@ import { useServiceStore } from '@/store/useServiceStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { supabase } from '@/lib/supabase';
 
 export default function AddServiceScreen() {
   const {
@@ -42,7 +43,7 @@ export default function AddServiceScreen() {
   const [location, setLocation] = useState({
     latitude: 37.7749,
     longitude: -122.4194,
-    address: 'San Francisco, CA',
+    address: 'Patna, India',
   });
 
   const [availableDays, setAvailableDays] = useState({
@@ -188,7 +189,7 @@ export default function AddServiceScreen() {
     setTagList(tagList.filter((t) => t !== tag));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim()) {
       Alert.alert('Hey!', 'Please enter a service title');
       return;
@@ -237,35 +238,39 @@ export default function AddServiceScreen() {
     // Format available hours
     const formattedHours = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
-    // Add service
     // Add tags from input if not empty
     let finalTags = tagList;
     if (tags.trim() && !tagList.includes(tags.trim())) {
       finalTags = [...tagList, tags.trim()];
     }
-    addService({
-      title,
-      description,
-      category,
-      subcategory: subcategory?.id,
-      tags: finalTags,
-      hourly_price: parseFloat(hourlyRate),
-      once_price: parseFloat(oneTimePrice),
-      duration: parseFloat(duration),
-      service_area: parseFloat(serviceArea),
-      availability: {
-        days,
-        hours: formattedHours,
-      },
-      image: imageUri,
-      certificate: certificateUri,
-      terms_and_conditions: terms,
-      location,
-    });
 
-    Alert.alert('Success', 'Your service has been created successfully!', [
-      { text: 'OK', onPress: () => router.back() },
-    ]);
+    try {
+      await addService({
+        title,
+        description,
+        category,
+        subcategory: subcategory?.id,
+        tags: finalTags,
+        hourly_price: parseFloat(hourlyRate),
+        once_price: parseFloat(oneTimePrice),
+        duration: parseFloat(duration),
+        service_area: parseFloat(serviceArea),
+        availability: {
+          days,
+          hours: formattedHours,
+        },
+        image: imageUri,
+        certificate: certificateUri,
+        terms_and_conditions: terms,
+        location,
+      });
+
+      Alert.alert('Success', 'Your service has been created successfully!', [
+        { text: 'OK', onPress: () => router.push('/') },
+      ]);
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to add service');
+    }
   };
 
   return (
@@ -284,6 +289,7 @@ export default function AddServiceScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.imageContainer}>
           {imageUri ? (
@@ -335,6 +341,7 @@ export default function AddServiceScreen() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Service Title</Text>
             <TextInput
+              placeholderTextColor="#B0B0B0"
               style={styles.input}
               placeholder="e.g. Plumbing Service"
               value={title}
@@ -346,6 +353,7 @@ export default function AddServiceScreen() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Description</Text>
             <TextInput
+              placeholderTextColor="#B0B0B0"
               style={[styles.input, styles.textArea]}
               placeholder="Describe your service in detail..."
               value={description}
@@ -381,7 +389,10 @@ export default function AddServiceScreen() {
                 onPress={() => setCategoryModalVisible(false)}
               >
                 <View style={styles.dropdownModal}>
-                  <ScrollView showsVerticalScrollIndicator={false}>
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  >
                     {categories.map((cat) => (
                       <TouchableOpacity
                         key={cat.id}
@@ -443,7 +454,10 @@ export default function AddServiceScreen() {
                   onPress={() => setSubcategoryModalVisible(false)}
                 >
                   <View style={styles.dropdownModal}>
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView
+                      showsVerticalScrollIndicator={false}
+                      keyboardShouldPersistTaps="handled"
+                    >
                       {subcategories
                         .filter((sub) => {
                           const cat = categories.find(
@@ -484,6 +498,7 @@ export default function AddServiceScreen() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Tags (comma separated)</Text>
             <ScrollView
+              keyboardShouldPersistTaps="handled"
               horizontal={true}
               contentContainerStyle={{
                 flexDirection: 'row',
@@ -505,6 +520,7 @@ export default function AddServiceScreen() {
               ))}
             </ScrollView>
             <TextInput
+              placeholderTextColor="#B0B0B0"
               style={styles.input}
               placeholder="e.g. plumbing, repair, emergency"
               value={tags}
@@ -522,6 +538,7 @@ export default function AddServiceScreen() {
             <View style={styles.priceInputContainer}>
               <Text style={styles.currencySymbol}>₹</Text>
               <TextInput
+                placeholderTextColor="#B0B0B0"
                 style={styles.priceInput}
                 placeholder="0.00"
                 value={hourlyRate}
@@ -537,6 +554,7 @@ export default function AddServiceScreen() {
             <View style={styles.priceInputContainer}>
               <Text style={styles.currencySymbol}>₹</Text>
               <TextInput
+                placeholderTextColor="#B0B0B0"
                 style={styles.priceInput}
                 placeholder="0.00"
                 value={oneTimePrice}
@@ -550,6 +568,7 @@ export default function AddServiceScreen() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Duration (hours)</Text>
             <TextInput
+              placeholderTextColor="#B0B0B0"
               style={styles.input}
               placeholder="e.g. 2"
               value={duration}
@@ -562,6 +581,7 @@ export default function AddServiceScreen() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Service Area Radius (km)</Text>
             <TextInput
+              placeholderTextColor="#B0B0B0"
               style={styles.input}
               placeholder="e.g. 10"
               value={serviceArea}
@@ -692,6 +712,7 @@ export default function AddServiceScreen() {
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Terms and Conditions</Text>
           <TextInput
+            placeholderTextColor="#B0B0B0"
             style={[styles.input, styles.textArea]}
             placeholder="Enter terms and conditions for your service..."
             value={terms}
@@ -720,9 +741,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 40,
+    paddingTop: 45,
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 12,
   },
   backButton: {
     width: 40,

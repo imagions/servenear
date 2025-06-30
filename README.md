@@ -188,11 +188,6 @@ MIT License - see LICENSE file for details
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📞 Support
-
-- **Website**: [https://servenear.entri.app](https://servenear.entri.app)
-- **Email**: support@servenear.entri.app
-- **Issues**: Create an issue on GitHub
 
 ## 🔄 Version History
 

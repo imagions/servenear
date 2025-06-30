@@ -9,6 +9,10 @@ import {
   Image,
   Platform,
   Animated,
+  KeyboardAvoidingView,
+  Keyboard,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { COLORS, SHADOWS, RADIUS } from '@/constants/theme';
@@ -51,6 +55,7 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [galleryModalVisible, setGalleryModalVisible] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const recordingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const attachmentsAnimation = useRef(new Animated.Value(0)).current;
@@ -64,6 +69,19 @@ export default function ChatScreen() {
       if (recordingTimer.current) {
         clearInterval(recordingTimer.current);
       }
+    };
+  }, []);
+
+  // Keyboard handling for scroll-to-bottom
+  useEffect(() => {
+    const keyboardDidShow = () => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    };
+    const showSub = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+    return () => {
+      showSub.remove();
     };
   }, []);
 
@@ -113,6 +131,7 @@ export default function ChatScreen() {
   };
 
   const handleImagePick = async (useCamera: boolean) => {
+    setGalleryModalVisible(false);
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.7,
@@ -132,125 +151,140 @@ export default function ChatScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color={COLORS.text.heading} />
-        </TouchableOpacity>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: 'COLORS.background' }}
+      behavior={'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <ArrowLeft size={24} color={COLORS.text.heading} />
+          </TouchableOpacity>
 
-        <View style={styles.headerTitle}>
-          <Image
-            source={{ uri: providerImage }}
-            style={styles.providerImage}
-          />
-          <View>
-            <Text style={styles.providerName}>{providerName}</Text>
-            <Text style={styles.onlineStatus}>Online</Text>
+          <View style={styles.headerTitle}>
+            <Image
+              source={{ uri: providerImage }}
+              style={styles.providerImage}
+            />
+            <View>
+              <Text style={styles.providerName}>{providerName}</Text>
+              <Text style={styles.onlineStatus}>Online</Text>
+            </View>
+          </View>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.headerButton}>
+              <Video size={20} color={COLORS.text.heading} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerButton} onPress={() => {
+              router.push({
+                pathname: `/call/${params.id}` as any,
+                params: { name: providerName, providerImage: providerImage },
+              });
+            }}>
+              <Phone size={20} color={COLORS.text.heading} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerButton}>
-            <Video size={20} color={COLORS.text.heading} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Phone size={20} color={COLORS.text.heading} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Messages */}
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.messagesContainer}
-        contentContainerStyle={styles.messagesContent}
-      >
-        {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
-        ))}
-      </ScrollView>
-
-      {/* Input Bar */}
-      <View style={styles.inputContainer}>
-        <TouchableOpacity
-          style={styles.attachButton}
-          onPress={toggleAttachments}
+        {/* Messages */}
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
+          keyboardShouldPersistTaps="handled"
         >
-          <Plus size={24} color={COLORS.text.body} />
-        </TouchableOpacity>
+          {messages.map((message) => (
+            <MessageBubble key={message.id} message={message} />
+          ))}
+        </ScrollView>
 
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Type a message..."
-          multiline
-        />
-
-        {inputText ? (
-          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-            <Send size={24} color={COLORS.accent} />
-          </TouchableOpacity>
-        ) : (
+        {/* Input Bar */}
+        <View style={styles.inputContainer}>
           <TouchableOpacity
-            style={styles.micButton}
-            onLongPress={startRecording}
-            onPressOut={stopRecording}
+            style={styles.attachButton}
+            onPress={() => setGalleryModalVisible(true)}
           >
-            <Mic size={24} color={isRecording ? 'red' : COLORS.accent} />
-            {isRecording && (
-              <Text style={styles.recordingTime}>{recordingDuration}s</Text>
-            )}
+            <Plus size={24} color={COLORS.text.body} />
           </TouchableOpacity>
-        )}
-      </View>
 
-      {/* Attachments Sheet */}
-      {showAttachments && (
-        <Animated.View
-          style={[
-            styles.attachmentsContainer,
-            {
-              transform: [
-                {
-                  translateY: attachmentsAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [200, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
+          <TextInput
+            style={styles.input}
+            value={inputText}
+            placeholderTextColor="#9E9E9E"
+            onChangeText={setInputText}
+            placeholder="Type a message..."
+            multiline
+          />
+
+          {inputText ? (
+            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+              <Send size={24} color={COLORS.accent} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.micButton}
+              onLongPress={startRecording}
+              onPressOut={stopRecording}
+            >
+              <Mic size={24} color={isRecording ? 'red' : COLORS.accent} />
+              {isRecording && (
+                <Text style={styles.recordingTime}>{recordingDuration}s</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Gallery Modal */}
+        <Modal
+          visible={galleryModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setGalleryModalVisible(false)}
         >
-          <View style={styles.attachmentOptions}>
-            <TouchableOpacity
-              style={styles.attachmentOption}
-              onPress={() => handleImagePick(true)}
-            >
-              <Camera size={24} color={COLORS.accent} />
-              <Text style={styles.attachmentLabel}>Camera</Text>
-            </TouchableOpacity>
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setGalleryModalVisible(false)}
+          >
+            <View style={styles.attachmentsContainerModal}>
+              <View style={styles.attachmentOptions}>
+                <TouchableOpacity
+                  style={styles.attachmentOption}
+                  onPress={() => {
+                    setGalleryModalVisible(false);
+                    handleImagePick(true);
+                  }}
+                >
+                  <Camera size={24} color={COLORS.accent} />
+                  <Text style={styles.attachmentLabel}>Camera</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.attachmentOption}
-              onPress={() => handleImagePick(false)}
-            >
-              <ImageIcon size={24} color={COLORS.accent} />
-              <Text style={styles.attachmentLabel}>Gallery</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.attachmentOption}
+                  onPress={() => {
+                    setGalleryModalVisible(false);
+                    handleImagePick(false);
+                  }}
+                >
+                  <ImageIcon size={24} color={COLORS.accent} />
+                  <Text style={styles.attachmentLabel}>Gallery</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.attachmentOption}
-              onPress={handleLocationShare}
-            >
-              <MapPin size={24} color={COLORS.accent} />
-              <Text style={styles.attachmentLabel}>Location</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      )}
-    </View>
+                <TouchableOpacity
+                  style={styles.attachmentOption}
+                  onPress={handleLocationShare}
+                >
+                  <MapPin size={24} color={COLORS.accent} />
+                  <Text style={styles.attachmentLabel}>Location</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Pressable>
+        </Modal>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -263,7 +297,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 40,
+    paddingTop: 45,
     paddingHorizontal: 16,
     paddingBottom: 12,
     backgroundColor: COLORS.surface,
@@ -370,6 +404,18 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: COLORS.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    ...SHADOWS.card,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    justifyContent: 'flex-end',
+  },
+  attachmentsContainerModal: {
     backgroundColor: COLORS.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

@@ -45,7 +45,7 @@ const TRENDING_SEARCHES = [
     count: '1.2k',
     color: '#45B7D1',
   },
-  { icon: 'car-repair', query: 'Car Service', count: '950', color: '#96CEB4' },
+  { icon: 'ac-unit', query: 'AC Repair', count: '800', color: '#A18CD1' },
 ];
 
 const SPECIAL_OFFERS = [
@@ -53,7 +53,7 @@ const SPECIAL_OFFERS = [
     id: '1',
     discount: '20% OFF',
     title: 'On All AC Services',
-    validUntil: 'Valid until June 30',
+    validUntil: 'Valid until July 25',
     gradient: ['#FF6B6B', '#EE5D5D'],
     icon: 'ac-unit',
     key: 'ac',
@@ -62,7 +62,7 @@ const SPECIAL_OFFERS = [
     id: '2',
     discount: '15% OFF',
     title: 'Home Cleaning',
-    validUntil: 'Valid until July 15',
+    validUntil: 'Valid until July 31',
     gradient: ['#4ECDC4', '#45B7D1'],
     icon: 'cleaning-services',
     key: 'cleaning',
@@ -230,9 +230,8 @@ export default function ExploreScreen() {
     const fetchFeaturedProviders = async () => {
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, profile_image, rating, verified, bio, skills, address, experience, total_serves')
+        .select('id, name, profile_image, rating, verified')
         .eq('is_provider', true)
-        .eq('active', true)
         .limit(10);
 
       if (!error && data) {
@@ -243,11 +242,6 @@ export default function ExploreScreen() {
             image: user.profile_image,
             rating: user.rating,
             verified: user.verified,
-            bio: user.bio,
-            skills: user.skills,
-            address: user.address,
-            experience: user.experience,
-            total_serves: user.total_serves,
           }))
         );
       }
@@ -444,7 +438,11 @@ export default function ExploreScreen() {
         }}
       >
         {data.map((provider, index) => (
-          <TouchableOpacity key={index} style={styles.providerCard} onPress={() => router.push(`/provider/${provider.id}`)}>
+          <TouchableOpacity key={index} style={styles.providerCard}
+          onPress={() => {
+            router.push(`/provider/${provider.id}`);
+          }}
+          >
             <Image
               source={{ uri: provider.image }}
               style={[styles.providerImage]}
@@ -462,31 +460,8 @@ export default function ExploreScreen() {
               </View>
               <View style={styles.providerRating}>
                 <Star size={12} color="#FFB800" fill="#FFB800" />
-                <Text style={styles.providerRatingText}>
-                  {provider.rating ? provider.rating.toFixed(1) : '—'}
-                </Text>
+                <Text style={styles.providerRatingText}>{provider.rating}</Text>
               </View>
-              {/* Show bio, skills, experience, total_serves if available */}
-              {provider.bio ? (
-                <Text style={{ fontSize: 11, color: COLORS.text.body }} numberOfLines={2}>
-                  {provider.bio}
-                </Text>
-              ) : null}
-              {provider.skills && provider.skills.length > 0 ? (
-                <Text style={{ fontSize: 11, color: COLORS.accent }} numberOfLines={1}>
-                  {provider.skills.join(', ')}
-                </Text>
-              ) : null}
-              {typeof provider.experience === 'number' && provider.experience > 0 ? (
-                <Text style={{ fontSize: 11, color: COLORS.text.body }}>
-                  {provider.experience} yrs exp
-                </Text>
-              ) : null}
-              {typeof provider.total_serves === 'number' && provider.total_serves > 0 ? (
-                <Text style={{ fontSize: 11, color: COLORS.text.body }}>
-                  {provider.total_serves} jobs
-                </Text>
-              ) : null}
             </View>
           </TouchableOpacity>
         ))}
@@ -683,7 +658,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 40,
+    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },

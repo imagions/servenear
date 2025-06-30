@@ -300,6 +300,7 @@ export default function ScheduleScreen() {
           multiline
           numberOfLines={3}
           textAlignVertical="top"
+          placeholderTextColor="#B0B0B0"
         />
       </ScrollView>
 

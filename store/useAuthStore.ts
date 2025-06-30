@@ -37,11 +37,11 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: true,
           user: {
             id: '1',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
+            name: 'ServeNear',
+            email: 'support@servenear.ai',
             phone: '1234567890',
             avatar:
-              'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
+              'https://npibtopuvjbftkstecht.supabase.co/storage/v1/object/public/service-images//logo.jpg',
           },
         }),
 
