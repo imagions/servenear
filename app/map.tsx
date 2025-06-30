@@ -15,6 +15,7 @@ import {
   Dimensions,
   TextInput,
   FlatList,
+  Platform,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, MapType } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -262,8 +263,7 @@ export default function MapScreen() {
               longitudeDelta: 0.0421,
             });
           }
-        } catch (error) {
-        }
+        } catch (error) {}
       }
     };
 
@@ -391,8 +391,7 @@ export default function MapScreen() {
           longitudeDelta: 0.01,
         });
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleServicePress = (service) => {
@@ -578,8 +577,7 @@ export default function MapScreen() {
           }, 600);
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // Debounce user location updates
@@ -639,48 +637,61 @@ export default function MapScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          region={region}
-          mapType={mapType}
-        >
-          {debouncedUserLocation && (
-            <Marker coordinate={debouncedUserLocation} title="You are here">
-              <View style={styles.userMarker}>
-                <View style={styles.userMarkerDot} />
-                <View style={styles.userMarkerRing} />
-              </View>
-            </Marker>
-          )}
+        {Platform.OS !== 'web' ? (
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            region={region}
+            mapType={mapType}
+          >
+            {debouncedUserLocation && (
+              <Marker coordinate={debouncedUserLocation} title="You are here">
+                <View style={styles.userMarker}>
+                  <View style={styles.userMarkerDot} />
+                  <View style={styles.userMarkerRing} />
+                </View>
+              </Marker>
+            )}
 
-          {markers}
+            {markers}
 
-          {debouncedUserLocation && selectedService && (
-            <MapViewDirections
-              origin={debouncedUserLocation}
-              destination={{
-                latitude: selectedService.location.latitude,
-                longitude: selectedService.location.longitude,
-              }}
-              apikey={GOOGLE_MAPS_API_KEY}
-              strokeWidth={3}
-              strokeColor={COLORS.accent}
-              mode="DRIVING"
-              onReady={(result) => {
-                setRouteInfo({
-                  distance: result.distance,
-                  duration: result.duration,
-                });
-                mapRef.current?.fitToCoordinates(result.coordinates, {
-                  edgePadding: { top: 50, right: 50, bottom: 150, left: 50 },
-                  animated: true,
-                });
-              }}
-            />
-          )}
-        </MapView>
+            {debouncedUserLocation && selectedService && (
+              <MapViewDirections
+                origin={debouncedUserLocation}
+                destination={{
+                  latitude: selectedService.location.latitude,
+                  longitude: selectedService.location.longitude,
+                }}
+                apikey={GOOGLE_MAPS_API_KEY}
+                strokeWidth={3}
+                strokeColor={COLORS.accent}
+                mode="DRIVING"
+                onReady={(result) => {
+                  setRouteInfo({
+                    distance: result.distance,
+                    duration: result.duration,
+                  });
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: { top: 50, right: 50, bottom: 150, left: 50 },
+                    animated: true,
+                  });
+                }}
+              />
+            )}
+          </MapView>
+        ) : (
+          <View
+            style={[
+              styles.map,
+              { justifyContent: 'center', alignItems: 'center' },
+            ]}
+          >
+            <Text style={{ color: COLORS.text.body }}>
+              Map not supported on web
+            </Text>
+          </View>
+        )}
 
         {/* Add route info display */}
         {routeInfo && (
