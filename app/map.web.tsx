@@ -1,25 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
-export default function MapWebFallback() {
+export default function WebMapFallback() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Map view is not available on web.</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Map is not supported on web.</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    margin: 16,
-    borderRadius: 8,
-  },
-  text: {
-    color: '#444',
-    fontSize: 16,
-  },
-});

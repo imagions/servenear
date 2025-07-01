@@ -11,7 +11,9 @@
     "deploy": "expo export --platform web --clear && echo 'Build complete! Upload the dist/ folder to your hosting provider.'",
     "deploy:netlify": "expo export --platform web --clear && netlify deploy --prod --dir=dist",
     "deploy:vercel": "expo export --platform web --clear && vercel --prod",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",

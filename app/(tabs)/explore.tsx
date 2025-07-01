@@ -84,7 +84,7 @@ const MapExploreButton = () => (
   <TouchableOpacity
     activeOpacity={0.7}
     style={styles.mapExploreButton}
-    onPress={() => router.push('/map')}
+    onPress={() => router.push('/map' as any)}
   >
     <LinearGradient
       colors={[COLORS.accent + 'FF', COLORS.accent]}
