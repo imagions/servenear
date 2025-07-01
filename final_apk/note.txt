@@ -1,0 +1,6 @@
+Despite multiple attempts, this app is primarily built for mobile (Android) use and is not optimized for web.
+
+Uploaded the final APK for quick testing (no need to rebuild).  
+Download here: https://github.com/imagions/servenear/tree/main/final_apk/servenear-final.apk
+
+Note: This app is entirely built using [Bolt.new](https://bolt.new)
