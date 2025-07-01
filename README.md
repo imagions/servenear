@@ -2,7 +2,9 @@
 
 Connect with trusted local service providers in your area. Find plumbers, electricians, cleaners, and more.
 
-🌐 **Live Demo**: [https://servenear.entri.app](https://servenear.entri.app)
+🌐 **Try Now**: [Downlaod](https://github.com/imagions/servenear/tree/main/final_apk/servenear-final.apk)
+
+⚠️ **Note**: This app is **primarily designed for mobile phones**. While some features may work on web, the best experience is on Android devices.
 
 ## 🚀 Features
 
@@ -13,61 +15,30 @@ Connect with trusted local service providers in your area. Find plumbers, electr
 - **Map Integration**: View service locations and get directions
 - **Voice Requests**: Ask for help using voice commands
 - **Sustainability Tracking**: Monitor environmental impact
-- **Progressive Web App**: Install on mobile devices for app-like experience
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React Native with Expo Router 4.0.17
-- **Framework**: Expo SDK 52.0.30
-- **Navigation**: Expo Router (File-based routing)
+- **Frontend & Backend**: **Bolt.new**
+- **Voice Transcription**: Elevenlabs
+- **Framework**: Expo SDK 53.0.13
 - **Database**: Supabase (PostgreSQL with PostGIS)
 - **Maps**: Google Maps with React Native Maps
 - **Authentication**: Supabase Auth
-- **Styling**: React Native StyleSheet
 - **State Management**: Zustand
+- **Navigation**: Expo Router (File-based routing)
+- **Styling**: React Native StyleSheet
 - **Animations**: React Native Reanimated
 - **Gestures**: React Native Gesture Handler
-
-## 🌐 Deployment
-
-### Production URL
-The app is deployed at: **https://servenear.entri.app**
 
 ### Build Commands
 
 ```bash
-# Development
-npm run dev
+# 🚧 Start development server (iOS & Android)
+npx expo start
 
-# Production build
-npm run build:web:production
-
-# Preview build locally
-npm run preview:web
-
-# Deploy to Netlify
-npm run deploy:netlify
-
-# Deploy to Vercel
-npm run deploy:vercel
+# 📱 Build APK for Android (local build)
+npx expo run:android
 ```
-
-### Hosting Configurations
-
-#### Netlify
-- **Build Command**: `npm run build:web:production`
-- **Publish Directory**: `dist`
-- **Node Version**: 18
-- **SPA Redirects**: Configured for client-side routing
-- **Security Headers**: CSP, XSS protection, frame options
-- **Caching**: Optimized for static assets
-
-#### Vercel
-- **Framework**: None (Custom Expo configuration)
-- **Build Command**: `npm run build:web:production`
-- **Output Directory**: `dist`
-- **Rewrites**: SPA routing support
-- **Environment Variables**: Supabase configuration
 
 ### Environment Variables
 
@@ -78,15 +49,6 @@ EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 ```
-
-## 🔧 Development Setup
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Expo CLI
-- Supabase account
-- Google Maps API key
 
 ### Installation
 
@@ -109,28 +71,27 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key
 ```
 
-4. **Start development server**
-```bash
-npm run dev
-```
 
 ### Database Setup
 
 The app uses Supabase with the following main tables:
-- `users` - User profiles and provider information
-- `categories` - Service categories
-- `subcategories` - Service subcategories
-- `services` - Service listings with location data
+- `users` - Stores user profiles, authentication data, and service provider details
+- `categories` - Defines main service categories (e.g., Plumbing, Electrician)
+- `subcategories` - Further classification of services under each category
+- `services` - Listings posted by providers, including service metadata and geolocation (via PostGIS)
+- `messages` - Chat history between users and the built-in AI assistant
+- `requests` - Voice-based service requests and their transcribed text (via ElevenLabs)
+
 
 ## 📱 Features Overview
 
 ### For Customers
+- Voice-powered service requests
 - Browse local services by category
 - View provider profiles and ratings
 - Book services with flexible scheduling
 - Real-time chat with providers
 - Track service history and sustainability impact
-- Voice-powered service requests
 
 ### For Service Providers
 - Create detailed service listings
@@ -140,19 +101,6 @@ The app uses Supabase with the following main tables:
 - Track earnings and performance
 - Provider mode toggle
 
-## 🗺 API Routes
-
-- `/sitemap.xml` - SEO sitemap for search engines
-- `/robots.txt` - Search engine crawling directives
-- `/manifest.json` - PWA manifest for app installation
-
-## 📊 Performance Features
-
-- **Server-Side Rendering**: Optimized for SEO and performance
-- **Progressive Web App**: Installable on mobile devices
-- **Image Optimization**: Lazy loading and responsive images
-- **Caching Strategy**: Aggressive caching for static assets
-- **Code Splitting**: Optimized bundle sizes
 
 ## 🔒 Security
 
@@ -162,31 +110,10 @@ The app uses Supabase with the following main tables:
 - **Input Validation**: Sanitized user inputs
 - **Authentication**: Secure user sessions
 
-## 📱 Mobile Support
-
-- **Responsive Design**: Works on all screen sizes
-- **Touch Gestures**: Native-like interactions
-- **Offline Support**: Basic functionality without internet
-- **Push Notifications**: Real-time updates (when implemented)
-
-## 🚀 Performance Metrics
-
-- **Lighthouse Score**: 90+ across all categories
-- **First Contentful Paint**: < 2s
-- **Time to Interactive**: < 3s
-- **Bundle Size**: Optimized for fast loading
 
 ## 📄 License
 
 MIT License - see LICENSE file for details
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 
 ## 🔄 Version History
@@ -197,7 +124,6 @@ MIT License - see LICENSE file for details
   - Map integration
   - Real-time chat
   - Voice requests
-  - PWA support
 
 ---
 
